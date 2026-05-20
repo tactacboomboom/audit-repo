@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>anthropic-cookbook — Analyse</title>
+<style>
+  :root {
+    --bg: #1e1e1e;
+    --surface: #252526;
+    --surface2: #2d2d30;
+    --border: #3e3e42;
+    --accent: #007acc;
+    --accent2: #0e639c;
+    --green: #4ec9b0;
+    --yellow: #dcdcaa;
+    --orange: #ce9178;
+    --red: #f44747;
+    --purple: #c586c0;
+    --blue: #9cdcfe;
+    --text: #d4d4d4;
+    --text-dim: #858585;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.55; }
+  .topbar { position: sticky; top: 0; z-index: 10; background: var(--bg);
+    border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex;
+    align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .topbar h1 { font-size: 18px; margin: 0; color: var(--text); font-weight: 600; }
+  .tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tab-btn { background: var(--surface); color: var(--text-dim); border: 1px solid var(--border);
+    padding: 8px 16px; cursor: pointer; font-size: 13px; border-radius: 4px;
+    transition: all 0.15s; font-family: inherit; }
+  .tab-btn:hover { color: var(--text); background: var(--surface2); }
+  .tab-btn.active { color: white; background: var(--accent); border-color: var(--accent); }
+  main { max-width: 1100px; margin: 0 auto; padding: 32px; }
+  .content { display: none; }
+  .content.active { display: block; }
+  h2 { color: var(--blue); border-bottom: 1px solid var(--border); padding-bottom: 8px;
+    margin-top: 40px; font-size: 22px; }
+  h3 { color: var(--yellow); margin-top: 28px; font-size: 17px; }
+  h4 { color: var(--green); font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+  p, li { font-size: 14.5px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 20px; margin: 16px 0; }
+  .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px;
+    font-weight: 600; margin-right: 6px; background: var(--surface2); color: var(--text); }
+  .tag.green  { background: rgba(78,201,176,0.18); color: var(--green); }
+  .tag.yellow { background: rgba(220,220,170,0.18); color: var(--yellow); }
+  .tag.red    { background: rgba(244,71,71,0.18);   color: var(--red); }
+  .tag.blue   { background: rgba(156,220,254,0.18); color: var(--blue); }
+  .tag.purple { background: rgba(197,134,192,0.18); color: var(--purple); }
+  .layer-badge { display: inline-block; background: var(--accent); color: white;
+    padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 700;
+    margin-right: 10px; font-family: "SF Mono", Consolas, monospace; }
+  .alert { padding: 12px 16px; border-radius: 4px; margin: 12px 0; border-left: 4px solid;
+    background: var(--surface); }
+  .alert.ok     { border-color: var(--green);  background: rgba(78,201,176,0.08); }
+  .alert.warn   { border-color: var(--yellow); background: rgba(220,220,170,0.08); }
+  .alert.danger { border-color: var(--red);    background: rgba(244,71,71,0.08); }
+  .invariant-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px dashed var(--border); }
+  .invariant-row:last-child { border-bottom: none; }
+  .invariant-row .label { color: var(--purple); font-weight: 600; min-width: 56px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13.5px; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--surface2); color: var(--blue); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.5px; }
+  pre { background: #0d0d0d; border: 1px solid var(--border); border-radius: 4px;
+    padding: 14px; overflow-x: auto; font-size: 13px; }
+  code { background: #0d0d0d; padding: 2px 6px; border-radius: 3px; font-size: 13px;
+    color: var(--orange); font-family: "SF Mono", Consolas, monospace; }
+  pre code { padding: 0; background: transparent; color: var(--text); }
+  blockquote { border-left: 4px solid var(--purple); padding: 10px 18px; margin: 18px 0;
+    background: rgba(197,134,192,0.06); color: var(--text); font-style: italic; }
+  .pipeline { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 18px 0; }
+  .pipe-node { background: var(--surface); border: 1px solid var(--border); padding: 8px 14px;
+    border-radius: 4px; font-size: 13px; }
+  .pipe-arrow { color: var(--text-dim); }
+  .progress-row { margin: 10px 0; }
+  .progress-row .label { display: flex; justify-content: space-between; font-size: 13px;
+    margin-bottom: 4px; color: var(--text-dim); }
+  .progress-bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .progress-bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); }
+  .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .risk-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 16px; }
+  .risk-card h4 { margin-top: 0; }
+  .use-cases { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .use-case { background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 14px; font-size: 13.5px; }
+  .use-case.yes { border-left: 4px solid var(--green); }
+  .use-case.no  { border-left: 4px solid var(--red); }
+  .scores { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin: 18px 0; }
+  .score-card { background: var(--surface); border: 1px solid var(--border);
+    border-radius: 6px; padding: 16px; text-align: center; }
+  .score-card .value { font-size: 36px; font-weight: 700; color: var(--accent);
+    font-family: "SF Mono", Consolas, monospace; }
+  .score-card .label { color: var(--text-dim); font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-top: 6px; }
+  footer { border-top: 1px solid var(--border); padding: 20px 32px; text-align: center;
+    color: var(--text-dim); font-size: 12px; }
+  @media (max-width: 720px) {
+    .risk-grid, .use-cases, .scores { grid-template-columns: 1fr; }
+    main { padding: 20px; }
+    .topbar { padding: 14px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>📚 anthropic-cookbook — Analyse</h1>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('story', this)">📖 Récit</button>
+    <button class="tab-btn"        onclick="switchTab('fmath', this)">🔬 Fmaths</button>
+    <button class="tab-btn"        onclick="switchTab('install', this)">⚙️ Installation</button>
+    <button class="tab-btn"        onclick="switchTab('verdict', this)">⚖️ Verdict</button>
+  </div>
+</div>
+
+<main>
+
+<!-- =================== TAB STORY =================== -->
+<section id="tab-story" class="content active">
+
+  <h2>📖 Le récit</h2>
+  <p><em>Comment Anthropic met en scène son propre savoir-faire.</em></p>
+
+  <h3>1. Le décor</h3>
+  <p>
+    Imaginez une bibliothèque ouverte sur un campus. À l'entrée, une grande
+    étagère plate : pas d'arborescence labyrinthique, pas de menus à
+    cascade. Cinq rayonnages, cinq promesses — Capabilities, Tool Use,
+    Multimodal, Third-Party, Advanced Techniques. Chaque rayonnage
+    contient des fiches d'une seule page. Une fiche, une idée. Si vous
+    cherchez "comment Claude classe des tickets", vous trouvez
+    <code>capabilities/classification/guide.ipynb</code> — et rien d'autre.
+    Pas de "v2 améliorée", pas de "guide avancé". La fiche, la vraie.
+  </p>
+  <p>
+    Le décor est volontairement plat. La profondeur vit dans le filesystem,
+    pas dans la table des matières. C'est un parti pris pédagogique :
+    l'utilisateur n'a pas à raisonner sur la hiérarchie pour trouver
+    une recette.
+  </p>
+
+  <h3>2. Les règles du jeu</h3>
+  <p>
+    Trois règles tiennent l'édifice :
+  </p>
+  <ul>
+    <li><strong>Un concept par notebook.</strong> Pas deux, pas trois.
+      Si vous voulez expliquer le <em>tool choice</em> et les
+      <em>parallel tools</em>, vous écrivez deux fichiers.</li>
+    <li><strong>Le code reste pur, les métadonnées vivent ailleurs.</strong>
+      Aucun YAML front-matter dans les notebooks. À la place, un
+      <code>registry.yaml</code> central qui catalogue les 70 recettes
+      avec leurs titres, descriptions, tags, auteurs.</li>
+    <li><strong>Pas de modèles datés dans le code.</strong>
+      <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code> —
+      des alias mouvants. La règle vise un objectif : que les recettes
+      vieillissent gracieusement.</li>
+  </ul>
+
+  <blockquote>
+    "Use environment variables for API keys" — règle non-négociable.
+    Aucun secret ne franchit le seuil du commit.
+  </blockquote>
+
+  <h3>3. Le socle immuable</h3>
+  <div class="card">
+    <div class="invariant-row"><span class="label">I1</span>
+      <span>Tout exemple est un <strong>notebook exécutable</strong>.
+      Pas de pseudo-code. Pas de tutoriel HTML.</span></div>
+    <div class="invariant-row"><span class="label">I2</span>
+      <span>Les <strong>secrets</strong> passent par <code>os.environ</code>
+      et un <code>.env.example</code>. Jamais dans le repo.</span></div>
+    <div class="invariant-row"><span class="label">I3</span>
+      <span>Les <strong>modèles</strong> sont référencés par alias
+      non-daté.</span></div>
+    <div class="invariant-row"><span class="label">I4</span>
+      <span>Les <strong>métadonnées</strong> sont externes
+      (<code>registry.yaml</code>, <code>authors.yaml</code>).</span></div>
+    <div class="invariant-row"><span class="label">I5</span>
+      <span>Les <strong>commits</strong> suivent la convention
+      <code>feat/fix/docs/style/refactor/test/chore/ci</code>.</span></div>
+  </div>
+
+  <h3>4. Les leviers de transformation</h3>
+  <p>
+    Trois leviers font évoluer le cookbook sans le casser :
+  </p>
+  <ul>
+    <li><strong>L'ajout de buckets dans <code>registry.yaml</code></strong> —
+      quand une nouvelle famille de patterns émerge (Skills Framework,
+      Managed Agents), un bucket apparaît. Les anciens ne bougent pas.</li>
+    <li><strong>La numérotation des séries pédagogiques</strong> —
+      <code>00_The_one_liner_research_agent.ipynb</code> à
+      <code>06_The_vulnerability_detection_agent.ipynb</code>. La
+      progression est lisible d'un coup d'œil.</li>
+    <li><strong>L'externalisation des prompts</strong> — dans
+      <code>patterns/agents/prompts/</code>, les prompts sont des
+      fichiers séparés, versionnés, diffables.</li>
+  </ul>
+
+  <h3>5. Les points de rupture</h3>
+  <table>
+    <thead><tr><th>Seuil</th><th>Conséquence</th></tr></thead>
+    <tbody>
+      <tr><td>Notebook qui couvre 2 concepts</td>
+          <td>Refusé en review — règle "one concept per notebook"</td></tr>
+      <tr><td>Modèle daté hardcodé</td>
+          <td>Casse la promesse de fraîcheur — alias requis</td></tr>
+      <tr><td>Secret commit</td>
+          <td>Refusé — pre-commit hook + revue manuelle</td></tr>
+      <tr><td>Front-matter YAML dans un .ipynb</td>
+          <td>Pollue le code, conflit avec <code>registry.yaml</code></td></tr>
+      <tr><td>Notebook sans cellule markdown d'intro</td>
+          <td>Échoue le critère pédagogique implicite</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6. Le chemin de moindre résistance</h3>
+  <div class="pipeline">
+    <div class="pipe-node">README plat</div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-node">Bucket (5 sections)</div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-node">Notebook unique</div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-node">Exécution end-to-end</div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-node">Copier le pattern</div>
+  </div>
+  <p>
+    Le happy path est court : un développeur arrive sur le README,
+    repère sa famille de besoin (RAG, tool use, vision…), clique sur
+    une entrée, ouvre le notebook, exécute. Pas d'étape de configuration
+    transverse, pas de framework propriétaire à apprendre. Le coût
+    d'entrée est presque nul.
+  </p>
+
+  <h3>7. L'équilibre du risque</h3>
+  <p>
+    Le cookbook est un actif documentaire à <strong>très faible risque
+    de lock-in</strong> : code MIT, pas de SDK propriétaire imposé,
+    notebooks ré-écrivables hors-Anthropic. Le risque réel se loge
+    ailleurs — dans la <em>dérive de fraîcheur</em> : 70 recettes,
+    nouveaux modèles trimestriels. La discipline des alias non-datés
+    et du registry central est ce qui maintient la cohérence.
+  </p>
+  <p>
+    Pour un utilisateur qui veut <em>cartographier l'architecture
+    Anthropic</em>, ce repo est la pierre de Rosette : sa taxonomie en
+    11 buckets, son découpage en 3 niveaux d'encapsulation
+    (Skills → SDK → Managed), sa convention "un concept par fichier"
+    forment un modèle reproductible sans frais.
+  </p>
+
+</section>
+
+<!-- =================== TAB FMATH =================== -->
+<section id="tab-fmath" class="content">
+
+  <h2>🔬 Analyse fmaths (8 couches)</h2>
+
+  <h3><span class="layer-badge">L0</span>Ontologie</h3>
+  <div class="card">
+    Primitives non-redondantes du cookbook :
+    <ul>
+      <li><strong>Recette</strong> — unité atomique (un notebook).</li>
+      <li><strong>Bucket</strong> — famille de recettes (Capabilities,
+        Tool Use, etc.).</li>
+      <li><strong>Registry</strong> — fichier de métadonnées central
+        (<code>registry.yaml</code>).</li>
+      <li><strong>Convention</strong> — règle de style/naming/commit
+        (<code>CLAUDE.md</code>, <code>CONTRIBUTING.md</code>).</li>
+      <li><strong>Niveau d'encapsulation</strong> — Skills, Agent SDK,
+        Managed Agents.</li>
+      <li><strong>Pattern</strong> — schéma agent réutilisable
+        (Routing, Orchestrator-Workers…).</li>
+      <li><strong>Asset</strong> — donnée d'appui (CSV, JSON, image, prompt).</li>
+    </ul>
+  </div>
+
+  <h3><span class="layer-badge">L1</span>Ensembles & relations</h3>
+  <ul>
+    <li><strong>R</strong> = ensemble des recettes (≈ 70)</li>
+    <li><strong>B</strong> = ensemble des buckets (11)</li>
+    <li><strong>r ∈ R → b ∈ B</strong> : chaque recette appartient à
+      exactement un bucket (partition).</li>
+    <li><strong>Registry</strong> = fonction <em>r → metadata(r)</em>.</li>
+    <li><strong>Encapsulation</strong> = ordre partiel
+      Skills ≼ SDK ≼ Managed (poids opérationnel croissant).</li>
+  </ul>
+
+  <h3><span class="layer-badge">L2</span>Logique & connecteurs</h3>
+  <ul>
+    <li><strong>AND</strong> : un notebook valide ⟺ exécutable
+      <em>ET</em> sans secrets <em>ET</em> alias non-daté
+      <em>ET</em> single-concept.</li>
+    <li><strong>XOR</strong> : un projet d'agent choisit Skills XOR
+      SDK XOR Managed (les trois ne se mélangent pas dans le même
+      runtime).</li>
+    <li><strong>OR</strong> : les patterns d'agents (chaining /
+      routing / parallel / orchestrator / evaluator) sont composables.</li>
+  </ul>
+  <div class="alert warn">
+    <strong>Tension :</strong> la promesse "self-contained notebook"
+    s'oppose à la mutualisation de code (<code>util.py</code>,
+    <code>memory_tool.py</code>). Le repo tranche au cas par cas —
+    utilitaire local si court, fichier .py séparé si réutilisé.
+  </div>
+
+  <h3><span class="layer-badge">L3</span>Invariants</h3>
+  <div class="card">
+    <div class="invariant-row"><span class="label">I1</span>
+      <span>Une recette = un notebook exécutable.</span></div>
+    <div class="invariant-row"><span class="label">I2</span>
+      <span>Aucun secret committé. <code>.env.example</code> +
+        <code>os.environ</code>.</span></div>
+    <div class="invariant-row"><span class="label">I3</span>
+      <span>Alias modèles non-datés (<code>claude-sonnet-4-6</code>).</span></div>
+    <div class="invariant-row"><span class="label">I4</span>
+      <span>Métadonnées hors-notebook (<code>registry.yaml</code>,
+        <code>authors.yaml</code>).</span></div>
+    <div class="invariant-row"><span class="label">I5</span>
+      <span>Conventional commits, branches
+        <code>&lt;user&gt;/&lt;feat&gt;</code>.</span></div>
+    <div class="invariant-row"><span class="label">I6</span>
+      <span>One concept per notebook.</span></div>
+    <div class="invariant-row"><span class="label">I7</span>
+      <span>README plat (5 sections fixes).</span></div>
+  </div>
+
+  <h3><span class="layer-badge">L4</span>Axes de variation</h3>
+  <table>
+    <thead><tr><th>Axe</th><th>Min</th><th>Max</th><th>État actuel</th></tr></thead>
+    <tbody>
+      <tr><td>Nombre de recettes</td><td>1</td><td>∞</td><td>~70</td></tr>
+      <tr><td>Buckets dans registry</td><td>1</td><td>~20</td><td>11</td></tr>
+      <tr><td>Niveaux d'encapsulation</td><td>1</td><td>4+</td><td>3</td></tr>
+      <tr><td>Patterns agents documentés</td><td>0</td><td>~10</td><td>5</td></tr>
+      <tr><td>Beta headers Skills</td><td>0</td><td>n/a</td><td>3</td></tr>
+      <tr><td>Profondeur README</td><td>plat</td><td>profond</td><td>plat (1 niveau)</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="layer-badge">L5</span>Seuils & stabilité</h3>
+  <div class="progress-row"><div class="label">
+    <span>Maturité communauté (43.4k ★)</span><span>95 %</span></div>
+    <div class="progress-bar"><div class="fill" style="width:95%"></div></div></div>
+  <div class="progress-row"><div class="label">
+    <span>Fraîcheur (alias non-datés)</span><span>90 %</span></div>
+    <div class="progress-bar"><div class="fill" style="width:90%"></div></div></div>
+  <div class="progress-row"><div class="label">
+    <span>Couverture buckets API</span><span>85 %</span></div>
+    <div class="progress-bar"><div class="fill" style="width:85%"></div></div></div>
+  <div class="progress-row"><div class="label">
+    <span>Risque de rupture upstream</span><span>15 %</span></div>
+    <div class="progress-bar"><div class="fill" style="width:15%"></div></div></div>
+
+  <h3><span class="layer-badge">L6</span>Catégories & couplages</h3>
+  <table>
+    <thead><tr><th>Couche</th><th>Contenu</th><th>Couplage</th></tr></thead>
+    <tbody>
+      <tr><td>Méta</td><td><code>registry.yaml</code>, <code>authors.yaml</code></td><td>✅ découplé du code</td></tr>
+      <tr><td>Build</td><td><code>pyproject.toml</code>, <code>uv.lock</code>, <code>Makefile</code></td><td>✅ standard hatchling/uv</td></tr>
+      <tr><td>Conventions</td><td><code>CLAUDE.md</code>, <code>CONTRIBUTING.md</code></td><td>✅ humain-lisible</td></tr>
+      <tr><td>Contenu</td><td>11 dossiers thématiques</td><td>⚠️ <code>misc/</code> est un fourre-tout</td></tr>
+      <tr><td>Tests</td><td><code>tests/</code> + <code>nbval</code></td><td>✅ exécution réelle</td></tr>
+      <tr><td>Assets</td><td><code>example_data/</code>, <code>sample_data/</code>, <code>documents/</code>, <code>prompts/</code></td><td>⚠️ nommage hétérogène</td></tr>
+    </tbody>
+  </table>
+
+  <h3><span class="layer-badge">L7</span>Topologie — happy path</h3>
+  <div class="pipeline">
+    <div class="pipe-node">README</div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-node">Section ToC</div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-node">Notebook</div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-node">`.env` local</div>
+    <span class="pipe-arrow">→</span>
+    <div class="pipe-node">Exécution</div>
+  </div>
+  <p><strong>Friction :</strong> les notebooks Skills exigent 3 beta
+  headers et le namespace <code>client.beta.*</code>. Les agents
+  managés exigent un compte CMA actif. Pas insurmontable, mais
+  documenté de manière hétérogène selon le bucket.</p>
+
+  <h3><span class="layer-badge">L8</span>Probabilités</h3>
+  <ul>
+    <li><strong>P(lock-in)</strong> ≈ 0.10 — code MIT, ré-écrivable hors-Anthropic.</li>
+    <li><strong>P(rupture upstream)</strong> ≈ 0.15 — alias modèles
+      protègent, mais les beta headers Skills bougeront.</li>
+    <li><strong>P(adoption pérenne)</strong> ≈ 0.90 — référence officielle,
+      43.4k ★, mise à jour continue.</li>
+    <li><strong>P(obsolescence d'une recette dans 12 mois)</strong> ≈ 0.25 —
+      surtout Skills (beta) et SDK migrations.</li>
+  </ul>
+
+  <h4>Vecteur cognitif — bilan</h4>
+  <div class="card">
+    <div class="invariant-row"><span class="label">Abs</span><span>★★★ — concepts clairs (recette, bucket, pattern).</span></div>
+    <div class="invariant-row"><span class="label">Con</span><span>★★★★★ — tout est notebook exécutable.</span></div>
+    <div class="invariant-row"><span class="label">Aff</span><span>★ — ton neutre, factuel.</span></div>
+    <div class="invariant-row"><span class="label">Nor</span><span>★★★★ — conventions explicites et fermes.</span></div>
+    <div class="invariant-row"><span class="label">Inc</span><span>★★ — peu de "ça dépend", choix tranchés.</span></div>
+    <div class="invariant-row"><span class="label">Alt</span><span>★★★ — accueille contributions externes, third-party intégrés.</span></div>
+    <div class="invariant-row"><span class="label">Coh</span><span>★★★★★ — taxonomie cohérente, naming homogène, peu d'exceptions.</span></div>
+  </div>
+  <div class="alert ok">Vecteur globalement équilibré, légère sous-pondération
+  de l'incertitude — assumée vu la nature "recette" du livrable.</div>
+
+</section>
+
+<!-- =================== TAB INSTALL =================== -->
+<section id="tab-install" class="content">
+
+  <h2>⚙️ Installation</h2>
+  <p>Le repo n'est pas une lib à <em>installer</em> stricto sensu —
+  c'est une collection de notebooks à <em>exécuter</em>. Le setup vise
+  donc à reproduire l'environnement.</p>
+
+  <h3>Prérequis</h3>
+  <table>
+    <thead><tr><th>Outil</th><th>Version</th><th>Vérification</th></tr></thead>
+    <tbody>
+      <tr><td>Python</td><td>&gt;=3.11, &lt;3.13</td><td><code>python --version</code></td></tr>
+      <tr><td>uv</td><td>récent</td><td><code>uv --version</code></td></tr>
+      <tr><td>Git</td><td>2.x</td><td><code>git --version</code></td></tr>
+      <tr><td>Clé API Anthropic</td><td>n/a</td><td>console.anthropic.com</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Option A — Lecture seule (sans clone)</h3>
+  <p>Pour cataloguer les patterns (cas du skill architecture-anthropic),
+  pas besoin de cloner. Lire directement via
+  <code>raw.githubusercontent.com/anthropics/anthropic-cookbook/main/...</code>.</p>
+
+  <h3>Option B — Exécution locale (depuis la source)</h3>
+  <pre><code># 1. Cloner le repo
+git clone https://github.com/anthropics/anthropic-cookbook.git
+cd anthropic-cookbook
+
+# 2. Installer uv si absent
+# Windows PowerShell :
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# 3. Synchroniser les dépendances
+uv sync
+
+# 4. Copier le template d'env
+cp .env.example .env
+
+# 5. Éditer .env et y mettre ANTHROPIC_API_KEY=sk-ant-...
+
+# 6. Lancer Jupyter
+uv run jupyter lab</code></pre>
+
+  <h3>Config minimale (.env)</h3>
+  <pre><code>ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxxx
+# Pour Skills (beta) — uniquement si vous explorez /skills :
+# ANTHROPIC_BETA="code-execution-2025-08-25,files-api-2025-04-14,skills-2025-10-02"</code></pre>
+
+  <h3>Vérification</h3>
+  <pre><code>uv run python -c "import anthropic; print(anthropic.__version__)"
+# attendu : >= 0.77.0
+
+uv run pytest tests/ -v
+# attendu : tests verts (la suite est volontairement légère)</code></pre>
+
+  <h3>Points d'attention Windows</h3>
+  <div class="alert warn">
+    <strong>PowerShell vs bash.</strong> Les notebooks utilisent
+    parfois <code>!command</code> dans les cellules : ces commandes
+    POSIX échouent sur Windows. Préférer WSL2 ou
+    <code>uv run jupyter</code> directement.
+  </div>
+  <div class="alert warn">
+    <strong>Encodage UTF-8.</strong> Les notebooks contiennent des
+    caractères Unicode. Sur Windows, vérifier que la console est en
+    UTF-8 (<code>chcp 65001</code>) avant d'exécuter des scripts liés.
+  </div>
+  <div class="alert warn">
+    <strong>Chemins longs.</strong> Activer
+    <code>LongPathsEnabled=1</code> dans le registre si vous clonez
+    dans un chemin profond, sinon certains assets Skills peuvent
+    poser problème.
+  </div>
+  <div class="alert ok">
+    <strong>Pour le skill architecture-anthropic :</strong> Option A
+    suffit. Pas besoin d'installer l'environnement Python — on
+    cartographie, on n'exécute pas.
+  </div>
+
+</section>
+
+<!-- =================== TAB VERDICT =================== -->
+<section id="tab-verdict" class="content">
+
+  <h2>⚖️ Verdict PM</h2>
+
+  <div class="scores">
+    <div class="score-card"><div class="value">9</div>
+      <div class="label">Pertinence (architecture-anthropic)</div></div>
+    <div class="score-card"><div class="value">9</div>
+      <div class="label">Maturité prod</div></div>
+    <div class="score-card"><div class="value">8</div>
+      <div class="label">Facilité onboarding</div></div>
+  </div>
+
+  <h3>Forces</h3>
+  <table>
+    <thead><tr><th></th><th>Force</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>📐</td><td>Taxonomie canonique</td><td>11 buckets stables, partition propre — référence pour tout skill de catalogue.</td></tr>
+      <tr><td>🧩</td><td>One concept per file</td><td>Règle simple, observable, applicable hors du contexte Python.</td></tr>
+      <tr><td>📦</td><td>Métadonnées externes</td><td><code>registry.yaml</code> + <code>authors.yaml</code> = pattern réutilisable partout.</td></tr>
+      <tr><td>🏗️</td><td>3 niveaux d'encapsulation</td><td>Skills → SDK → Managed : grille de décision exportable.</td></tr>
+      <tr><td>📚</td><td>43.4k ★ + actif</td><td>Référence officielle, maintenance soutenue.</td></tr>
+      <tr><td>🔓</td><td>MIT</td><td>Aucun verrou légal.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Faiblesses / Risques</h3>
+  <table>
+    <thead><tr><th></th><th>Risque</th><th>Impact</th></tr></thead>
+    <tbody>
+      <tr><td>🗂️</td><td><code>misc/</code> fourre-tout</td><td>14 notebooks hétérogènes — moindre lisibilité, taxonomie imparfaite à cet endroit.</td></tr>
+      <tr><td>📛</td><td>Nommage assets hétérogène</td><td><code>example_data</code>, <code>sample_data</code>, <code>documents</code>, <code>prompts</code> — pas de convention unique.</td></tr>
+      <tr><td>🧪</td><td>Beta headers Skills</td><td>Trois headers nécessaires, instables par nature (datés <code>2025-*</code>).</td></tr>
+      <tr><td>⏳</td><td>Dérive de fraîcheur</td><td>70 recettes × 3-4 modèles/an = effort de maintenance non trivial.</td></tr>
+      <tr><td>🪟</td><td>Friction Windows</td><td>Commandes POSIX en cellules notebook, peu de garde-fous explicites.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Matrice use cases</h3>
+  <div class="use-cases">
+    <div class="use-case yes">✅ <strong>Catalogue de référence</strong> pour cartographier l'archi Anthropic.</div>
+    <div class="use-case yes">✅ <strong>Onboarding</strong> d'un dev sur un pattern spécifique (RAG, tool use…).</div>
+    <div class="use-case yes">✅ <strong>Squelette d'organisation</strong> à copier pour un cookbook interne.</div>
+    <div class="use-case yes">✅ <strong>Source primaire</strong> pour un skill méta sur les API Anthropic.</div>
+    <div class="use-case no">❌ <strong>Framework prod</strong> — c'est un cookbook, pas une lib.</div>
+    <div class="use-case no">❌ <strong>Source de code copiable tel quel</strong> — c'est pédagogique, pas hardened.</div>
+    <div class="use-case no">❌ <strong>Single source of truth</strong> sur la <em>doc API</em> — voir <code>docs.claude.com</code>.</div>
+    <div class="use-case no">❌ <strong>Benchmark de perf</strong> — les notebooks visent la pédagogie, pas l'efficience.</div>
+  </div>
+
+  <h3>Roadmap (lecture indirecte)</h3>
+  <table>
+    <thead><tr><th>Feature</th><th>Statut</th><th>Impact</th></tr></thead>
+    <tbody>
+      <tr><td>Skills Framework</td><td>Beta (3 headers)</td><td>Élevé — nouveau bucket entier</td></tr>
+      <tr><td>Claude Managed Agents</td><td>Beta (CMA_*)</td><td>Élevé — 9 notebooks, mémoire/versioning</td></tr>
+      <tr><td>Claude Agent SDK</td><td>Stable (≥0.1.50)</td><td>Élevé — 7 tutoriels structurés</td></tr>
+      <tr><td>Memory tool</td><td>Stable</td><td>Moyen — clé pour long-running</td></tr>
+      <tr><td>Context compaction auto</td><td>Stable</td><td>Moyen — cost & latence</td></tr>
+      <tr><td>Vulnerability detection agent</td><td>Nouveau</td><td>Signal stratégique — sécurité</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Recommandation finale</h3>
+  <div class="card">
+    <p><strong>1. Pourquoi maintenant.</strong> Pour un skill qui prétend
+    cartographier "l'architecture Anthropic officielle", il n'existe pas
+    de meilleure source primaire. La taxonomie en 11 buckets et la
+    grille des 3 niveaux d'encapsulation (Skills / SDK / Managed)
+    sont stables, lisibles, et explicitement promues par Anthropic
+    dans son <code>registry.yaml</code>.</p>
+
+    <p><strong>2. Action recommandée.</strong> Adopter
+    <code>registry.yaml</code> comme nomenclature de référence dans
+    <code>architecture-anthropic</code>. Reprendre les invariants I1–I7
+    comme checklist d'audit perso. Documenter explicitement la grille
+    de décision <em>Skills → SDK → Managed</em>. Re-auditer ce repo
+    tous les ~6 mois ou à chaque nouveau bucket dans <code>registry.yaml</code>.</p>
+  </div>
+
+</section>
+
+</main>
+
+<footer>
+  Analyse fmaths + décodeur narratif · anthropic-cookbook · Généré le 2026-05-20
+  · <a href="https://github.com/anthropics/anthropic-cookbook">GitHub ↗</a>
+</footer>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>

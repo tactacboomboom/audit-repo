@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Repo — 7 audits architecture Claude Code</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: #1e1e1e;
+    color: #d4d4d4;
+    line-height: 1.6;
+    padding: 1.5rem 1rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 { color: #569cd6; font-size: 1.6rem; margin-bottom: 0.3rem; }
+  .subtitle { color: #858585; font-size: 0.95rem; margin-bottom: 2rem; }
+  .meta { color: #6a9955; font-size: 0.85rem; margin-bottom: 1.5rem; }
+  .card {
+    background: #252526;
+    border: 1px solid #3e3e42;
+    border-radius: 8px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .card h2 { color: #ce9178; font-size: 1.15rem; margin-bottom: 0.4rem; }
+  .card .repo-url {
+    font-size: 0.85rem;
+    font-family: "Consolas", monospace;
+    margin-bottom: 0.6rem;
+    word-break: break-all;
+  }
+  .card .repo-url a { color: #9cdcfe; text-decoration: none; }
+  .card .verdict {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.6rem;
+  }
+  .verdict.haut { background: #1e3a5f; color: #4fc3f7; }
+  .verdict.moyen { background: #5f4a1e; color: #ffb74d; }
+  .card .summary { color: #cccccc; font-size: 0.95rem; margin-bottom: 0.8rem; }
+  .card .links { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .card .links a {
+    background: #0e639c;
+    color: #fff;
+    text-decoration: none;
+    padding: 0.35rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.85rem;
+  }
+  .card .links a.secondary { background: #3e3e42; }
+  footer {
+    margin-top: 3rem;
+    color: #6a6a6a;
+    font-size: 0.8rem;
+    text-align: center;
+    border-top: 1px solid #3e3e42;
+    padding-top: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>Audit Repo</h1>
+<p class="subtitle">7 audits d'architecture pour le skill <code>architecture-anthropic</code></p>
+<p class="meta">Généré 2026-05-20 — 6 repos officiels Anthropic + 1 communautaire</p>
+
+<div class="card">
+  <h2>1. anthropics/claude-code</h2>
+  <p class="repo-url"><a href="https://github.com/anthropics/claude-code">github.com/anthropics/claude-code</a></p>
+  <span class="verdict haut">HAUTE pertinence</span>
+  <p class="summary">Repo de référence absolue. Plugin structure <code>.claude-plugin/plugin.json</code> + commands/agents/skills/hooks. <code>hooks.json</code> 3 étages. Frontmatter YAML obligatoire. <code>marketplace.json</code> versionné via JSON Schema. Pattern hookify.</p>
+  <div class="links">
+    <a href="anthropics-claude-code/claude-code-analysis.html">Audit HTML</a>
+    <a href="anthropics-claude-code/AUDIT.md" class="secondary">AUDIT.md</a>
+    <a href="anthropics-claude-code/NOTES.md" class="secondary">NOTES.md</a>
+    <a href="anthropics-claude-code/" class="secondary">Tout</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>2. anthropics/skills</h2>
+  <p class="repo-url"><a href="https://github.com/anthropics/skills">github.com/anthropics/skills</a></p>
+  <span class="verdict haut">HAUTE pertinence</span>
+  <p class="summary">Référence canonique des <code>SKILL.md</code>. Frontmatter à 6 champs EXACTEMENT (name, description, license, compatibility, metadata, allowed-tools). PAS de <code>type</code>. PAS de CLAUDE.md dans un skill. Progressive disclosure 3 niveaux.</p>
+  <div class="links">
+    <a href="anthropics-skills/anthropics-skills-analysis.html">Audit HTML</a>
+    <a href="anthropics-skills/NOTES.md" class="secondary">NOTES.md</a>
+    <a href="anthropics-skills/" class="secondary">Tout</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>3. anthropics/anthropic-cookbook</h2>
+  <p class="repo-url"><a href="https://github.com/anthropics/anthropic-cookbook">github.com/anthropics/anthropic-cookbook</a></p>
+  <span class="verdict haut">HAUTE pertinence</span>
+  <p class="summary">Taxonomie 11 buckets (registry.yaml). 3 niveaux d'encapsulation agent (Skills ≺ Agent SDK ≺ Managed Agents). "One concept per notebook". Alias modèles non-datés obligatoires.</p>
+  <div class="links">
+    <a href="anthropics-cookbook/anthropic-cookbook-analysis.html">Audit HTML</a>
+    <a href="anthropics-cookbook/NOTES.md" class="secondary">NOTES.md</a>
+    <a href="anthropics-cookbook/" class="secondary">Tout</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>4. anthropics/courses</h2>
+  <p class="repo-url"><a href="https://github.com/anthropics/courses">github.com/anthropics/courses</a></p>
+  <span class="verdict haut">HAUTE pertinence</span>
+  <p class="summary">Numérotation tri-niveau <code>00_</code>/<code>01_</code>/<code>10.1_</code>. README de dossier = catalogue TOC obligatoire. Squelette long-form H1 → Goals → sections → Next steps. Solutions externalisées.</p>
+  <div class="links">
+    <a href="anthropics-courses/AUDIT.md">AUDIT.md</a>
+    <a href="anthropics-courses/NOTES.md" class="secondary">NOTES.md</a>
+    <a href="anthropics-courses/LESSON_TEMPLATE.md" class="secondary">Template</a>
+    <a href="anthropics-courses/PERSONAL_CHECKLIST.md" class="secondary">Checklist</a>
+    <a href="anthropics-courses/" class="secondary">Tout</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>5. anthropics/anthropic-quickstarts</h2>
+  <p class="repo-url"><a href="https://github.com/anthropics/anthropic-quickstarts">github.com/anthropics/anthropic-quickstarts</a></p>
+  <span class="verdict haut">HAUTE pertinence</span>
+  <p class="summary">Référence projet. <code>.claude/skills/&lt;name&gt;/SKILL.md</code> avec frontmatter minimal. README 11 sections fixes. Triptyque persistance (spec + feature_list + claude-progress + git). Defense-in-depth security.</p>
+  <div class="links">
+    <a href="anthropics-quickstarts/NOTES.md">NOTES.md</a>
+    <a href="anthropics-quickstarts/REPO_MAP.md" class="secondary">REPO_MAP</a>
+    <a href="anthropics-quickstarts/VERDICT.md" class="secondary">VERDICT</a>
+    <a href="anthropics-quickstarts/" class="secondary">Tout</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>6. anthropics/prompt-eng-interactive-tutorial</h2>
+  <p class="repo-url"><a href="https://github.com/anthropics/prompt-eng-interactive-tutorial">github.com/anthropics/prompt-eng-interactive-tutorial</a></p>
+  <span class="verdict haut">HAUTE 9/10</span>
+  <p class="summary">Framework 10-éléments officiel (User role/Task/Tone/Background/Rules/Examples XML/History/Immediate task/Precognition/Output/Prefilled). XML tags &gt; toute autre séparation. Speaking for Claude. CoT via tags nommés. Golden Rule.</p>
+  <div class="links">
+    <a href="anthropics-prompt-eng-tutorial/prompt-eng-interactive-tutorial-analysis.html">Audit HTML</a>
+    <a href="anthropics-prompt-eng-tutorial/NOTES.md" class="secondary">NOTES.md</a>
+    <a href="anthropics-prompt-eng-tutorial/" class="secondary">Tout</a>
+  </div>
+</div>
+
+<div class="card">
+  <h2>7. OthmanAdi/planning-with-files (pwf)</h2>
+  <p class="repo-url"><a href="https://github.com/OthmanAdi/planning-with-files">github.com/OthmanAdi/planning-with-files</a></p>
+  <span class="verdict moyen">MOYEN-HAUT (avec refactor)</span>
+  <p class="summary"><strong>Finding critique :</strong> les hooks par défaut coûtent ~890K tok/session. Le hook <code>preToolUse unmatched</code> re-injecte <code>head -30 task_plan</code> avant chaque tool (~750K tok seul). Plan refactor lite : ~7K tok/session possible. <strong>Réduction 130×.</strong></p>
+  <div class="links">
+    <a href="othmanadi-planning-with-files/NOTES.md">NOTES.md (avec refactor)</a>
+    <a href="othmanadi-planning-with-files/SKILL.md" class="secondary">SKILL.md</a>
+    <a href="othmanadi-planning-with-files/" class="secondary">Tout</a>
+  </div>
+</div>
+
+<footer>
+Généré par Claude Code Opus 4.7 — session 2026-05-20-architecture-anthropic<br>
+Source canonique : Google Drive (R10) — cette copie GitHub = artefact déploiement régénérable (R13)
+</footer>
+
+</body>
+</html>

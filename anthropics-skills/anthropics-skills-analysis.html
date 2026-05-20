@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>anthropics/skills — Analyse</title>
+<style>
+:root{
+  --bg:#1e1e1e;--surface:#252526;--surface2:#2d2d30;--border:#3e3e42;
+  --accent:#007acc;--accent2:#0e639c;--green:#4ec9b0;--yellow:#dcdcaa;
+  --orange:#ce9178;--red:#f44747;--purple:#c586c0;--blue:#9cdcfe;
+  --text:#d4d4d4;--text-dim:#858585;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topbar{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--border);z-index:10;padding:14px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:18px;color:var(--blue);font-weight:500}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tab-btn{background:transparent;border:1px solid transparent;color:var(--text-dim);padding:8px 14px;cursor:pointer;font-size:13px;border-radius:4px;font-family:inherit}
+.tab-btn:hover{color:var(--text);background:var(--surface2)}
+.tab-btn.active{color:var(--accent);background:var(--surface2);border-color:var(--border)}
+.container{max-width:1100px;margin:0 auto;padding:28px}
+.content{display:none}
+.content.active{display:block}
+h2{color:var(--blue);border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:36px;font-weight:500}
+h3{color:var(--yellow);font-weight:500;margin-top:24px}
+h4{color:var(--orange);font-weight:500}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 22px;margin:14px 0}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;margin-right:6px}
+.tag.green{background:rgba(78,201,176,.15);color:var(--green)}
+.tag.yellow{background:rgba(220,220,170,.15);color:var(--yellow)}
+.tag.red{background:rgba(244,71,71,.15);color:var(--red)}
+.tag.blue{background:rgba(156,220,254,.15);color:var(--blue)}
+.tag.purple{background:rgba(197,134,192,.15);color:var(--purple)}
+.layer-badge{display:inline-block;background:var(--accent);color:#fff;padding:3px 10px;border-radius:3px;font-size:12px;font-weight:600;margin-right:10px}
+.alert{padding:12px 16px;border-radius:5px;margin:14px 0;border-left:4px solid;background:var(--surface2)}
+.alert.ok{border-color:var(--green);color:var(--green)}
+.alert.warn{border-color:var(--yellow);color:var(--yellow)}
+.alert.danger{border-color:var(--red);color:var(--red)}
+.invariant-row{display:flex;align-items:flex-start;gap:12px;margin:8px 0;padding:8px 12px;background:var(--surface2);border-radius:4px}
+.invariant-row .label{color:var(--purple);font-weight:600;flex-shrink:0;min-width:40px}
+.use-cases{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.use-case{background:var(--surface);border:1px solid var(--border);border-left:4px solid;padding:14px;border-radius:5px}
+.use-case.yes{border-left-color:var(--green)}
+.use-case.no{border-left-color:var(--red)}
+.use-case h4{margin:0 0 6px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--surface2);color:var(--blue);font-weight:600}
+tr:hover{background:var(--surface2)}
+pre{background:#0d0d0d;padding:14px;border-radius:5px;overflow-x:auto;border:1px solid var(--border)}
+code{font-family:"Consolas","Monaco",monospace;font-size:13px;color:var(--orange)}
+pre code{color:var(--text)}
+blockquote{border-left:4px solid var(--purple);padding:8px 16px;margin:14px 0;background:var(--surface2);color:var(--text);font-style:italic}
+.pull-quote{font-size:17px;color:var(--blue);font-style:italic;border-left:4px solid var(--accent);padding:10px 18px;margin:18px 0;background:var(--surface2)}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px;text-align:center}
+.score-card .num{font-size:38px;color:var(--accent);font-weight:700}
+.score-card .lbl{color:var(--text-dim);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.footer{padding:20px 28px;color:var(--text-dim);font-size:12px;text-align:center;border-top:1px solid var(--border);margin-top:40px}
+.footer a{color:var(--accent);text-decoration:none}
+.footer a:hover{text-decoration:underline}
+ul li{margin:4px 0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>📚 anthropics/skills — Analyse</h1>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('recit',this)">📖 Récit</button>
+    <button class="tab-btn" onclick="switchTab('fmaths',this)">🔬 Fmaths</button>
+    <button class="tab-btn" onclick="switchTab('install',this)">⚙️ Installation</button>
+    <button class="tab-btn" onclick="switchTab('verdict',this)">⚖️ Verdict</button>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============ TAB RÉCIT ============ -->
+<div id="tab-recit" class="content active">
+
+<h2>Le décor</h2>
+<p>Un skill, chez Anthropic, n'est pas un programme. C'est un <strong>dossier</strong>. Un seul fichier l'ouvre — <code>SKILL.md</code> — et tout le reste est satellite. Le frontmatter YAML est la carte d'identité que Claude consulte au démarrage ; le corps markdown est la doctrine qu'il ouvre une fois la mission acceptée. Autour gravitent trois orbites optionnelles : <code>scripts/</code> pour exécuter, <code>references/</code> pour approfondir, <code>assets/</code> pour habiller. Dix-sept skills officiels peuplent le repo, regroupés en trois plugins distribuables — documents, exemples, et l'API Claude — orchestrés par un unique manifest. Et au-dessus de tout, une spec versionnée, hébergée hors du repo lui-même, sur agentskills.io.</p>
+
+<h2>Les règles du jeu</h2>
+<p>Tout repose sur deux contrats inviolables : <code>name</code> doit matcher le dossier parent, et <code>description</code> doit dire à la fois <em>ce que fait</em> le skill ET <em>quand l'utiliser</em>. Le reste est libre — mais "libre" ne veut pas dire désinvolte. Anthropic montre par l'exemple deux écoles : la concise (brand-guidelines, slack-gif-creator) en deux phrases, et la maximaliste (xlsx, docx) en un paragraphe qui détaille fichiers, formats, et même les non-déclencheurs.</p>
+
+<div class="pull-quote">"If the user mentions a .pdf file or asks to produce one, use this skill. Do NOT use for PDFs, spreadsheets, Google Docs..."</div>
+
+<p>Ce <strong>Do NOT</strong> est l'arme secrète : la négation officialisée. La spec n'oblige rien là-dessus, mais Anthropic l'utilise sciemment pour empêcher les déclenchements parasites.</p>
+
+<h2>Le socle immuable</h2>
+<p>Six invariants tiennent la structure. Le dossier porte le nom du skill, qui porte le nom dans le frontmatter — triangle verrouillé. Le <code>name</code> n'accepte que minuscules, chiffres, et hyphens, jamais en bord, jamais doublés. La description ne dépasse pas 1024 caractères, le compatibility 500, le name 64. Les références entre fichiers restent en chemins relatifs, et la profondeur ne dépasse jamais un niveau depuis le SKILL.md — Anthropic refuse les arbres labyrinthiques. Le coût en tokens du frontmatter est <strong>multiplicatif</strong> : chaque skill installé consomme ~100 tokens au boot, ce qui explique l'obsession pour les descriptions denses mais bornées.</p>
+
+<h2>Les leviers de transformation</h2>
+<p>Le levier majeur, c'est la description elle-même. Anthropic la traite comme un artefact à optimiser empiriquement, pas comme une notice écrite une fois. La preuve : <code>improve_description.py</code> enfoui dans <code>skill-creator/scripts/</code> — un script dédié à la réécriture itérative de descriptions. La logique est radicale : 20 requêtes mixtes (qui-devraient-déclencher / qui-ne-devraient-pas), score de matching, boucle d'amélioration jusqu'à convergence.</p>
+<p>Deuxième levier : la <strong>progressive disclosure</strong>. Le frontmatter est l'antichambre (~100 tokens, toujours chargée). Le SKILL.md est la pièce principale (chargée à l'activation). Les références/scripts/assets sont les archives — n'entrent en mémoire que sur demande explicite. Cette discipline impose une architecture : tout SKILL.md qui dépasse 500 lignes est suspect ; il faut éclater vers <code>references/</code>.</p>
+
+<h2>Les points de rupture</h2>
+<table>
+<tr><th>Seuil</th><th>Limite dure</th><th>Conséquence du dépassement</th></tr>
+<tr><td><code>name</code></td><td>64 caractères</td><td>Skill invalide, rejeté par le linter</td></tr>
+<tr><td><code>description</code></td><td>1024 caractères</td><td>Skill invalide</td></tr>
+<tr><td><code>compatibility</code></td><td>500 caractères</td><td>Skill invalide</td></tr>
+<tr><td>Corps SKILL.md</td><td>~5000 tokens (soft)</td><td>Activation onéreuse, attention diluée</td></tr>
+<tr><td>Lignes SKILL.md</td><td>~500 (soft)</td><td>Refactor obligatoire vers references/</td></tr>
+<tr><td>Profondeur refs</td><td>1 niveau (soft)</td><td>Chaînes de fetch coûteuses</td></tr>
+</table>
+
+<div class="pull-quote">"Le routeur d'activation n'a que le frontmatter pour décider. Si la description omet le QUAND, le skill devient invisible."</div>
+
+<h2>Le chemin de moindre résistance</h2>
+<p>Le bonheur d'un créateur de skill suit cinq étapes : copier <code>template/</code>, éditer le frontmatter (name = dossier parent, description = "Action. Use when X, Y, Z."), écrire les instructions dans le corps, lancer <code>skills-ref validate</code>, et — pour les skills à enjeu — créer un harness d'évals via skill-creator. Trois nœuds de friction subsistent : la spec n'est pas dans le repo (redirect externe), le linter dépend d'une lib séparée (<code>agentskills/agentskills/skills-ref</code>), et le meilleur outil pour optimiser sa description (<code>improve_description.py</code>) n'est pas exposé comme CLI globale — il faut le déterrer.</p>
+
+<h2>L'équilibre du risque</h2>
+<p><strong>Lock-in fournisseur</strong> : faible. La spec est ouverte, le format est markdown, et n'importe quel agent peut implémenter le runtime — ce sont juste des dossiers avec du YAML et du texte. <strong>Rupture upstream</strong> : très improbable. Anthropic a stabilisé la spec, le repo affiche 138k stars et 36 commits seulement sur main (signe d'un format mûr, pas en gestation). Le seul vrai risque est sur <code>allowed-tools</code>, explicitement marqué <em>expérimental</em> — toute logique de sécurité qui s'y appuierait est exposée.</p>
+<p>La recommandation directionnelle est nette : pour qui veut construire des skills sérieux, ce repo est le <strong>manuel canonique</strong>. Pas la peine de chercher ailleurs. Le pattern Anthropic — description active + progressive disclosure + harness d'évals — est l'état de l'art tel qu'observé en mai 2026.</p>
+
+</div>
+
+<!-- ============ TAB FMATHS ============ -->
+<div id="tab-fmaths" class="content">
+
+<h2><span class="layer-badge">L0</span> Ontologie</h2>
+<div class="card">
+<ul>
+<li><strong>Skill</strong> — dossier auto-suffisant contenant un contrat de comportement pour Claude</li>
+<li><strong>SKILL.md</strong> — point d'entrée unique : YAML frontmatter + corps markdown</li>
+<li><strong>Frontmatter</strong> — métadonnées chargées au boot (name, description, license, compatibility, metadata, allowed-tools)</li>
+<li><strong>Description</strong> — sonde sémantique qui pilote l'activation</li>
+<li><strong>Body</strong> — instructions chargées à l'activation (&lt;5000 tokens recommandés)</li>
+<li><strong>Resource</strong> — fichier sous scripts/ | references/ | assets/ chargé à la demande</li>
+<li><strong>Marketplace</strong> — manifest qui regroupe N skills en plugins distribuables</li>
+<li><strong>Eval harness</strong> — boucle empirique de mesure de qualité d'un skill</li>
+</ul>
+</div>
+
+<h2><span class="layer-badge">L1</span> Ensembles et relations</h2>
+<div class="card">
+<ul>
+<li><code>Skills</code> = 17 éléments (algorithmic-art, brand-guidelines, ..., xlsx)</li>
+<li><code>Plugins</code> = 3 éléments (document-skills, example-skills, claude-api)</li>
+<li><code>Frontmatter_fields</code> = {name*, description*, license, compatibility, metadata, allowed-tools}</li>
+<li><code>Resources(skill)</code> = scripts(skill) ∪ references(skill) ∪ assets(skill)</li>
+<li>Relations : <code>belongs_to: Skills → Plugins</code> (M:1) · <code>parent_dir_name(skill) ≡ frontmatter.name</code></li>
+</ul>
+</div>
+
+<h2><span class="layer-badge">L2</span> Logique et tensions</h2>
+<div class="card">
+<p><strong>AND</strong> : <code>valid(skill) ⟺ has(SKILL.md) ∧ valid(frontmatter) ∧ name ≡ parent_dir</code></p>
+<p><strong>OR</strong> : description longue (xlsx, docx) <strong>OU</strong> description courte (brand-guidelines) — toutes deux officiellement valides</p>
+<p><strong>XOR caché</strong> : open-source (Apache-2.0) ⊕ source-available (Proprietary)</p>
+<div class="alert warn">Tension #1 : description courte ↔ description longue. Courtes ~150 chars plus lisibles ; longues ~800 chars plus précises pour le routeur. Anthropic utilise les deux selon l'ambiguïté du domaine.</div>
+<div class="alert warn">Tension #2 : progressive disclosure ↔ self-containment. Plus on disclose, plus on doit naviguer ; moins on disclose, plus le SKILL.md gonfle.</div>
+</div>
+
+<h2><span class="layer-badge">L3</span> Invariants</h2>
+<div class="invariant-row"><span class="label">I1</span><span>Un skill = un dossier = un <code>SKILL.md</code> à la racine</span></div>
+<div class="invariant-row"><span class="label">I2</span><span><code>parent_dir_name ≡ frontmatter.name</code> (vérifié par <code>skills-ref validate</code>)</span></div>
+<div class="invariant-row"><span class="label">I3</span><span><code>name</code> ∈ <code>[a-z0-9-]{1,64}</code>, pas de hyphen extrémal, pas de <code>--</code></span></div>
+<div class="invariant-row"><span class="label">I4</span><span><code>description</code> ∈ [1, 1024] chars</span></div>
+<div class="invariant-row"><span class="label">I5</span><span>Références de fichiers en chemins relatifs, profondeur ≤ 1 depuis SKILL.md</span></div>
+<div class="invariant-row"><span class="label">I6</span><span><code>name</code> + <code>description</code> = budget ~100 tokens au boot, multiplié par N skills installés</span></div>
+<div class="invariant-row"><span class="label">I7</span><span>Pas de champ <code>type</code> ni <code>status</code> dans la spec officielle (à ne pas inventer)</span></div>
+<div class="invariant-row"><span class="label">I8</span><span><code>allowed-tools</code> est expérimental → ne pas en dépendre pour la sécurité</span></div>
+
+<h2><span class="layer-badge">L4</span> Axes de variation</h2>
+<table>
+<tr><th>Axe</th><th>Min</th><th>État actuel (Anthropic)</th><th>Max</th></tr>
+<tr><td>Longueur description</td><td>1 char</td><td>150–900 chars</td><td>1024 chars</td></tr>
+<tr><td>Profondeur arbo skill</td><td>SKILL.md seul</td><td>scripts+references+assets</td><td>+ agents/ + eval-viewer/ (skill-creator)</td></tr>
+<tr><td>Catégorisation</td><td>aucune</td><td>3 plugins via marketplace.json</td><td>taxonomie multi-niveau</td></tr>
+<tr><td>Licence</td><td>Apache-2.0 ouvert</td><td>mix (open + proprietary)</td><td>tout proprietary</td></tr>
+<tr><td>Style description</td><td>très court</td><td>"Action. Use when X, Y, Z."</td><td>longue + "Do NOT trigger when ..."</td></tr>
+<tr><td>Couverture validation</td><td>manuelle</td><td><code>skills-ref validate</code></td><td>+ evals quantitatives</td></tr>
+</table>
+
+<h2><span class="layer-badge">L5</span> Seuils et stabilité</h2>
+<div class="card">
+<ul>
+<li><strong>Seuil description</strong> : 1024 chars (hard cap). Dépassement = invalide.</li>
+<li><strong>Seuil name</strong> : 64 chars (hard cap).</li>
+<li><strong>Seuil compatibility</strong> : 500 chars.</li>
+<li><strong>Seuil tokens body</strong> : ~5000 tokens recommandés (soft). Au-delà : éclatement vers references/.</li>
+<li><strong>Seuil lignes SKILL.md</strong> : 500 lignes (soft). Au-delà : risque de noyade attentionnelle.</li>
+<li><strong>Seuil profondeur refs</strong> : 1 niveau depuis SKILL.md.</li>
+</ul>
+<div class="alert danger"><strong>Effondrement attendu</strong> : si la description omet le QUAND, le routeur d'activation tombe sous le bruit → faux négatifs systématiques.</div>
+</div>
+
+<h2><span class="layer-badge">L6</span> Catégories et couplages</h2>
+<table>
+<tr><th>Couche</th><th>Couplage</th></tr>
+<tr><td>Couche spec (<code>spec/</code>)</td><td><span class="tag green">Découplée</span> Vit sur agentskills.io</td></tr>
+<tr><td>Couche template (<code>template/</code>)</td><td><span class="tag green">Découplée</span> 1 fichier</td></tr>
+<tr><td>Couche skills (<code>skills/*</code>)</td><td><span class="tag green">Indépendance forte</span> Chaque skill auto-suffisant</td></tr>
+<tr><td>Couche marketplace</td><td><span class="tag green">Couplage souple</span> Référence par chemin</td></tr>
+<tr><td>Couche eval (skill-creator/scripts/)</td><td><span class="tag yellow">Couplage interne</span> 8 schémas JSON inter-dépendants</td></tr>
+</table>
+
+<h2><span class="layer-badge">L7</span> Topologie</h2>
+<div class="card">
+<h3>Happy path création skill</h3>
+<ol>
+<li><code>cp -r template/ my-skill/</code></li>
+<li>Édit du frontmatter (name = dossier parent, description = "Action. Use when X, Y, Z.")</li>
+<li>Édit du body markdown</li>
+<li><code>skills-ref validate ./my-skill</code></li>
+<li>(Optionnel) Création d'evals via skill-creator</li>
+<li>Installation locale ou publication via plugin</li>
+</ol>
+<h3>Nœuds de friction</h3>
+<div class="alert warn">Friction #1 : la spec n'est PAS dans le repo (redirect vers agentskills.io)</div>
+<div class="alert warn">Friction #2 : aucun lint local sans installer <code>skills-ref</code> (dépendance externe)</div>
+<div class="alert warn">Friction #3 : <code>improve_description.py</code> enfoui dans <code>skill-creator/scripts/</code></div>
+<div class="alert warn">Friction #4 : pas de CONTRIBUTING.md</div>
+</div>
+
+<h2><span class="layer-badge">L8</span> Probabilités</h2>
+<table>
+<tr><th>Variable</th><th>Probabilité</th><th>Justification</th></tr>
+<tr><td>P(adoption stable)</td><td><span class="tag green">très haute</span></td><td>138k stars, repo officiel</td></tr>
+<tr><td>P(breaking spec court terme)</td><td><span class="tag green">très faible</span></td><td>Spec hébergée, versionnée</td></tr>
+<tr><td>P(breaking sur <code>allowed-tools</code>)</td><td><span class="tag yellow">médium-haute</span></td><td>Marqué expérimental</td></tr>
+<tr><td>P(extension du frontmatter)</td><td><span class="tag yellow">médium</span></td><td><code>metadata</code> libre = soupape</td></tr>
+<tr><td>P(lock-in fournisseur)</td><td><span class="tag green">faible</span></td><td>Spec ouverte, format markdown</td></tr>
+<tr><td>P(rupture upstream)</td><td><span class="tag green">très faible</span></td><td>Format pivot officiel Anthropic</td></tr>
+<tr><td>Maturité communauté</td><td><span class="tag green">élevée</span></td><td>138k stars, 16.3k forks</td></tr>
+</table>
+
+<h3>Vecteur cognitif — bilan</h3>
+<div class="card">
+<ul>
+<li><strong>Abstraction</strong> : OK — spec formelle propre</li>
+<li><strong>Concrétude</strong> : OK — 17 skills exemples</li>
+<li><strong>Affect</strong> : <span class="tag yellow">faible</span> — ton corporate</li>
+<li><strong>Normativité</strong> : forte — bornes dures (64, 1024, 500)</li>
+<li><strong>Incertitude</strong> : médium — <code>allowed-tools</code> expérimental signalé</li>
+<li><strong>Altérité</strong> : OK — taxonomie 3 plugins + marketplace ouverte</li>
+<li><strong>Cohérence</strong> : très forte — tous les SKILL.md observés respectent la spec</li>
+</ul>
+</div>
+
+</div>
+
+<!-- ============ TAB INSTALLATION ============ -->
+<div id="tab-install" class="content">
+
+<h2>Prérequis</h2>
+<table>
+<tr><th>Outil</th><th>Version</th><th>Vérification</th></tr>
+<tr><td>Claude Code</td><td>récente</td><td><code>claude --version</code></td></tr>
+<tr><td>Git</td><td>≥ 2.30</td><td><code>git --version</code></td></tr>
+<tr><td>Python</td><td>≥ 3.10</td><td><code>python --version</code></td></tr>
+<tr><td>skills-ref (linter)</td><td>dernière</td><td><code>skills-ref --version</code></td></tr>
+</table>
+
+<h2>Scénario A — Utiliser les skills officiels</h2>
+
+<h3>Option A1 — Via <code>/plugin install</code> (le plus rapide)</h3>
+<pre><code># Dans Claude Code
+/plugin install document-skills
+/plugin install example-skills
+/plugin install claude-api</code></pre>
+
+<h3>Option A2 — Skill par skill (manuel)</h3>
+<pre><code># Cloner shallow
+git clone --depth 1 https://github.com/anthropics/skills.git $env:TEMP\anthropics-skills
+
+# Copier un skill dans le dossier skills global
+Copy-Item -Recurse "$env:TEMP\anthropics-skills\skills\skill-creator" "$env:USERPROFILE\.claude\skills\"</code></pre>
+
+<div class="alert warn"><strong>Windows</strong> : les chemins avec espace doivent être quotés. PowerShell utilise <code>$env:USERPROFILE</code>.</div>
+
+<h2>Scénario B — Créer ses propres skills</h2>
+
+<h3>Installation du linter officiel</h3>
+<pre><code>pip install skills-ref
+# OU
+uv tool install skills-ref</code></pre>
+
+<h3>Workflow minimal</h3>
+<pre><code>mkdir my-skill
+Set-Location my-skill
+
+@'
+---
+name: my-skill
+description: &lt;Action concrète&gt;. Use this skill when &lt;liste de déclencheurs explicites&gt;.
+---
+
+# My Skill
+
+## Quand utiliser
+...
+
+## Comment faire
+...
+'@ | Out-File -Encoding utf8 SKILL.md
+
+skills-ref validate .</code></pre>
+
+<h3>Config minimale SKILL.md</h3>
+<pre><code>---
+name: my-skill              # OBLIGATOIRE — doit matcher le dossier parent
+description: &lt;≤1024 chars&gt;  # OBLIGATOIRE — QUOI + QUAND avec mots-clés
+license: Complete terms in LICENSE.txt  # optionnel
+compatibility: Requires Python 3.14+    # optionnel, ≤500 chars
+metadata:                                # optionnel, libre
+  author: yanis
+  version: "1.0"
+allowed-tools: Bash(git:*) Read         # optionnel, EXPÉRIMENTAL
+---
+
+# Corps markdown ici</code></pre>
+
+<h2>Points d'attention OS-specific (Windows / PowerShell)</h2>
+<div class="alert warn"><strong>Encodage</strong> : PowerShell 5.1 par défaut écrit en UTF-16 LE avec BOM. Utilisez <code>Out-File -Encoding utf8</code>.</div>
+<div class="alert warn"><strong>Chemins avec espaces</strong> : toujours quoter (<code>"G:\Mon Drive\..."</code>).</div>
+<div class="alert warn"><strong>Chaînage</strong> : <code>&amp;&amp;</code> pas supporté en PS 5.1. Utilisez <code>;</code> ou <code>if ($?) { ... }</code>.</div>
+<div class="alert danger"><strong><code>allowed-tools</code></strong> : champ EXPÉRIMENTAL. Ne pas en faire dépendre la sécurité.</div>
+
+<h2>Désinstallation</h2>
+<pre><code># Skill installé manuellement
+Remove-Item -Recurse "$env:USERPROFILE\.claude\skills\&lt;skill-name&gt;"
+
+# Plugin installé via /plugin
+/plugin uninstall &lt;plugin-name&gt;</code></pre>
+
+</div>
+
+<!-- ============ TAB VERDICT ============ -->
+<div id="tab-verdict" class="content">
+
+<h2>Scores</h2>
+<div class="score-grid">
+  <div class="score-card"><div class="num">10/10</div><div class="lbl">Pertinence</div></div>
+  <div class="score-card"><div class="num">9/10</div><div class="lbl">Maturité prod</div></div>
+  <div class="score-card"><div class="num">7/10</div><div class="lbl">Onboarding</div></div>
+</div>
+
+<h2>Forces</h2>
+<table>
+<tr><th></th><th>Titre</th><th>Description</th></tr>
+<tr><td>⚓</td><td>Spec canonique formelle</td><td>Contraintes typées (64/1024/500 chars), validation outillée</td></tr>
+<tr><td>🎯</td><td>Pattern description normalisé</td><td><code>"Action. Use when X, Y, Z."</code> + <code>Do NOT trigger when ...</code></td></tr>
+<tr><td>🪜</td><td>Progressive disclosure</td><td>Frontmatter (boot) → body (activation) → resources (à la demande)</td></tr>
+<tr><td>🧪</td><td>Eval harness officiel</td><td>skill-creator embarque 8 schémas JSON + <code>improve_description.py</code></td></tr>
+<tr><td>📦</td><td>Marketplace découplé</td><td><code>marketplace.json</code> groupe sans coupler le contenu</td></tr>
+<tr><td>🔒</td><td>Isolation par dossier</td><td>1 skill = 1 dossier auto-suffisant</td></tr>
+</table>
+
+<h2>Faiblesses / Risques</h2>
+<table>
+<tr><th></th><th>Titre</th><th>Description + impact</th></tr>
+<tr><td>🌐</td><td>Spec hors-repo</td><td><code>spec/agent-skills-spec.md</code> n'est qu'un redirect vers agentskills.io</td></tr>
+<tr><td>🧰</td><td>Linter externe</td><td><code>skills-ref</code> vit dans un autre repo</td></tr>
+<tr><td>🧪</td><td><code>allowed-tools</code> expérimental</td><td>Ne pas en faire dépendre la sécurité</td></tr>
+<tr><td>📚</td><td>Pas de CONTRIBUTING.md</td><td>Friction pour les contributeurs externes</td></tr>
+<tr><td>⚠️</td><td>Runtime non documenté</td><td>L'évolution upstream peut casser sans préavis</td></tr>
+</table>
+
+<h2>Matrice Use Cases</h2>
+<div class="use-cases">
+  <div class="use-case yes"><h4>✅ Cataloguer l'archi officielle (objet du skill <code>architecture-anthropic</code>)</h4><p>C'est la source primaire</p></div>
+  <div class="use-case yes"><h4>✅ Apprendre à rédiger un YAML frontmatter conforme</h4><p>Spec + 17 exemples réels</p></div>
+  <div class="use-case yes"><h4>✅ Apprendre à écrire une description qui déclenche bien</h4><p>xlsx, docx, claude-api sont des cas d'école</p></div>
+  <div class="use-case yes"><h4>✅ Comprendre la progressive disclosure</h4><p>Documentée + visible dans skill-creator</p></div>
+  <div class="use-case no"><h4>❌ Implémenter un runtime de skills</h4><p>Le runtime n'est pas dans ce repo</p></div>
+  <div class="use-case no"><h4>❌ Distribuer commercialement les document-skills</h4><p>License "Proprietary, see LICENSE.txt"</p></div>
+  <div class="use-case no"><h4>❌ Se reposer sur <code>allowed-tools</code> pour la sécurité</h4><p>Champ explicitement expérimental</p></div>
+  <div class="use-case no"><h4>❌ Forker la spec</h4><p>Mieux vaut contribuer à agentskills.io</p></div>
+</div>
+
+<h2>Roadmap (inférée)</h2>
+<table>
+<tr><th>Feature</th><th>Statut</th><th>Impact</th></tr>
+<tr><td>Frontmatter <code>name</code>, <code>description</code>, <code>license</code>, <code>compatibility</code>, <code>metadata</code></td><td><span class="tag green">stable</span></td><td>Fondations</td></tr>
+<tr><td>Frontmatter <code>allowed-tools</code></td><td><span class="tag yellow">expérimental</span></td><td>À surveiller</td></tr>
+<tr><td>Validation via <code>skills-ref</code></td><td><span class="tag green">stable</span></td><td>Lint reproductible</td></tr>
+<tr><td>Eval harness (skill-creator)</td><td><span class="tag green">disponible</span></td><td>Optim empirique</td></tr>
+<tr><td>Marketplace plugins</td><td><span class="tag green">stable</span></td><td>Distribution</td></tr>
+</table>
+
+<h2>Recommandation finale</h2>
+<div class="card">
+<p><strong>Pourquoi c'est pertinent maintenant pour le skill <code>architecture-anthropic</code> :</strong> ce repo est précisément la matière première dont le skill <code>architecture-anthropic</code> a besoin pour exister. Le skill est défini comme "layer markdown drive-only qui catalogue l'archi officielle Anthropic et sert de checklist d'audit" — or <code>anthropics/skills</code> EST cette archi officielle, sous forme exécutable et auditable. Le <code>NOTES.md</code> issu de cet audit peut servir directement de référentiel pivot.</p>
+<p><strong>Action recommandée :</strong></p>
+<ol>
+<li>Ne PAS cloner le repo entier (lourd) — pinner les URLs raw GitHub des fichiers clés</li>
+<li>Adopter le pattern de description Anthropic mot-pour-mot pour les futurs skills personnels</li>
+<li>Utiliser <code>skill-creator/scripts/improve_description.py</code> comme oracle pour optimiser les descriptions</li>
+<li>Conditions de passage en prod du skill <code>architecture-anthropic</code> : NOTES.md exhaustif (✅ fait), checklist d'audit dérivée des 8 invariants (✅ fait), re-fetch trimestriel</li>
+</ol>
+</div>
+
+</div>
+
+</div>
+
+<div class="footer">
+Analyse fmaths + décodeur narratif · anthropics/skills · Généré le 2026-05-20 ·
+<a href="https://github.com/anthropics/skills" target="_blank">github.com/anthropics/skills ↗</a> ·
+<a href="https://agentskills.io/specification" target="_blank">Spec officielle ↗</a>
+</div>
+
+<script>
+function switchTab(name, btn){
+  document.querySelectorAll('.content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>prompt-eng-interactive-tutorial — Analyse</title>
+<style>
+:root{
+  --bg:#1e1e1e; --surface:#252526; --surface2:#2d2d30; --border:#3e3e42;
+  --accent:#007acc; --accent2:#0e639c;
+  --green:#4ec9b0; --yellow:#dcdcaa; --orange:#ce9178; --red:#f44747;
+  --purple:#c586c0; --blue:#9cdcfe;
+  --text:#d4d4d4; --text-dim:#858585;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif;line-height:1.55;font-size:14.5px}
+.topbar{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;z-index:10;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:18px;font-weight:600;color:var(--text)}
+.topbar .meta{color:var(--text-dim);font-size:12.5px}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tab-btn{background:transparent;color:var(--text-dim);border:1px solid transparent;padding:7px 14px;border-radius:5px;cursor:pointer;font-size:13.5px;font-family:inherit}
+.tab-btn:hover{color:var(--text);background:var(--surface2)}
+.tab-btn.active{background:var(--accent2);color:#fff;border-color:var(--accent)}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 24px 80px}
+.content{display:none}
+.content.active{display:block}
+h2{color:var(--blue);border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:36px;font-size:20px}
+h3{color:var(--yellow);margin-top:26px;font-size:16px}
+h4{color:var(--purple);margin-top:18px;font-size:14.5px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px 18px;margin:14px 0}
+.tag{display:inline-block;padding:2px 9px;border-radius:11px;font-size:11.5px;font-weight:600;margin:0 4px 2px 0}
+.tag.green{background:rgba(78,201,176,.15);color:var(--green)}
+.tag.yellow{background:rgba(220,220,170,.15);color:var(--yellow)}
+.tag.red{background:rgba(244,71,71,.15);color:var(--red)}
+.tag.blue{background:rgba(156,220,254,.15);color:var(--blue)}
+.tag.purple{background:rgba(197,134,192,.15);color:var(--purple)}
+.layer-badge{display:inline-block;background:var(--accent);color:#fff;font-weight:700;font-size:12px;padding:3px 9px;border-radius:4px;margin-right:8px}
+.alert{padding:10px 14px;border-radius:5px;margin:12px 0;border-left:4px solid;font-size:13.5px}
+.alert.ok{background:rgba(78,201,176,.08);border-color:var(--green)}
+.alert.warn{background:rgba(220,220,170,.08);border-color:var(--yellow)}
+.alert.danger{background:rgba(244,71,71,.08);border-color:var(--red)}
+.invariant-row{padding:8px 0;border-bottom:1px dashed var(--border)}
+.invariant-row:last-child{border-bottom:none}
+.invariant-row b{color:var(--purple);margin-right:8px}
+.pipeline{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:14px 0}
+.pipe-node{background:var(--surface2);border:1px solid var(--border);padding:7px 11px;border-radius:4px;font-size:12.5px;color:var(--blue)}
+.pipe-arrow{color:var(--text-dim)}
+.use-cases{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.use-case{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:11px 13px;font-size:13px}
+.use-case.yes{border-left:4px solid var(--green)}
+.use-case.no{border-left:4px solid var(--red)}
+.use-case b{display:block;margin-bottom:3px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--yellow);font-weight:600;font-size:12.5px;text-transform:uppercase;letter-spacing:.5px}
+pre{background:#0d0d0d;border:1px solid var(--border);border-radius:5px;padding:12px;overflow-x:auto;font-size:12.5px}
+code{font-family:Consolas,Monaco,monospace;color:var(--orange)}
+pre code{color:var(--text)}
+blockquote{border-left:3px solid var(--accent);background:var(--surface);margin:14px 0;padding:10px 14px;color:var(--text);font-style:italic}
+.pull-quote{font-size:17px;color:var(--orange);font-style:italic;border-left:4px solid var(--orange);padding:10px 18px;margin:18px 0;background:rgba(206,145,120,.05)}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center}
+.score-card .num{font-size:38px;color:var(--accent);font-weight:700;display:block}
+.score-card .lbl{color:var(--text-dim);font-size:12px;text-transform:uppercase;letter-spacing:.6px}
+footer{border-top:1px solid var(--border);padding:18px 24px;color:var(--text-dim);font-size:12px;text-align:center;margin-top:40px}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>prompt-eng-interactive-tutorial — Analyse</h1>
+  <span class="meta">Anthropic officiel · ~35.8k stars · branche master</span>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('recit',this)">Récit</button>
+    <button class="tab-btn" onclick="switchTab('fmaths',this)">Fmaths</button>
+    <button class="tab-btn" onclick="switchTab('install',this)">Installation</button>
+    <button class="tab-btn" onclick="switchTab('verdict',this)">Verdict</button>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ============= ONGLET RECIT ============= -->
+<div class="content active" id="tab-recit">
+
+<h2>Le décor</h2>
+<p>Un repo officiel signé Anthropic, vieux de plusieurs versions de Claude mais constamment plébiscité (35 800 étoiles). Treize notebooks Jupyter dans un dossier nommé sobrement <code>Anthropic 1P/</code>, une variante miroir pour <code>AmazonBedrock/</code>, et un fichier d'indices Python <code>hints.py</code>. C'est un cours, pas une bibliothèque. La granularité est pédagogique : chaque leçon enseigne UN pattern, immédiatement testable dans une cellule de code.</p>
+
+<p>Les acteurs sont trois : l'apprenant qui modifie des prompts, le helper <code>get_completion()</code> qui masque l'API, et Claude lui-même qui répond. Pas de framework, pas de wrapper, rien à apprendre côté code. Le seul objet manipulé, c'est le texte du prompt.</p>
+
+<h2>Les règles du jeu</h2>
+<p>Le cursus impose un ordre. On n'apprend pas la chain-of-thought avant la structure de base d'un message. On apprend d'abord que la liste <code>messages</code> doit alterner user/assistant et démarrer par user. Puis qu'on parle clairement. Puis qu'on assigne un rôle. Puis qu'on sépare les données des instructions avec des balises XML. Puis qu'on peut parler à la place de Claude. Puis qu'on demande à Claude de penser avant de répondre. Puis qu'on lui donne des exemples. Puis qu'on évite les hallucinations. Puis et seulement puis, on compose un prompt complexe complet.</p>
+
+<div class="pull-quote">"If a colleague is confused by your prompt, Claude's confused." — la Golden Rule, leçon 02.</div>
+
+<p>La tension principale du cursus est entre <em>contrôle</em> et <em>liberté</em>. Plus on encadre Claude (rôle, format, exemples, prefill), plus la sortie devient prédictible — mais plus le prompt devient long. Anthropic ne cache pas ce tradeoff : la leçon 09 énumère dix éléments possibles tout en précisant qu'ils ne sont pas tous nécessaires.</p>
+
+<h2>Le socle immuable</h2>
+
+<div class="card">
+<div class="invariant-row"><b>I1</b>Les messages alternent user/assistant et commencent par user. Toujours.</div>
+<div class="invariant-row"><b>I2</b>Les XML tags sont LA convention de séparation. Claude a été entraîné spécifiquement pour les reconnaître.</div>
+<div class="invariant-row"><b>I3</b>"Thinking only counts when it's out loud." La CoT silencieuse n'existe pas.</div>
+<div class="invariant-row"><b>I4</b>La tâche immédiate se place à la fin du prompt — biais de récence.</div>
+<div class="invariant-row"><b>I5</b>Le système est facultatif, le user obligatoire. Le system est un paramètre, pas un message.</div>
+</div>
+
+<h2>Les leviers de transformation</h2>
+<p>Sept leviers émergent du cursus :</p>
+<ul>
+  <li><b>Rôle</b> — change le style ET l'exactitude. "You are a cat." reformule. "You are a logic bot." améliore la précision.</li>
+  <li><b>Tone</b> — séparé du rôle, pour qu'un même rôle puisse adopter plusieurs registres.</li>
+  <li><b>Few-shot</b> — deux ou trois exemples valent mieux qu'un paragraphe d'instructions.</li>
+  <li><b>Prefill</b> — placer <code>{</code> ou <code>&lt;tag&gt;</code> dans le tour assistant force le format.</li>
+  <li><b>Chain-of-thought</b> — demander explicitement <code>&lt;brainstorm&gt;</code> ou <code>&lt;positive-argument&gt;</code> avant la réponse.</li>
+  <li><b>Give-an-out</b> — autoriser "I don't know" supprime l'incitation à halluciner.</li>
+  <li><b>Chaining</b> — découper en étapes, l'output N devient l'input N+1.</li>
+</ul>
+
+<h2>Les points de rupture</h2>
+<p>Le tutorial est daté de Claude 3 Haiku. Le format XML de tool use enseigné en appendice 10.2 a été remplacé en production par le tool use API natif. C'est le seul point où le contenu vieillit visiblement. Tout le reste — la Golden Rule, le framework 10-éléments, les XML tags, le prefilling — reste valide en 2026.</p>
+
+<h2>Le chemin de moindre résistance</h2>
+<div class="pipeline">
+  <span class="pipe-node">clone</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">pip install anthropic</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">notebook 00</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">API key</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">01 → 09 séquentiel</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">10.1-10.3 optionnel</span>
+</div>
+<p>Le happy path est strictement linéaire. Pas de prérequis hors-cursus, pas de configuration complexe, pas d'environnement Docker. Une clé API, Python, c'est tout.</p>
+
+<h2>L'équilibre du risque</h2>
+<p>Pour le skill <em>architecture-anthropic</em>, ce repo est une source d'autorité. Le risque d'obsolescence est faible : Anthropic continue de référencer ces patterns dans sa doc récente. Le risque de contamination par contenu non vérifié est nul : c'est le repo officiel de l'éditeur. Le bénéfice de citation est élevé : on peut écrire "ainsi Anthropic recommande de prompter dans son tutoriel officiel" sans glose.</p>
+
+</div>
+
+<!-- ============= ONGLET FMATHS ============= -->
+<div class="content" id="tab-fmaths">
+
+<h2><span class="layer-badge">L0</span>Ontologie</h2>
+<div class="card">
+  <p>Six primitives non-redondantes :</p>
+  <ul>
+    <li><b>Lesson</b> — unité pédagogique numérotée (1 fichier .ipynb)</li>
+    <li><b>Prompt</b> — chaîne textuelle envoyée à Claude</li>
+    <li><b>Message</b> — tuple (role, content) avec role ∈ {user, assistant}</li>
+    <li><b>Tag</b> — délimiteur XML entourant du contenu</li>
+    <li><b>Example</b> — paire input/output démonstrative dans le prompt</li>
+    <li><b>Variable</b> — input externe substitué dans le template</li>
+  </ul>
+</div>
+
+<h2><span class="layer-badge">L1</span>Ensembles et relations</h2>
+<div class="card">
+  <pre><code>Lesson ⊂ Cursus
+Prompt = Template ⊕ Variable
+Message ∈ Conversation
+Tag ⊂ Prompt
+Example ⊂ Prompt
+Conversation = [user, assistant, user, ...]</code></pre>
+</div>
+
+<h2><span class="layer-badge">L2</span>Logique et connecteurs</h2>
+<div class="card">
+  <ul>
+    <li>Prompt clair AND rôle assigné → meilleure performance</li>
+    <li>Données séparées XOR concaténation libre (jamais les deux)</li>
+    <li>CoT OR few-shot — pas toujours nécessaire de combiner</li>
+    <li>Prefilling AND tag d'ouverture → format déterministe</li>
+    <li>Anti-hallucination = (give an out) OR (evidence first) OR (temp=0)</li>
+  </ul>
+  <p><b>Tension principale :</b> contrôle (prompt long) ⊥ concision (prompt court).</p>
+</div>
+
+<h2><span class="layer-badge">L3</span>Invariants</h2>
+<div class="card">
+  <div class="invariant-row"><b>I1</b>Messages alternent user/assistant, commencent par user</div>
+  <div class="invariant-row"><b>I2</b>XML tags = convention native de séparation pour Claude</div>
+  <div class="invariant-row"><b>I3</b>Thinking out loud only — pas de CoT implicite</div>
+  <div class="invariant-row"><b>I4</b>Recency bias — tâche immédiate en fin de prompt</div>
+  <div class="invariant-row"><b>I5</b>System param ≠ message (paramètre séparé de l'API)</div>
+  <div class="invariant-row"><b>I6</b>Helper unique <code>get_completion()</code> immutable côté apprenant</div>
+</div>
+
+<h2><span class="layer-badge">L4</span>Axes de variation</h2>
+<table>
+  <tr><th>Axe</th><th>Min</th><th>Max</th><th>État du tutorial</th></tr>
+  <tr><td>Complexité du prompt</td><td>1 instruction</td><td>10 éléments (L09)</td><td>Progressif 01→09</td></tr>
+  <tr><td>Contrôle de sortie</td><td>texte libre</td><td>JSON via prefill</td><td>Toutes options enseignées</td></tr>
+  <tr><td>Niveau d'apprenant</td><td>débutant</td><td>avancé + tool use</td><td>Cursus complet</td></tr>
+  <tr><td>SDK</td><td>Anthropic 1P</td><td>Bedrock</td><td>2 versions parallèles</td></tr>
+  <tr><td>Modèle</td><td>Haiku 3</td><td>—</td><td>Figé sur Haiku 3 (daté)</td></tr>
+</table>
+
+<h2><span class="layer-badge">L5</span>Seuils et stabilité</h2>
+<div class="card">
+  <ul>
+    <li>max_tokens : hard stop, peut couper mid-phrase</li>
+    <li>messages array : alternance stricte requise, viol → erreur API</li>
+    <li>Temperature : 0 = déterministe, 1 = variabilité max</li>
+    <li>Prompt length : pas de seuil explicite, mais 10 éléments = limite pratique pour rester lisible</li>
+  </ul>
+</div>
+
+<h2><span class="layer-badge">L6</span>Catégories et couplages</h2>
+<table>
+  <tr><th>Couche</th><th>Couplage</th><th>Audit</th></tr>
+  <tr><td>Lessons 01-03 (basics)</td><td>Indépendant</td><td>OK</td></tr>
+  <tr><td>Lessons 04-07 (techniques)</td><td>Présuppose basics</td><td>OK</td></tr>
+  <tr><td>Lesson 08 (anti-halluc)</td><td>Combine 04+05+06</td><td>OK</td></tr>
+  <tr><td>Lesson 09 (complex)</td><td>Combine TOUT</td><td>Audit explicite — capstone</td></tr>
+  <tr><td>Appendix 10.x</td><td>Hors-cursus, optionnel</td><td>OK décoré "Beyond Standard"</td></tr>
+  <tr><td>Tool use XML (10.2)</td><td>Couplage à un format legacy</td><td>Warn — obsolète vs tool use API natif</td></tr>
+</table>
+
+<h2><span class="layer-badge">L7</span>Topologie — chemin de moindre résistance</h2>
+<div class="pipeline">
+  <span class="pipe-node">git clone</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">pip install anthropic</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">jupyter notebook</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">00 setup</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">01 → 09</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">10.1-10.3</span>
+</div>
+<p><b>Nœuds de friction :</b> clé API requise (peut bloquer sans budget), branche master inhabituelle, "Anthropic 1P/" avec espace dans le path (URL encoding piégeux).</p>
+
+<h2><span class="layer-badge">L8</span>Probabilités</h2>
+<table>
+  <tr><th>Risque</th><th>Probabilité</th><th>Justification</th></tr>
+  <tr><td>P(obsolescence patterns)</td><td>Très faible</td><td>Patterns toujours référencés en 2026</td></tr>
+  <tr><td>P(rupture upstream)</td><td>Très faible</td><td>9 commits seulement, repo stable</td></tr>
+  <tr><td>P(divergence vs doc officielle)</td><td>Faible</td><td>Cohérent avec docs.anthropic.com</td></tr>
+  <tr><td>P(communauté active)</td><td>Élevée</td><td>3.8k forks, 35.8k stars</td></tr>
+  <tr><td>P(tool use XML obsolète)</td><td>Confirmée</td><td>Remplacé par tool use API natif</td></tr>
+</table>
+
+<div class="alert warn">
+<b>Vecteur cognitif — bilan :</b> dominante Concrétude+Cohérence (exemples runnable, structure stricte). Abstraction présente mais subordonnée. Affect minimal (style pédagogique neutre). Normativité élevée (Anthropic prescrit). Incertitude faible. Altérité moyenne (un seul interlocuteur : l'apprenant). Pas de déséquilibre alarmant.
+</div>
+
+</div>
+
+<!-- ============= ONGLET INSTALL ============= -->
+<div class="content" id="tab-install">
+
+<h2>Prérequis</h2>
+<table>
+  <tr><th>Outil</th><th>Version</th><th>Vérification</th></tr>
+  <tr><td>Python</td><td>3.8+</td><td><code>python --version</code></td></tr>
+  <tr><td>pip</td><td>20+</td><td><code>pip --version</code></td></tr>
+  <tr><td>git</td><td>2.x</td><td><code>git --version</code></td></tr>
+  <tr><td>Jupyter</td><td>n'importe</td><td><code>jupyter --version</code></td></tr>
+  <tr><td>Anthropic API key</td><td>—</td><td>console.anthropic.com</td></tr>
+</table>
+
+<h2>Option A — Quick start</h2>
+<pre><code>pip install anthropic jupyter
+git clone https://github.com/anthropics/prompt-eng-interactive-tutorial
+cd "prompt-eng-interactive-tutorial/Anthropic 1P"
+jupyter notebook 00_Tutorial_How-To.ipynb</code></pre>
+
+<h2>Option B — Depuis le source pour contribuer</h2>
+<pre><code>git clone https://github.com/anthropics/prompt-eng-interactive-tutorial
+cd prompt-eng-interactive-tutorial
+python -m venv .venv
+.venv\Scripts\Activate.ps1            # Windows PowerShell
+pip install anthropic jupyter ipykernel
+python -m ipykernel install --user --name=prompt-tutorial
+jupyter notebook</code></pre>
+
+<h2>Configuration minimale</h2>
+<p>Dans le notebook 00, remplacer les placeholders :</p>
+<pre><code>API_KEY = "sk-ant-..."                # depuis console.anthropic.com
+MODEL_NAME = "claude-3-haiku-20240307"  # ou modèle plus récent
+
+%store API_KEY                        # persiste entre notebooks
+%store MODEL_NAME</code></pre>
+
+<div class="alert warn">
+<b>Windows PowerShell :</b> le dossier contient un espace ("Anthropic 1P"). Toujours quoter le path : <code>cd "Anthropic 1P"</code>. La variable <code>API_KEY</code> peut aussi être lue depuis <code>$env:ANTHROPIC_API_KEY</code>.
+</div>
+
+<div class="alert warn">
+<b>Branche par défaut :</b> ce repo utilise <code>master</code> et non <code>main</code>. Les fetches raw via <code>raw.githubusercontent.com/.../main/...</code> échouent en 404.
+</div>
+
+<h2>Vérification</h2>
+<pre><code>python -c "import anthropic; print(anthropic.__version__)"
+# Doit afficher >= 0.18.0
+
+# Dans un notebook :
+import anthropic
+client = anthropic.Anthropic(api_key=API_KEY)
+resp = client.messages.create(
+    model=MODEL_NAME,
+    max_tokens=64,
+    messages=[{"role":"user","content":"Hi Claude"}]
+)
+print(resp.content[0].text)</code></pre>
+
+</div>
+
+<!-- ============= ONGLET VERDICT ============= -->
+<div class="content" id="tab-verdict">
+
+<div class="score-grid">
+  <div class="score-card"><span class="num">9</span><span class="lbl">Pertinence pour architecture-anthropic</span></div>
+  <div class="score-card"><span class="num">9</span><span class="lbl">Maturité prod (source officielle)</span></div>
+  <div class="score-card"><span class="num">10</span><span class="lbl">Facilité onboarding</span></div>
+</div>
+
+<h2>Forces</h2>
+<table>
+  <tr><th></th><th>Force</th><th>Description</th></tr>
+  <tr><td>+</td><td>Source d'autorité</td><td>Repo officiel Anthropic, citable sans glose</td></tr>
+  <tr><td>+</td><td>Framework 10-éléments</td><td>Squelette complet pour prompts complexes</td></tr>
+  <tr><td>+</td><td>Patterns XML natifs</td><td>Tags reconnus par l'entraînement de Claude</td></tr>
+  <tr><td>+</td><td>Progressivité stricte</td><td>9 leçons ordonnées, zéro saut conceptuel</td></tr>
+  <tr><td>+</td><td>Two-SDK miroir</td><td>Anthropic 1P + Bedrock, mêmes leçons</td></tr>
+  <tr><td>+</td><td>Code runnable</td><td>Tout est testable en cellule Jupyter</td></tr>
+</table>
+
+<h2>Faiblesses</h2>
+<table>
+  <tr><th></th><th>Faiblesse</th><th>Impact</th></tr>
+  <tr><td>!</td><td>Daté Haiku 3</td><td>Pas mis à jour pour Sonnet 4.x / Opus 4.x</td></tr>
+  <tr><td>!</td><td>Tool use XML legacy</td><td>Appendice 10.2 décrit format obsolète vs tool use natif</td></tr>
+  <tr><td>!</td><td>Branche master</td><td>Convention inhabituelle, casse les fetches "main"</td></tr>
+  <tr><td>!</td><td>Espace dans path</td><td>"Anthropic 1P/" piégeux en automation</td></tr>
+  <tr><td>!</td><td>Pas de extended thinking</td><td>`&lt;thinking&gt;` natif récent absent</td></tr>
+</table>
+
+<h2>Matrice use cases</h2>
+<div class="use-cases">
+  <div class="use-case yes"><b>OUI — Citer le framework 10-éléments</b>Référence d'autorité pour le skill architecture-anthropic</div>
+  <div class="use-case yes"><b>OUI — Onboarder un junior sur les prompts</b>Cursus pédagogique éprouvé, runnable</div>
+  <div class="use-case yes"><b>OUI — Justifier l'usage des XML tags</b>Citation directe "Claude a été entraîné spécifiquement..."</div>
+  <div class="use-case yes"><b>OUI — Audit d'un prompt existant</b>Checklist par leçon = grille d'audit</div>
+  <div class="use-case no"><b>NON — Apprendre tool use moderne</b>Format XML legacy, voir doc officielle récente</div>
+  <div class="use-case no"><b>NON — Apprendre extended thinking</b>Concept post-Haiku 3, absent du cursus</div>
+  <div class="use-case no"><b>NON — Citer comme "à jour"</b>Bénéfice = intemporalité des patterns, pas l'actualité</div>
+  <div class="use-case no"><b>NON — Utiliser comme bibliothèque</b>Ce n'est PAS du code réutilisable, c'est un cours</div>
+</div>
+
+<h2>Roadmap (observée)</h2>
+<table>
+  <tr><th>Feature</th><th>Statut</th><th>Impact</th></tr>
+  <tr><td>9 chapitres + 3 appendices</td><td>Livré</td><td>Couverture complète prompt-eng</td></tr>
+  <tr><td>Tool use XML</td><td>Daté</td><td>À remplacer par renvoi vers tool use API natif</td></tr>
+  <tr><td>Extended thinking</td><td>Absent</td><td>Gap à combler côté skill, pas côté repo</td></tr>
+  <tr><td>Mise à jour modèle</td><td>Non planifiée</td><td>9 commits sur master, repo stabilisé</td></tr>
+</table>
+
+<h2>Recommandation finale</h2>
+<p><b>Adopter comme source d'autorité dans le skill <em>architecture-anthropic</em>.</b> Le framework 10-éléments de la leçon 09 doit être cité comme squelette canonique. Les patterns transversaux (XML tags, prefilling, CoT out loud, Golden Rule) sont assez stables pour être promus en règles fixes du skill.</p>
+<p><b>Conditions :</b> ne pas s'appuyer sur l'appendice 10.2 (tool use XML) pour le tool use moderne ; compléter par la doc officielle pour extended thinking et tool use API natif ; signaler la branche <code>master</code> dans toute citation URL.</p>
+
+</div>
+
+</div><!-- /.wrap -->
+
+<footer>
+Analyse fmaths + décodeur narratif · prompt-eng-interactive-tutorial · Généré le 2026-05-20 ·
+<a href="https://github.com/anthropics/prompt-eng-interactive-tutorial" target="_blank">GitHub ↗</a>
+</footer>
+
+<script>
+function switchTab(name, btn){
+  document.querySelectorAll('.content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

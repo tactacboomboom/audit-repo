@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>claude-code — Analyse</title>
+<style>
+:root{
+  --bg:#1e1e1e;--surface:#252526;--surface2:#2d2d30;--border:#3e3e42;
+  --accent:#007acc;--accent2:#0e639c;--green:#4ec9b0;--yellow:#dcdcaa;
+  --orange:#ce9178;--red:#f44747;--purple:#c586c0;--blue:#9cdcfe;
+  --text:#d4d4d4;--text-dim:#858585;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 "SF Mono","Consolas",monospace}
+.topbar{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--border);padding:10px 18px;display:flex;gap:12px;align-items:center}
+.topbar h1{margin:0;font-size:16px;font-weight:600}
+.topbar .tab-btn{background:transparent;border:1px solid transparent;color:var(--text-dim);padding:6px 12px;cursor:pointer;font:inherit;border-radius:3px}
+.topbar .tab-btn:hover{color:var(--text);background:var(--surface2)}
+.topbar .tab-btn.active{color:var(--text);background:var(--surface2);border-color:var(--border)}
+main{max-width:1100px;margin:0 auto;padding:24px 18px 80px}
+.content{display:none}
+.content.active{display:block}
+h2{color:var(--blue);border-bottom:1px solid var(--border);padding-bottom:6px;margin-top:32px}
+h3{color:var(--yellow);margin-top:24px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px 18px;margin:12px 0}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;margin:0 4px;background:var(--surface2);color:var(--text)}
+.tag.green{color:var(--green);border:1px solid var(--green)}
+.tag.yellow{color:var(--yellow);border:1px solid var(--yellow)}
+.tag.red{color:var(--red);border:1px solid var(--red)}
+.tag.blue{color:var(--blue);border:1px solid var(--blue)}
+.tag.purple{color:var(--purple);border:1px solid var(--purple)}
+.layer-badge{display:inline-block;padding:2px 10px;background:var(--accent);color:#fff;border-radius:3px;font-weight:600;font-size:12px;margin-right:8px}
+.alert{padding:10px 14px;border-radius:4px;border-left:3px solid;margin:10px 0}
+.alert.ok{background:rgba(78,201,176,.08);border-color:var(--green)}
+.alert.warn{background:rgba(220,220,170,.08);border-color:var(--yellow)}
+.alert.danger{background:rgba(244,71,71,.08);border-color:var(--red)}
+.invariant-row{padding:6px 0;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start}
+.invariant-row b{color:var(--purple);min-width:32px}
+pre{background:#0d0d0d;border:1px solid var(--border);border-radius:4px;padding:12px 14px;overflow:auto;color:var(--blue);font-size:13px}
+code{color:var(--orange);background:rgba(0,0,0,.25);padding:1px 4px;border-radius:2px}
+pre code{color:var(--blue);background:transparent;padding:0}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:13px}
+th,td{border:1px solid var(--border);padding:6px 10px;text-align:left;vertical-align:top}
+th{background:var(--surface2);color:var(--yellow)}
+.use-cases{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+.use-case{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px}
+.use-case.ok{border-left:3px solid var(--green)}
+.use-case.no{border-left:3px solid var(--red)}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.score{background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:14px;text-align:center}
+.score .num{font-size:28px;color:var(--accent);font-weight:700}
+.score .lbl{color:var(--text-dim);font-size:12px;margin-top:4px}
+.pullquote{font-style:italic;color:var(--purple);border-left:3px solid var(--purple);padding:8px 14px;margin:12px 0;background:rgba(197,134,192,.05)}
+footer{text-align:center;color:var(--text-dim);padding:24px;font-size:12px;border-top:1px solid var(--border);margin-top:60px}
+footer a{color:var(--accent)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>anthropics/claude-code — Analyse</h1>
+  <button class="tab-btn active" onclick="switchTab('story',this)">Recit</button>
+  <button class="tab-btn" onclick="switchTab('fmaths',this)">Fmaths</button>
+  <button class="tab-btn" onclick="switchTab('install',this)">Installation</button>
+  <button class="tab-btn" onclick="switchTab('verdict',this)">Verdict</button>
+</div>
+
+<main>
+
+<section id="tab-story" class="content active">
+  <h2>Le decor</h2>
+  <div class="card">
+    Imaginez une ville ou chaque quartier (plugin) est autonome mais tous suivent le meme plan d'urbanisme : une mairie (<code>plugin.json</code>) a l'entree, quatre types de batiments standardises a l'interieur (commands, agents, skills, hooks), et un registre municipal central (<code>marketplace.json</code>) qui dit qui vit ou. C'est <code>anthropics/claude-code</code> : 13 plugins, zero CLAUDE.md racine, et une convention si forte qu'elle se passe de documentation centralisee.
+  </div>
+
+  <h2>Les regles du jeu</h2>
+  <div class="card">
+    Tout fichier feuille est du markdown avec un en-tete YAML. Les agents y declarent leur modele (<code>model: opus</code>), les commandes y declarent leurs droits (<code>allowed-tools</code>), les skills y declarent leur declencheur (<code>description</code>). Les hooks, eux, parlent en JSON et executent des scripts externes via la variable magique <code>${CLAUDE_PLUGIN_ROOT}</code>.
+  </div>
+  <div class="pullquote">"La convention est l'API. Personne n'a publie de schema officiel pour hooks.json — on l'a deduit en lisant security-guidance et hookify."</div>
+
+  <h2>Le socle immuable</h2>
+  <div class="card">
+    Six invariants tiennent l'edifice : un <code>plugin.json</code> par plugin ; du frontmatter YAML pour toute feuille ; <code>${CLAUDE_PLUGIN_ROOT}</code> comme seul resolver de paths dans les hooks ; une structure hook a trois etages (event -> matcher -> command) ; un marketplace versionne via JSON Schema public ; et l'absence remarquable de CLAUDE.md racine — la structure parle d'elle-meme.
+  </div>
+
+  <h2>Les leviers de transformation</h2>
+  <div class="card">
+    Les plugins varient sur cinq axes : nombre de commands (0 a 4), d'agents (0 a 6), de skills (0 a 7), d'events hookes (0 a 4), et richesse du frontmatter (5 a 40 lignes). Le pattern <code>hookify</code> ajoute un meta-levier : Claude lui-meme peut creer des regles via markdown dans <code>.claude/hookify.*.local.md</code>.
+  </div>
+
+  <h2>Les points de rupture</h2>
+  <div class="card">
+    <table>
+      <tr><th>Risque</th><th>Probabilite</th><th>Impact</th></tr>
+      <tr><td>Hook bloque (timeout &gt; 10s)</td><td>faible</td><td>tool call retarde</td></tr>
+      <tr><td>Path hardcode Linux dans hook (<code>/tmp/</code>)</td><td>modere</td><td>casse Windows</td></tr>
+      <tr><td>Frontmatter mal forme</td><td>faible</td><td>agent/command ignore silencieusement</td></tr>
+      <tr><td>Breaking change Claude Code</td><td>modere</td><td>refonte hooks.json</td></tr>
+    </table>
+  </div>
+
+  <h2>Le chemin de moindre resistance</h2>
+  <div class="card">
+    Pour creer une archi compatible Anthropic : copier <code>security-guidance</code> comme template minimal (1 plugin.json + 1 hook), ou <code>pr-review-toolkit</code> comme template d'agents (6 agents en frontmatter pur), ou <code>hookify</code> comme template multi-evenements (4 events PreToolUse + PostToolUse + Stop + UserPromptSubmit).
+  </div>
+
+  <h2>L'equilibre du risque</h2>
+  <div class="card">
+    Ce repo EST la reference. Adopter ses conventions = aligner sur l'architecture canonique. Le risque inverse (diverger) est plus eleve que le risque d'adopter. Recommandation : adopter integralement, citer fichier par fichier, prevoir un patch Windows pour les paths Linux hardcodes.
+  </div>
+</section>
+
+<section id="tab-fmaths" class="content">
+  <h2><span class="layer-badge">L0</span>Ontologie</h2>
+  <div class="card">
+    Sept primitives non-redondantes : <span class="tag blue">Plugin</span> <span class="tag blue">Marketplace</span> <span class="tag blue">SlashCommand</span> <span class="tag blue">Agent</span> <span class="tag blue">Skill</span> <span class="tag blue">Hook</span> <span class="tag blue">MCP</span>.
+  </div>
+
+  <h2><span class="layer-badge">L1</span>Ensembles &amp; relations</h2>
+  <pre><code>Marketplace -- contient --> Plugin*
+Plugin -- compose --> {Commands, Agents, Skills, Hooks, MCP}
+Hook -- matche --> Event in {PreToolUse, PostToolUse, Stop, UserPromptSubmit, ...}
+Command -- frontmatter --> {allowed-tools, description}
+Agent -- frontmatter --> {name, description, model, color}
+Skill -- frontmatter --> {name, description, version}</code></pre>
+
+  <h2><span class="layer-badge">L2</span>Logique &amp; tensions</h2>
+  <div class="card">
+    <b>AND</b> : <code>plugin.json</code> + au moins une feuille (commands OU agents OU skills OU hooks OU mcp).<br>
+    <b>Tension</b> : le repo Claude Code coexiste <code>.claude/commands/</code> (repo-level) et <code>plugins/&lt;X&gt;/commands/</code> (plugin-level) — deux echelles distinctes.
+  </div>
+
+  <h2><span class="layer-badge">L3</span>Invariants</h2>
+  <div class="card">
+    <div class="invariant-row"><b>I1</b><span>Chaque plugin a un <code>.claude-plugin/plugin.json</code> avec name+version+description+author{name,email}</span></div>
+    <div class="invariant-row"><b>I2</b><span>Toute feuille (command/agent/skill) est un fichier markdown unique avec YAML frontmatter en tete</span></div>
+    <div class="invariant-row"><b>I3</b><span>Les hooks utilisent <code>${CLAUDE_PLUGIN_ROOT}</code> comme variable d'env pour resoudre les paths</span></div>
+    <div class="invariant-row"><b>I4</b><span>Les hooks suivent la structure {description, hooks:{Event:[{matcher,hooks:[{type,command,timeout}]}]}}</span></div>
+    <div class="invariant-row"><b>I5</b><span>Le marketplace.json suit le schema <code>json.schemastore.org/claude-code-marketplace.json</code></span></div>
+    <div class="invariant-row"><b>I6</b><span>Pas de CLAUDE.md a la racine de ce repo — la structure se documente elle-meme</span></div>
+  </div>
+
+  <h2><span class="layer-badge">L4</span>Axes de variation</h2>
+  <table>
+    <tr><th>Axe</th><th>Min</th><th>Max observe</th></tr>
+    <tr><td>Plugins par marketplace</td><td>1</td><td>13</td></tr>
+    <tr><td>Commands par plugin</td><td>0</td><td>4 (hookify)</td></tr>
+    <tr><td>Agents par plugin</td><td>0</td><td>6 (pr-review-toolkit)</td></tr>
+    <tr><td>Skills par plugin</td><td>0</td><td>7 (plugin-dev annonce)</td></tr>
+    <tr><td>Hook events par plugin</td><td>0</td><td>4 (hookify)</td></tr>
+    <tr><td>Taille frontmatter agent</td><td>~5 lignes</td><td>~40 lignes (code-reviewer)</td></tr>
+  </table>
+
+  <h2><span class="layer-badge">L5</span>Seuils &amp; stabilite</h2>
+  <div class="alert warn"><b>Timeout hook</b> : 10s observe (convention durcie).</div>
+  <div class="alert warn"><b>Path resolution</b> : <code>${CLAUDE_PLUGIN_ROOT}</code> est le seul mecanisme — pas de paths relatifs dans hooks.json.</div>
+  <div class="alert danger"><b>Path hardcode</b> : <code>security_reminder_hook.py</code> ecrit dans <code>/tmp/security-warnings-log.txt</code> — casse Windows.</div>
+
+  <h2><span class="layer-badge">L6</span>Couplages</h2>
+  <table>
+    <tr><th>Couche</th><th>Couplage</th></tr>
+    <tr><td>Marketplace -> Plugin</td><td>faible (source path relatif) <span class="tag green">OK</span></td></tr>
+    <tr><td>Plugin -> Hook</td><td>fort (hooks.json reference scripts du plugin) <span class="tag yellow">WARN</span></td></tr>
+    <tr><td>Hook -> OS</td><td>fort sur security-guidance (Linux paths) <span class="tag yellow">WARN</span></td></tr>
+    <tr><td>Agent -> Tool</td><td>faible (allowed-tools dans frontmatter) <span class="tag green">OK</span></td></tr>
+  </table>
+
+  <h2><span class="layer-badge">L7</span>Topologie (happy path)</h2>
+  <pre><code>1. cp -r plugins/security-guidance plugins/my-plugin
+2. Editer .claude-plugin/plugin.json (name, version, description, author)
+3. Ajouter feuilles dans commands/ ou agents/ ou skills/ ou hooks/
+4. Hooks -> hooks.json + script, referencer via ${CLAUDE_PLUGIN_ROOT}
+5. Ajouter entree dans .claude-plugin/marketplace.json
+6. Installer via /plugin (slash command native du CLI)</code></pre>
+
+  <h2><span class="layer-badge">L8</span>Probabilites &amp; vecteur cognitif</h2>
+  <div class="card">
+    P(archi stable) : <b>haute</b> · P(breaking frontmatter) : <b>faible</b> · P(rupture upstream) : <b>moderee</b> · Maturite communaute : <b>tres haute</b> (repo officiel Anthropic).<br><br>
+    <b>Vecteur cognitif</b> : equilibre correct. Legere sur-ponderation Normativite (conventions implicites non documentees centralement). Incertitude non signalee par les plugins (pas de version constraints).
+  </div>
+</section>
+
+<section id="tab-install" class="content">
+  <h2>Prerequis</h2>
+  <table>
+    <tr><th>Outil</th><th>Version min</th><th>Verification</th></tr>
+    <tr><td>Claude Code CLI</td><td>>= 2.0</td><td><code>claude --version</code></td></tr>
+    <tr><td>Git</td><td>>= 2.30</td><td><code>git --version</code></td></tr>
+    <tr><td>Python 3</td><td>>= 3.10 (pour hooks Python)</td><td><code>python3 --version</code></td></tr>
+  </table>
+
+  <h2>Option A — Installer un plugin via le CLI</h2>
+  <pre><code>claude
+> /plugin</code></pre>
+  <div class="alert ok">La slash command <code>/plugin</code> est integree au CLI Claude Code et ouvre le marketplace.</div>
+
+  <h2>Option B — Cloner un plugin comme template (PowerShell)</h2>
+  <pre><code>git clone --depth 1 https://github.com/anthropics/claude-code.git claude-code-ref
+Copy-Item -Recurse claude-code-ref\plugins\security-guidance .\my-plugin
+Remove-Item -Recurse -Force claude-code-ref</code></pre>
+
+  <h2>Config minimale d'un plugin</h2>
+  <pre><code>my-plugin/
+  .claude-plugin/plugin.json   # { name, version, description, author }
+  hooks/hooks.json             # { description, hooks: { PreToolUse: [...] } }
+  hooks/my_hook.py             # script Python (stdin/stdout protocol)
+  README.md</code></pre>
+
+  <h2>Points d'attention Windows</h2>
+  <div class="alert danger"><code>security_reminder_hook.py</code> ecrit dans <code>/tmp/security-warnings-log.txt</code> — patcher en <code>$env:TEMP\security-warnings-log.txt</code> si reutilise.</div>
+  <div class="alert warn"><code>${CLAUDE_PLUGIN_ROOT}</code> est resolu par le CLI Claude Code et fonctionne sur Windows.</div>
+  <div class="alert warn">Les hooks Python supposent <code>python3</code> sur le PATH. Sous Windows, peut etre <code>python</code> — adapter le <code>command</code> de hooks.json.</div>
+</section>
+
+<section id="tab-verdict" class="content">
+  <h2>Score 3 dimensions</h2>
+  <div class="score-grid">
+    <div class="score"><div class="num">10/10</div><div class="lbl">Pertinence skill architecture-anthropic</div></div>
+    <div class="score"><div class="num">9/10</div><div class="lbl">Maturite prod</div></div>
+    <div class="score"><div class="num">7/10</div><div class="lbl">Facilite onboarding</div></div>
+  </div>
+
+  <h2>Forces</h2>
+  <table>
+    <tr><th></th><th>Titre</th><th>Description</th></tr>
+    <tr><td>Reference</td><td>Source canonique</td><td>C'est LE repo officiel des conventions Claude Code</td></tr>
+    <tr><td>13x</td><td>13 plugins varies</td><td>Couvre commands seuls, agents seuls, hooks seuls, mix complets</td></tr>
+    <tr><td>Schema</td><td>Marketplace versionne</td><td>JSON Schema public sur json.schemastore.org</td></tr>
+    <tr><td>Agent</td><td>Frontmatter agent riche</td><td>code-reviewer.md = exemple de reference (40 lignes, 3 cas d'usage)</td></tr>
+    <tr><td>Hook</td><td>Pattern security-guidance</td><td>Hook PreToolUse simple, lisible, reproductible</td></tr>
+    <tr><td>Meta</td><td>Pattern hookify</td><td>Meta-pattern : configurer des hooks via markdown utilisateur</td></tr>
+  </table>
+
+  <h2>Faiblesses / Risques</h2>
+  <table>
+    <tr><th></th><th>Titre</th><th>Impact</th></tr>
+    <tr><td>Doc</td><td>Pas de doc centralisee</td><td>Conventions hooks.json deduites par lecture</td></tr>
+    <tr><td>OS</td><td>Linux-centric</td><td>security-guidance hardcode <code>/tmp/</code> (casse Windows)</td></tr>
+    <tr><td>Move</td><td>Evolution rapide</td><td>Aligne sur Opus 4.5+, conventions susceptibles d'evoluer</td></tr>
+    <tr><td>Gap</td><td>Pas de settings.json exemples</td><td>Aucun settings.json a la racine — patterns d'env vars/permissions absents</td></tr>
+  </table>
+
+  <h2>Matrice Use Cases</h2>
+  <div class="use-cases">
+    <div class="use-case ok"><b>OUI</b> Construire le skill architecture-anthropic — reference #1 absolue</div>
+    <div class="use-case ok"><b>OUI</b> Cloner un template de plugin — security-guidance ou pr-review-toolkit</div>
+    <div class="use-case ok"><b>OUI</b> Comprendre hooks.json — hookify + security-guidance</div>
+    <div class="use-case ok"><b>OUI</b> Voir un frontmatter agent riche — pr-review-toolkit/agents/code-reviewer.md</div>
+    <div class="use-case no"><b>NON</b> Trouver un settings.json modele — absent, chercher ailleurs</div>
+    <div class="use-case no"><b>NON</b> Trouver un CLAUDE.md modele — absent a la racine</div>
+    <div class="use-case no"><b>NON</b> Schema SessionStart/SessionEnd — non couvert dans les plugins observes</div>
+    <div class="use-case no"><b>NON</b> Auditer un systeme utilisateur — repo != audit, utiliser comme checklist seulement</div>
+  </div>
+
+  <h2>Recommandation finale</h2>
+  <div class="alert ok">
+    <b>Adopter integralement comme source canonique.</b> Le skill architecture-anthropic doit citer ce repo par fichier precis : <code>marketplace.json</code> pour le schema plugin, <code>security-guidance</code> pour hooks.json minimal, <code>hookify</code> pour hooks.json multi-events, <code>pr-review-toolkit</code> pour agents frontmatter, <code>hookify/skills/writing-rules/SKILL.md</code> pour le format Skill.
+  </div>
+  <div class="alert warn">
+    <b>Conditions :</b> prevoir un patch Windows pour <code>/tmp/</code> dans tout hook reutilise. Documenter les events hooks manquants (SessionStart, SessionEnd) depuis la doc officielle Claude Code car ils ne figurent pas dans les plugins observes.
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Analyse fmaths + decodeur narratif · anthropics/claude-code · Genere le 2026-05-20 ·
+  <a href="https://github.com/anthropics/claude-code" target="_blank">GitHub</a>
+</footer>
+
+<script>
+function switchTab(name, btn){
+  document.querySelectorAll('.content').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
