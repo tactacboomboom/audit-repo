@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 anthropics/courses — Analyse</title>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root {
+  --bg: #1e1e1e;
+  --surface: #252526;
+  --surface2: #2d2d30;
+  --border: #3e3e42;
+  --accent: #007acc;
+  --accent2: #0e639c;
+  --green: #4ec9b0;
+  --yellow: #dcdcaa;
+  --orange: #ce9178;
+  --red: #f44747;
+  --purple: #c586c0;
+  --blue: #9cdcfe;
+  --text: #d4d4d4;
+  --text-dim: #858585;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.topbar h1 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+.topbar h1 .repo { color: var(--accent); }
+.tabs { display: flex; gap: 4px; margin-left: auto; }
+.tab-btn {
+  background: transparent;
+  color: var(--text-dim);
+  border: 1px solid transparent;
+  padding: 8px 16px;
+  border-radius: 4px 4px 0 0;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.tab-btn:hover { color: var(--text); background: var(--surface); }
+.tab-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+  border-bottom-color: var(--surface);
+}
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px;
+}
+.content { display: none; }
+.content.active { display: block; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px;
+  margin: 0 0 20px;
+}
+h1, h2, h3, h4 { color: var(--text); margin-top: 1.5em; }
+h1 { font-size: 24px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+h2 { font-size: 20px; color: var(--blue); }
+h3 { font-size: 16px; color: var(--green); }
+h4 { font-size: 14px; color: var(--yellow); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code {
+  background: #0d0d0d;
+  color: var(--orange);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'Cascadia Code', Consolas, 'Courier New', monospace;
+  font-size: 13px;
+}
+pre {
+  background: #0d0d0d;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  overflow-x: auto;
+}
+pre code {
+  background: transparent;
+  color: var(--text);
+  padding: 0;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+}
+th, td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+th { background: var(--surface2); color: var(--blue); font-weight: 600; }
+blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 16px 0;
+  padding: 8px 16px;
+  background: var(--surface2);
+  color: var(--text-dim);
+}
+ul, ol { padding-left: 24px; }
+li { margin: 4px 0; }
+hr { border: 0; border-top: 1px solid var(--border); margin: 24px 0; }
+.tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 12px;
+  background: var(--surface2);
+  color: var(--text-dim);
+  margin: 0 4px 0 0;
+}
+.tag.green { background: rgba(78,201,176,0.15); color: var(--green); }
+.tag.yellow { background: rgba(220,220,170,0.15); color: var(--yellow); }
+.tag.red { background: rgba(244,71,71,0.15); color: var(--red); }
+.tag.blue { background: rgba(156,220,254,0.15); color: var(--blue); }
+.tag.purple { background: rgba(197,134,192,0.15); color: var(--purple); }
+.meta {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 32px;
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+.footer a { color: var(--accent); }
+@media (max-width: 768px) {
+  .topbar { padding: 12px 16px; gap: 12px; }
+  .container { padding: 16px; }
+  .tabs { width: 100%; overflow-x: auto; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <h1>📚 <span class="repo">anthropics/courses</span> — Analyse</h1>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('synthese', this)">📖 Synthèse</button>
+    <button class="tab-btn" onclick="switchTab('audit', this)">🔬 Audit</button>
+    <button class="tab-btn" onclick="switchTab('templates', this)">📐 Templates</button>
+    <button class="tab-btn" onclick="switchTab('checklist', this)">✅ Checklist</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="meta">
+    <span><span class="tag blue">Source</span> <a href="https://github.com/anthropics/courses" target="_blank">github.com/anthropics/courses</a></span>
+    <span><span class="tag">Branch</span> master</span>
+    <span><span class="tag green">Stars</span> ~21.5k</span>
+    <span><span class="tag yellow">Status</span> UNTRUSTED — WebFetch only</span>
+    <span><span class="tag purple">Pertinence</span> HAUTE (couche KB long-form)</span>
+  </div>
+
+  <div id="tab-synthese" class="content active">
+    <div class="card"><div id="md-synthese"></div></div>
+  </div>
+  <div id="tab-audit" class="content">
+    <div class="card"><div id="md-audit"></div></div>
+    <div class="card"><div id="md-structure"></div></div>
+  </div>
+  <div id="tab-templates" class="content">
+    <div class="card"><div id="md-templates"></div></div>
+  </div>
+  <div id="tab-checklist" class="content">
+    <div class="card"><div id="md-checklist"></div></div>
+  </div>
+</div>
+
+<div class="footer">
+  Audit structurel + patterns réutilisables · anthropics/courses · Généré le 2026-05-23 ·
+  <a href="https://github.com/anthropics/courses" target="_blank">repo GitHub ↗</a>
+</div>
+
+<script id="src-synthese" type="text/markdown">
+# NOTES — anthropics/courses pour `architecture-anthropic`
+
+**Repo audité :** https://github.com/anthropics/courses (branche `master`)
+**Layer ciblé :** markdown drive-only / catalogue archi officielle Anthropic
+**Pertinence pour le skill :** **HAUTE** — meilleure référence publique disponible pour la couche "KB long-form pédagogique" du vault Yanis (1-CONVERSATIONS et 2-CONCEPTS).
+**Date :** 2026-05-20
+
+---
+
+## 1. Pourquoi c'est pertinent pour Yanis
+
+Le vault Yanis stocke deux types de contenu long-form :
+- `vault\1 - CONVERSATIONS\` — capture chronologique de sessions
+- `vault\2 - CONCEPTS\` — décantation conceptuelle réutilisable
+
+Anthropic/courses montre **comment Anthropic eux-mêmes structurent un corpus pédagogique long-form en markdown plat (sans CMS, sans frontmatter, sans tags)**. C'est exactement la même contrainte que le vault : fichiers `.md` lus à plat depuis Drive.
+
+Verdict : c'est **la** référence officielle à imiter pour la couche 2-CONCEPTS et à adapter (date-prefix) pour 1-CONVERSATIONS.
+
+---
+
+## 2. Structure pédagogique — numérotation, progression, naming
+
+### Numérotation (convention forte, reproductible)
+- **`01_` à `09_`** — deux chiffres zero-padded, ordre de lecture obligatoire
+- **`00_`** — meta / how-to / overview, hors du compte linéaire
+- **`10.1_`, `10.2_`, `10.3_`** — appendice en décimal (extensions au-delà du parcours principal)
+- Lecture imposée : chaque README répète "we recommend that you start from the beginning... each lesson builds on key concepts taught in previous ones"
+
+### Trois layouts coexistent (à choisir selon volume)
+
+| Layout                  | Quand                                         | Exemple                           |
+| ----------------------- | --------------------------------------------- | --------------------------------- |
+| Flat numbered           | < 10 entrées, pas d'assets par entrée         | `tool_use/01_overview.ipynb`       |
+| Folder-per-entry        | Chaque entrée a des fichiers compagnons       | `prompt_evaluations/01_intro_to_evals/01_intro_to_evals.ipynb` |
+| Platform variants       | Même contenu, plusieurs cibles                | `prompt_engineering_*/AmazonBedrock/` + `Anthropic 1P/` |
+
+### Naming
+- Snake_case dominant (`01_tool_use_overview.ipynb`)
+- Exception : prompt eng tutorial utilise `Title_Case_With_Underscores` — **incohérence à NE PAS reproduire**
+- Verbes nominalisés courts : "overview", "recap", "fundamentals"
+- Pas de date dans le nom de fichier — l'ordre est porté par le préfixe numérique
+
+---
+
+## 3. Format des leçons (notebooks) — patterns markdown
+
+### Template A — minimal (4 courses sur 5)
+````markdown
+# <Titre de la leçon>          # H1, première cellule
+
+## Lesson goals                # ou "Learning goals"
+In this lesson, you'll learn how to:
+- <objectif 1>
+- <objectif 2>
+
+## <Section 1>
+<narratif + code>
+
+## <Section 2>
+<narratif + code>
+
+(optionnel) ## Next steps
+````
+
+### Template B — exercise-driven (prompt engineering tutorial)
+````markdown
+# Chapter N: <Topic>
+
+## Setup
+<imports, helper get_completion()>
+
+## Lesson
+<concept narratif>
+### Examples
+<prompts d'exemple>
+
+## Exercises
+### Exercise N.1 - <Nom>
+<tâche + grader regex>
+### Exercise N.2 - <Nom>
+### Congrats!                   # affordance de clôture
+
+## Example Playground            # bac à sable libre
+````
+
+**Points clés du Template B (le plus riche) :**
+- Exercices numérotés en hiérarchie pointée (`1.1`, `1.2`)
+- Indices externalisés dans `hints.py` — séparation contenu/solution
+- Chaque exercice a un grader automatique (regex / assertion)
+- "Congrats!" comme micro-affordance de clôture
+
+---
+
+## 4. Métadonnées top-of-file — absence remarquable
+
+**Anthropic n'utilise AUCUN de ces dispositifs :**
+- Pas de YAML frontmatter
+- Pas de tags
+- Pas de bloc de prérequis structuré (juste un § narratif dans le README parent)
+- Pas de "Sources" / "References" en footer (liens inline dans le corps)
+- Pas de callouts Obsidian `> [!note]` (juste `>` blockquote standard)
+
+**Tout repose sur :**
+1. Le nom du fichier (préfixe numérique + titre snake_case)
+2. La H1 dans la première cellule markdown
+3. La section `## Lesson goals` immédiatement après
+4. Le README parent qui sert de catalogue + TOC
+
+**Implication pour vault Yanis :** la couche markdown drive-only PEUT s'en passer aussi pour la majorité des fichiers. Le frontmatter doit être réservé aux fichiers nécessitant indexation (knowledge graph, search) — pas une obligation systématique.
+
+---
+
+## 5. Conventions markdown long-form — sections, exercices, solutions
+
+### Sections récurrentes (par fréquence)
+1. **`## Lesson goals` / `## Learning goals`** — quasi universel, juste après H1
+2. **`## Setup`** — bloc d'amorce technique (imports, config)
+3. **`## Lesson`** — corps conceptuel
+4. **`### Examples`** — démonstrations
+5. **`## Exercises`** — pratique
+6. **`### Exercise N.M - <Name>`** — items individuels
+7. **`### Congrats!`** — clôture
+8. **`## Example Playground`** — bac à sable
+9. **`## Next steps` / `## Table of contents`** — navigation
+
+### Patterns rhétoriques
+- **Ouverture en H1 direct** (jamais de préambule)
+- **Goals en bullet list** immédiatement
+- **Citations d'experts internes** en `>` blockquote pour crédibilité narrative ("Solutions Architect: ...")
+- **"Welcome to Anthropic's ..."** — phrase d'ouverture standardisée du README
+- **"each lesson builds on key concepts"** — phrase d'orientation quasi verbatim sur tous les READMEs
+
+### Solutions / reveals
+**Pattern d'or :** les solutions / indices sont **dans un fichier compagnon séparé** (`hints.py`), pas dans la note principale. Adaptation vault : créer un sibling `hints.md` pour les exercices conceptuels.
+
+---
+
+## 6. Patterns d'organisation de KB pédago — REUTILISABLES pour vault Yanis
+
+### Pour `vault\2 - CONCEPTS\` — adopter Template B
+Chaque concept = un dossier OU un fichier (selon volume d'assets) :
+````
+2 - CONCEPTS/
+  README.md                              # TOC du domaine conceptuel
+  00_overview.md                         # carte mentale du domaine
+  01_<concept-fondateur>.md
+    # H1 + ## Goals + ## Setup (prérequis) + ## Lesson + ### Examples + ## Exercises + ## Next steps
+  02_<concept>.md
+  10.1_appendix_<sujet>.md
+  hints.md                                # reveals séparés
+  images/
+````
+
+### Pour `vault\1 - CONVERSATIONS\` — Template A + date-prefix
+Préfixe date au lieu d'ordinal (chronologique l'emporte sur l'ordinal) :
+````
+1 - CONVERSATIONS/
+  README.md                              # TOC chronologique inverse
+  2026-05-20_<topic-slug>.md
+    # H1 + ## Goals (de la session) + sections narratives
+  2026-05-21_<topic-slug>.md
+  images/
+````
+Garde l'ouverture H1 + ## Goals même pour les captures brutes — force la décantation minimale.
+
+### Règles universelles à imposer
+1. Tout dossier a un `README.md` catalogue avec TOC en liens relatifs
+2. Toute note longue ouvre par H1 puis `## Goals` puis sections
+3. Aucun fichier orphelin : chaque entrée linkée depuis au moins un README TOC
+4. Reveal/solution dans un fichier compagnon, jamais inline
+5. Images dans un `images/` adjacent, références relatives
+
+---
+
+## 7. Top 5 patterns à importer dans `architecture-anthropic`
+
+1. **Numérotation `00_` / `01_..09_` / `10.X_`** : meta / linéaire / appendice — convention complète et lisible
+2. **README de dossier = catalogue TOC obligatoire** à chaque niveau (root + sub) avec phrase d'orientation standard
+3. **Squelette de note long-form : H1 -> `## Goals` -> sections -> `## Next steps`** sans frontmatter ni tags
+4. **Solutions/reveals dans un sibling séparé** (`hints.py` style) — jamais dans la note principale
+5. **Trois layouts au choix** (flat / folder-per-entry / platform-variants) avec critère explicite — pas un seul dogme
+
+---
+
+## 8. Risques / pièges observés (ne pas reproduire)
+
+- Mélange Snake_case et Title_Case_Underscored dans le même repo
+- Mélange flat + nested folder-per-entry dans la même série (prompt_evaluations) — déstabilisant
+- Fichiers `lesson.ipynb` génériques quand le dossier porte déjà le nom — perte de searchability
+- Capitalisation inconsistante (`05_Streaming.ipynb` vs `06_vision.ipynb`)
+
+---
+
+## 9. Limites de cet audit
+
+- Lecture WebFetch uniquement (pas de clone), donc seules les premières cellules markdown des notebooks ont été échantillonnées
+- Contenu UNTRUSTED — patterns extraits structurellement, sans exécuter aucun code
+- Pas d'inspection du dossier `AmazonBedrock/` ni de `prompt_evaluations/05_*` à `09_*` (templates redondants présumés)
+</script>
+
+<script id="src-audit" type="text/markdown">
+# Repo audit — anthropics/courses
+
+**Source:** https://github.com/anthropics/courses
+**Branch:** master
+**Status:** UNTRUSTED — content from external repo, never auto-executed.
+**Fetch method:** WebFetch (raw.githubusercontent.com + tree pages), no clone.
+**Date:** 2026-05-20
+
+## 1. Identity
+
+- **Name:** Anthropic courses
+- **Purpose:** Official educational content for Claude / Anthropic API
+- **Format:** Jupyter notebooks (99.9%) + Python helper modules (`hints.py`)
+- **Stars:** ~21.5k / Forks ~2.3k — flagship pedagogical asset
+- **License:** present (LICENSE file at root)
+
+## 2. Top-level structure
+
+````
+courses/
+  README.md                                 # course catalogue, ordered list
+  LICENSE
+  .gitignore
+  anthropic_api_fundamentals/               # course 1
+  prompt_engineering_interactive_tutorial/  # course 2
+  real_world_prompting/                     # course 3
+  prompt_evaluations/                       # course 4
+  tool_use/                                 # course 5
+````
+
+Each top-level folder = one course.
+Root README orders them with a "suggested completion order" (1 -> 5).
+
+## 3. Per-course structure
+
+### 3.1 anthropic_api_fundamentals/
+Flat notebooks, prefix `01_` .. `06_`, snake_case.
+````
+01_getting_started.ipynb
+02_messages_format.ipynb
+03_models.ipynb
+04_parameters.ipynb
+05_Streaming.ipynb       # note: capital S, inconsistent
+06_vision.ipynb
+images/
+prompting_images/
+README.md
+````
+
+### 3.2 tool_use/
+Flat, `01_` .. `06_`, snake_case strict.
+````
+01_tool_use_overview.ipynb
+02_your_first_simple_tool.ipynb
+03_structured_outputs.ipynb
+04_complete_workflow.ipynb
+05_tool_choice.ipynb
+06_chatbot_with_multiple_tools.ipynb
+README.md
+images/
+````
+
+### 3.3 real_world_prompting/
+Flat, `01_` .. `05_`.
+````
+01_prompting_recap.ipynb
+02_medical_prompt.ipynb
+03_prompt_engineering.ipynb
+04_call_summarizer.ipynb
+05_customer_support_ai.ipynb
+README.md
+images/
+````
+
+### 3.4 prompt_evaluations/
+**Nested:** one folder per lesson, lesson notebook inside.
+````
+01_intro_to_evals/01_intro_to_evals.ipynb
+02_workbench_evals/02_workbench_evals.ipynb
+03_code_graded_evals/03_code_graded.ipynb
+04_code_graded_classification_evals/04_code_graded_classification_evals.ipynb
+05_prompt_foo_code_graded_animals/lesson.ipynb
+06_prompt_foo_code_graded_classification/lesson.ipynb
+07_prompt_foo_custom_graders/lesson.ipynb
+08_prompt_foo_model_graded/lesson.ipynb
+09_custom_model_graded_prompt_foo/lesson.ipynb
+README.md
+images/
+````
+Lessons 1-4 keep the descriptive filename, 5-9 use generic `lesson.ipynb` inside numbered folder. Inconsistent — likely the folder pattern is the newer convention (supports per-lesson assets).
+
+### 3.5 prompt_engineering_interactive_tutorial/
+**Two parallel variants** in subfolders:
+````
+AmazonBedrock/
+Anthropic 1P/      # first-party
+README.md
+````
+Inside `Anthropic 1P/`:
+````
+00_Tutorial_How-To.ipynb
+01_Basic_Prompt_Structure.ipynb
+02_Being_Clear_and_Direct.ipynb
+03_Assigning_Roles_Role_Prompting.ipynb
+04_Separating_Data_and_Instructions.ipynb
+05_Formatting_Output_and_Speaking_for_Claude.ipynb
+06_Precognition_Thinking_Step_by_Step.ipynb
+07_Using_Examples_Few-Shot_Prompting.ipynb
+08_Avoiding_Hallucinations.ipynb
+09_Complex_Prompts_from_Scratch.ipynb
+10.1_Appendix_Chaining Prompts.ipynb
+10.2_Appendix_Tool Use.ipynb
+10.3_Appendix_Search & Retrieval.ipynb
+hints.py
+````
+- `00_` for meta/how-to (out of the linear count).
+- `10.X` decimal numbering for appendix.
+- Title_Case_With_Underscores naming (different from other courses).
+- External `hints.py` referenced by all lessons (decouples solutions).
+
+## 4. README conventions
+
+Per-course README ALWAYS contains:
+1. H1 title = course name
+2. Welcome / framing paragraph (one or two sentences)
+3. Recommendation to start at lesson 01 because "each lesson builds on key concepts taught in previous ones"
+4. `## Table of contents` section
+5. Bulleted or numbered list of lessons, each link relative to lesson notebook
+
+Root README adds:
+- Numbered ordered list of all courses
+- Inline links to alternate platform versions (AWS Workshop, Google Vertex)
+- Footer warning about Haiku/cost (in bold)
+
+## 5. Lesson notebook structure (long-form markdown pattern)
+
+### Standard skeleton (most lessons)
+````
+H1  <Lesson title>            # always first markdown cell
+H2  Lesson goals / Learning goals   # bullet list of objectives
+H2  <Topic section 1>
+H2  <Topic section 2>
+...
+H2  Next steps / Congrats (optional)
+````
+
+### Prompt engineering tutorial = richer template (KEY PATTERN)
+Each chapter notebook contains this canonical structure:
+````
+H1  Chapter N: <Topic>
+H2  Setup                    # imports, API client, helper fn
+H2  Lesson                   # narrative + concept
+  H3  Examples               # showcase prompts
+H2  Exercises                # practice
+  H3  Exercise N.1 - <Name>
+  H3  Exercise N.2 - <Name>
+  H3  Congrats!              # closing
+H2  Example Playground       # sandbox cells
+````
+- Numbered exercises with dotted hierarchy (1.1, 1.2)
+- Hints externalised to `hints.py` (call `hints.exercise_1_1_hint`)
+- Each exercise paired with a regex/grading function
+- "Congrats!" cell = closing affordance
+
+## 6. Other conventions
+
+- All notebooks use Claude 3 Haiku + temperature 0 (explicit, repeated)
+- Helper `get_completion()` defined in setup cell (reusable pattern)
+- Images live in adjacent `images/` folder, referenced relatively
+- Inline links in markdown to official docs (`docs.anthropic.com/...`)
+- Quotes from "internal Solutions Architects" used for credibility (eval course)
+- No frontmatter / YAML — pure markdown headings only
+- No tags, no metadata block — relies entirely on file/folder naming
+
+## 7. Verdict
+
+**Relevance for architecture-anthropic skill: HIGH (for long-form KB layer).**
+This is a near-perfect reference for the "long-form pedagogical / conceptual" markdown layer:
+- Numbered prefix + flat folder = readable order
+- README = catalogue with TOC
+- Per-lesson template (goals -> body -> exercise -> congrats) maps cleanly onto Yanis' 2-CONCEPTS pattern.
+</script>
+
+<script id="src-structure" type="text/markdown">
+# Structure map — anthropics/courses
+
+````
+courses/
+|-- README.md                                     # ordered course catalogue + meta note
+|-- LICENSE
+|-- .gitignore
+|
+|-- anthropic_api_fundamentals/                   # COURSE 1 — flat layout
+|   |-- README.md                                  # TOC linking 01..06
+|   |-- 01_getting_started.ipynb
+|   |-- 02_messages_format.ipynb
+|   |-- 03_models.ipynb
+|   |-- 04_parameters.ipynb
+|   |-- 05_Streaming.ipynb
+|   |-- 06_vision.ipynb
+|   |-- images/
+|   `-- prompting_images/
+|
+|-- prompt_engineering_interactive_tutorial/      # COURSE 2 — platform variants
+|   |-- README.md
+|   |-- AmazonBedrock/                             # variant 1
+|   `-- Anthropic 1P/                              # variant 2 (first-party)
+|       |-- 00_Tutorial_How-To.ipynb               # meta lesson, prefix 00
+|       |-- 01_Basic_Prompt_Structure.ipynb        # chapter template
+|       |-- 02_Being_Clear_and_Direct.ipynb
+|       |-- 03_Assigning_Roles_Role_Prompting.ipynb
+|       |-- 04_Separating_Data_and_Instructions.ipynb
+|       |-- 05_Formatting_Output_and_Speaking_for_Claude.ipynb
+|       |-- 06_Precognition_Thinking_Step_by_Step.ipynb
+|       |-- 07_Using_Examples_Few-Shot_Prompting.ipynb
+|       |-- 08_Avoiding_Hallucinations.ipynb
+|       |-- 09_Complex_Prompts_from_Scratch.ipynb
+|       |-- 10.1_Appendix_Chaining Prompts.ipynb   # decimal = appendix
+|       |-- 10.2_Appendix_Tool Use.ipynb
+|       |-- 10.3_Appendix_Search & Retrieval.ipynb
+|       `-- hints.py                                # externalised solutions
+|
+|-- real_world_prompting/                         # COURSE 3 — flat
+|   |-- README.md
+|   |-- 01_prompting_recap.ipynb
+|   |-- 02_medical_prompt.ipynb
+|   |-- 03_prompt_engineering.ipynb
+|   |-- 04_call_summarizer.ipynb
+|   |-- 05_customer_support_ai.ipynb
+|   `-- images/
+|
+|-- prompt_evaluations/                           # COURSE 4 — nested (1 folder / lesson)
+|   |-- README.md
+|   |-- 01_intro_to_evals/01_intro_to_evals.ipynb
+|   |-- 02_workbench_evals/02_workbench_evals.ipynb
+|   |-- 03_code_graded_evals/03_code_graded.ipynb
+|   |-- 04_code_graded_classification_evals/04_code_graded_classification_evals.ipynb
+|   |-- 05_prompt_foo_code_graded_animals/lesson.ipynb
+|   |-- 06_prompt_foo_code_graded_classification/lesson.ipynb
+|   |-- 07_prompt_foo_custom_graders/lesson.ipynb
+|   |-- 08_prompt_foo_model_graded/lesson.ipynb
+|   |-- 09_custom_model_graded_prompt_foo/lesson.ipynb
+|   `-- images/
+|
+`-- tool_use/                                     # COURSE 5 — flat
+    |-- README.md
+    |-- 01_tool_use_overview.ipynb
+    |-- 02_your_first_simple_tool.ipynb
+    |-- 03_structured_outputs.ipynb
+    |-- 04_complete_workflow.ipynb
+    |-- 05_tool_choice.ipynb
+    |-- 06_chatbot_with_multiple_tools.ipynb
+    `-- images/
+````
+
+## Three layout flavours coexisting
+
+| Flavour                  | Used by                              | When to pick                                   |
+| ------------------------ | ------------------------------------ | ---------------------------------------------- |
+| Flat numbered            | api_fundamentals, real_world, tool_use | Small course (< 10 lessons), no per-lesson assets |
+| Folder-per-lesson nested | prompt_evaluations                   | Lesson has data, configs, multiple files       |
+| Platform variants split  | prompt_engineering_interactive       | Same content for multiple cloud platforms      |
+
+## Numbering conventions
+
+- `01_` .. `09_` — two-digit zero-padded, lessons in order
+- `00_` — meta / how-to / overview (out of linear count)
+- `10.1_`, `10.2_` — appendix using decimal suffix
+- Snake_case (most) OR Title_Case_Underscored (prompt eng tutorial) — inconsistent across courses
+</script>
+
+<script id="src-templates" type="text/markdown">
+# Lesson template extracted from anthropics/courses
+
+Two canonical templates emerge — a **minimal** one (used in tool_use, api_fundamentals, real_world_prompting, prompt_evaluations) and a **rich exercise-driven** one (prompt_engineering_interactive_tutorial).
+
+---
+
+## Template A — Minimal lesson
+
+````markdown
+# <Lesson title>          (H1, first markdown cell)
+
+## Lesson goals           (or "Learning goals")
+In this lesson, you'll learn how to:
+- <objective 1>
+- <objective 2>
+- <objective 3>
+
+## <Topic section 1>
+<narrative + code>
+
+## <Topic section 2>
+<narrative + code>
+
+## <Topic section N>
+<narrative + code>
+
+(optional) ## Next steps
+````
+
+Observed in `01_getting_started.ipynb`, `01_tool_use_overview.ipynb`, `01_intro_to_evals.ipynb`, `01_prompting_recap.ipynb`.
+
+---
+
+## Template B — Exercise-driven lesson
+
+````markdown
+# Chapter N: <Topic>
+
+## Setup
+Imports, API client, helper function `get_completion()`.
+
+## Lesson
+Narrative explanation of the concept.
+
+### Examples
+One or more worked example prompts showing the technique.
+
+## Exercises
+
+### Exercise N.1 - <Name>
+Task description.
+Grading function (regex / assertion).
+Hint available via `hints.exercise_n_1_hint`.
+
+### Exercise N.2 - <Name>
+...
+
+### Congrats!
+Closing affordance after exercises pass.
+
+## Example Playground
+Empty sandbox cells for free experimentation.
+````
+
+Observed in `01_Basic_Prompt_Structure.ipynb` and following chapters of the interactive tutorial.
+
+---
+
+## Recurring rhetorical patterns
+
+1. **Open with H1 title** — never frontmatter, never preamble
+2. **Lesson goals as bullet list** under H2 immediately after the title
+3. **Quote internal experts** (`> "..."` — Solutions Architect) for credibility in conceptual content
+4. **"Welcome to Anthropic's..."** opening sentence on per-course README
+5. **"We recommend that you start from the beginning... each lesson builds on key concepts taught in previous ones"** — repeated almost verbatim across READMEs
+6. **Closing "Congrats!" / "Next steps"** mini-section as completion affordance
+
+## What is NOT used
+
+- No YAML frontmatter
+- No tags or metadata blocks
+- No dataview-style queries
+- No backlinks section
+- No "Sources" / "References" footer (sources are inline)
+- No callout blocks (Obsidian `> [!note]` style absent)
+- Quotes use plain markdown `>` blockquote
+</script>
+
+<script id="src-checklist" type="text/markdown">
+# Personal audit checklist — patterns to import / reject
+
+Layer: markdown drive-only (vault Yanis)
+Source: anthropics/courses
+Decision context: comparing official Anthropic pedagogy with vault\1-CONVERSATIONS\ and vault\2-CONCEPTS\
+
+## IMPORT (high-confidence, fits vault long-form layer)
+
+- [ ] **Two-digit zero-padded numeric prefix** (`01_`, `02_`) for ordered series in a folder
+- [ ] **`00_` prefix for meta / how-to / overview** that sits outside the linear count
+- [ ] **Decimal suffix `10.1_`, `10.2_`** for appendix / addendum to a main entry
+- [ ] **README.md as a catalogue with TOC** at every folder level (root + sub)
+- [ ] **Standard opening sentence** for per-folder README ("Welcome to ... <N> lessons / notes / etc.")
+- [ ] **TOC as relative-link list** (no absolute paths)
+- [ ] **H1 title = first content line** (no preamble, no frontmatter)
+- [ ] **H2 "Goals" / "Objectives" bullet list right after title** for any conceptual note
+- [ ] **"We recommend starting from..."** orientation phrase in series READMEs
+- [ ] **`hints.py`-style externalisation** — anything that is "solution / answer / reveal" lives in a separate companion file, not the main note
+- [ ] **Adjacent `images/` folder** with relative references (no central asset dir)
+- [ ] **Closing "Next steps" / "See also" mini-section** as navigation affordance
+- [ ] **Inline blockquotes (`>`) for expert quotes** — sufficient without callout extension
+
+## REJECT (not used in source, keep vault convention)
+
+- [ ] No YAML frontmatter — Anthropic doesn't use it, but vault DOES (tags, dates needed for Yanis system)
+- [ ] No tags — vault needs them for the knowledge graph
+- [ ] No backlinks footer — vault generates them
+- [ ] No callouts `> [!note]` — Anthropic stays plain markdown; vault may use Obsidian extensions
+
+## INCONSISTENCIES to AVOID copying
+
+- [ ] Don't mix `Snake_case` and `Title_Case_Underscored` (Anthropic does — bad)
+- [ ] Don't mix flat layout + nested folder-per-entry in the same series (prompt_evaluations does — confusing)
+- [ ] Don't use generic `lesson.ipynb` filenames when in nested folders — kill searchability; always keep descriptive filename even when folder name duplicates it
+
+## Mapping to vault Yanis
+
+### vault\2 - CONCEPTS\
+Best fit for **Template B** structure (rich, exercise-driven):
+````
+00_overview.md
+01_<concept>.md     # H1 + Goals + Lesson + Examples + Exercises + Playground
+02_<concept>.md
+...
+README.md          # TOC
+hints.md           # optional reveal layer
+images/
+````
+
+### vault\1 - CONVERSATIONS\
+Best fit for **Template A** structure (minimal narrative):
+````
+README.md
+2026-05-20_<topic>.md   # H1 + Goals + body sections
+2026-05-21_<topic>.md
+images/
+````
+- Use date prefix instead of `01_` for conversations (chronological > ordinal)
+- Keep H1-then-Goals opening even for chat captures — forces decanting
+
+### Universal rules to enforce
+- Every folder has a `README.md` catalogue
+- Every long-form note opens with H1, then `## Goals`, then sections
+- No orphan files: each entry linked from at least one README TOC
+- Reveal/solution content always in a *separate* sibling file
+</script>
+
+<script>
+function renderAll() {
+  const ids = ['synthese', 'audit', 'structure', 'templates', 'checklist'];
+  ids.forEach(id => {
+    const src = document.getElementById('src-' + id);
+    const dst = document.getElementById('md-' + id);
+    if (src && dst && window.marked) {
+      dst.innerHTML = marked.parse(src.textContent);
+    }
+  });
+}
+function switchTab(name, btn) {
+  document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', renderAll);
+if (document.readyState !== 'loading') renderAll();
+</script>
+</body>
+</html>
