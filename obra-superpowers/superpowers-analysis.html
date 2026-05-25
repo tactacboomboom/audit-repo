@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>obra/superpowers — Analyse</title>
+<style>
+:root{
+  --bg:#1e1e1e;--surface:#252526;--surface2:#2d2d30;--border:#3e3e42;
+  --accent:#007acc;--accent2:#0e639c;--green:#4ec9b0;--yellow:#dcdcaa;
+  --orange:#ce9178;--red:#f44747;--purple:#c586c0;--blue:#9cdcfe;
+  --text:#d4d4d4;--text-dim:#858585;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+.topbar{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--border);z-index:10;padding:14px 28px;display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.topbar h1{margin:0;font-size:18px;color:var(--blue);font-weight:500}
+.tabs{display:flex;gap:4px;margin-left:auto}
+.tab-btn{background:transparent;border:1px solid transparent;color:var(--text-dim);padding:8px 14px;cursor:pointer;font-size:13px;border-radius:4px;font-family:inherit}
+.tab-btn:hover{color:var(--text);background:var(--surface2)}
+.tab-btn.active{color:var(--accent);background:var(--surface2);border-color:var(--border)}
+.container{max-width:1100px;margin:0 auto;padding:28px}
+.content{display:none}
+.content.active{display:block}
+h2{color:var(--blue);border-bottom:1px solid var(--border);padding-bottom:8px;margin-top:36px;font-weight:500}
+h3{color:var(--yellow);font-weight:500;margin-top:24px}
+h4{color:var(--orange);font-weight:500}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px 22px;margin:14px 0}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;margin-right:6px}
+.tag.green{background:rgba(78,201,176,.15);color:var(--green)}
+.tag.yellow{background:rgba(220,220,170,.15);color:var(--yellow)}
+.tag.red{background:rgba(244,71,71,.15);color:var(--red)}
+.tag.blue{background:rgba(156,220,254,.15);color:var(--blue)}
+.tag.purple{background:rgba(197,134,192,.15);color:var(--purple)}
+.layer-badge{display:inline-block;background:var(--accent);color:#fff;padding:3px 10px;border-radius:3px;font-size:12px;font-weight:600;margin-right:10px}
+.alert{padding:12px 16px;border-radius:5px;margin:14px 0;border-left:4px solid;background:var(--surface2)}
+.alert.ok{border-color:var(--green);color:var(--green)}
+.alert.warn{border-color:var(--yellow);color:var(--yellow)}
+.alert.danger{border-color:var(--red);color:var(--red)}
+.invariant-row{display:flex;align-items:flex-start;gap:12px;margin:8px 0;padding:8px 12px;background:var(--surface2);border-radius:4px}
+.invariant-row .label{color:var(--purple);font-weight:600;flex-shrink:0;min-width:40px}
+.use-cases{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+.use-case{background:var(--surface);border:1px solid var(--border);border-left:4px solid;padding:14px;border-radius:5px}
+.use-case.yes{border-left-color:var(--green)}
+.use-case.no{border-left-color:var(--red)}
+.use-case h4{margin:0 0 6px 0;font-size:14px}
+table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--border)}
+th{background:var(--surface2);color:var(--blue);font-weight:600}
+tr:hover{background:var(--surface2)}
+pre{background:#0d0d0d;padding:14px;border-radius:5px;overflow-x:auto;border:1px solid var(--border)}
+code{font-family:"Consolas","Monaco",monospace;font-size:13px;color:var(--orange)}
+pre code{color:var(--text)}
+blockquote{border-left:4px solid var(--purple);padding:8px 16px;margin:14px 0;background:var(--surface2);color:var(--text);font-style:italic}
+.pull-quote{font-size:17px;color:var(--blue);font-style:italic;border-left:4px solid var(--accent);padding:10px 18px;margin:18px 0;background:var(--surface2)}
+.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+.score-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:18px;text-align:center}
+.score-card .num{font-size:38px;color:var(--accent);font-weight:700}
+.score-card .lbl{color:var(--text-dim);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+.footer{padding:20px 28px;color:var(--text-dim);font-size:12px;text-align:center;border-top:1px solid var(--border);margin-top:40px}
+.footer a{color:var(--accent);text-decoration:none}
+.footer a:hover{text-decoration:underline}
+ul li{margin:4px 0}
+ol li{margin:4px 0}
+.pipeline{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;align-items:center}
+.pipe-node{background:var(--surface2);border:1px solid var(--accent);border-radius:4px;padding:6px 12px;font-size:13px;color:var(--blue)}
+.pipe-arrow{color:var(--text-dim);font-size:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:18px 0}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center}
+.stat-card .num{font-size:28px;color:var(--green);font-weight:700}
+.stat-card .lbl{color:var(--text-dim);font-size:11px;text-transform:uppercase}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>⚡ obra/superpowers — Analyse</h1>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('recit',this)">📖 Récit</button>
+    <button class="tab-btn" onclick="switchTab('fmaths',this)">🔬 Fmaths</button>
+    <button class="tab-btn" onclick="switchTab('install',this)">⚙️ Installation</button>
+    <button class="tab-btn" onclick="switchTab('verdict',this)">⚖️ Verdict</button>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============ TAB RÉCIT ============ -->
+<div id="tab-recit" class="content active">
+
+<div class="stats-grid">
+  <div class="stat-card"><div class="num">206K</div><div class="lbl">Stars GitHub</div></div>
+  <div class="stat-card"><div class="num">18.3K</div><div class="lbl">Forks</div></div>
+  <div class="stat-card"><div class="num">14</div><div class="lbl">Skills</div></div>
+  <div class="stat-card"><div class="num">v5.1</div><div class="lbl">Version stable</div></div>
+</div>
+
+<h2>Le décor</h2>
+<p>Il y a une dizaine d'agents de code sur le marché, chacun avec ses conventions, ses formats, ses chemins d'invocation. Superpowers est né d'une idée simple — et un peu folle : écrire une méthodologie de développement une seule fois, et la faire fonctionner partout.</p>
+<p>Le résultat, c'est un repo de 206 000 étoiles, 14 skills opérationnels, et cinq formats d'installation différents — un par agent. Claude Code, Cursor, Codex, Gemini, Factory Droid, Copilot : tous peuvent consommer les mêmes protocoles. Le décor, c'est une bibliothèque de comportements codés en markdown, sans framework, sans build step, sans dépendance runtime. Juste des instructions.</p>
+
+<div class="pipeline">
+  <span class="pipe-node">💬 Brainstorm</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">🌿 Worktree</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">📋 Plan</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">⚙️ Execute</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">🔴 TDD</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">🔍 Review</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">✅ Finish</span>
+</div>
+
+<h2>Les règles du jeu</h2>
+<p>La règle fondamentale est contre-intuitive dans un monde qui valorise la vitesse : <strong>tu ne codes pas avant d'avoir un test qui échoue</strong>.</p>
+<p>RED-GREEN-REFACTOR n'est pas une option. C'est un invariant. L'agent doit produire un test failing, puis le faire passer, puis nettoyer. Tout autre ordre est explicitement interdit par le skill <code>test-driven-development</code>.</p>
+<p>La deuxième règle : <strong>une feature = un worktree = une branche</strong>. Pas d'entrelacement, pas de "j'ai presque fini, je rajoute juste ça". La branche est sacrée jusqu'à la review.</p>
+<p>La troisième règle, ajoutée en v5.1 après une phase de friction : <strong>plus de dispatch nommé</strong>. Les agents ne s'appellent plus par nom propre. On passe par des templates génériques — sacrifice d'expressivité pour gain de portabilité.</p>
+<div class="pull-quote">"La discipline est le prix de la vitesse sur le long terme."</div>
+
+<h2>Le socle immuable</h2>
+<p>Superpowers repose sur des invariants que deux ans d'itération n'ont pas bougés : le <strong>workflow séquentiel en 7 étapes</strong> est intouchable. L'ordre n'a jamais été remis en cause, même lors des refactors majeurs. La <strong>vérification avant completion</strong> est le dernier filet. Le skill <code>verification-before-completion</code> est celui qui autorise le merge — sauter cette étape, c'est introduire un bug silencieux.</p>
+<div class="alert warn"><strong>Avertissement structurel :</strong> les skills de superpowers n'ont pas de frontmatter YAML (contrairement à anthropics/skills). Aucune validation automatisée possible — un skill mal écrit passe inaperçu jusqu'à l'exécution.</div>
+
+<h2>Les leviers de transformation</h2>
+<p>Le premier levier : le <strong>parallélisme des subagents</strong>. Le skill <code>dispatching-parallel-agents</code> découpe un plan en N trajectoires simultanées. C'est là que le framework passe du "je code mieux" au "je code plus vite et mieux".</p>
+<p>Le deuxième levier : <strong>l'extension est ouverte</strong>. Le skill <code>writing-skills</code> est dans le repo. La méthodologie se documente elle-même. N'importe quelle équipe peut créer ses propres skills et les distribuer via le même mécanisme de plugin.</p>
+<p>Le troisième levier — souvent sous-estimé — est la <strong>portabilité multi-agent</strong>. Une équipe qui migre de Cursor vers Claude Code ne perd pas sa méthodologie. Elle change juste de manifest.</p>
+
+<h2>Les points de rupture</h2>
+<table>
+<tr><th>Seuil</th><th>Signal d'alarme</th></tr>
+<tr><td>Tâche &gt; 5 min dans le plan</td><td>Plan trop vague → redécouper</td></tr>
+<tr><td>TDD sans test RED au départ</td><td>Test de complaisance → bugs cachés</td></tr>
+<tr><td>Skill mis à jour sans màj des 5 manifests</td><td>Comportement divergent selon l'agent</td></tr>
+<tr><td>Session sans hooks chargés</td><td>Skills silencieusement absents</td></tr>
+<tr><td>Merge sans verification-before-completion</td><td>Régression non détectée</td></tr>
+</table>
+<div class="alert danger"><strong>Risque insidieux :</strong> si les hooks ne chargent pas, l'agent continue de fonctionner — mais sans la méthodologie. Aucune erreur visible. Le résultat se dégrade silencieusement.</div>
+
+<h2>Le chemin de moindre résistance</h2>
+<p>Pour un projet neuf sur Claude Code :</p>
+<pre><code>/plugin install superpowers@claude-plugins-official</code></pre>
+<p>Puis la session démarre, les hooks s'initialisent, les 14 skills deviennent disponibles. L'agent propose <code>/brainstorm</code>. Le problème se précise en questions socratiques. Un plan en tâches 2-5 min est validé. Un worktree s'ouvre. Les subagents s'exécutent. Les tests rougissent avant de verdir.</p>
+<p>C'est le chemin le plus court vers du code qui tient en production. Pas le chemin le plus immédiat — mais le moins cher sur la durée.</p>
+
+<h2>L'équilibre du risque</h2>
+<p>Le risque principal n'est pas la qualité du framework — elle est indéniable. C'est le <strong>rythme des breaking changes</strong>. Trente versions en huit mois. V4→V5 a cassé le dispatch nommé. V6 est probable en 2026.</p>
+<p>Pour une adoption individuelle : risque faible. Pour une intégration dans un produit avec SLA : <strong>épingler la version et auditer chaque upgrade</strong>. Un breaking change non anticipé dans le manifest peut silencieusement désactiver toute la méthodologie.</p>
+<blockquote>Adoptez-le. Épinglez la version. Testez les upgrades en worktree isolé — le framework vous l'enseigne lui-même.</blockquote>
+
+</div>
+
+<!-- ============ TAB FMATHS ============ -->
+<div id="tab-fmaths" class="content">
+
+<h2><span class="layer-badge">L0</span> Ontologie</h2>
+<div class="card">
+<ul>
+<li><strong>Skill</strong> — protocole markdown auto-suffisant définissant un comportement agent (sans frontmatter YAML)</li>
+<li><strong>Agent</strong> — moteur d'exécution consommateur (Claude Code, Cursor, Codex, Gemini CLI, Factory Droid, Copilot)</li>
+<li><strong>Plugin</strong> — bundle d'installation multi-agents encapsulant N skills sous un format d'agent spécifique</li>
+<li><strong>Hook</strong> — déclencheur événementiel (session-start, pre/post-tool) orchestrant le bootstrapping du workflow</li>
+<li><strong>Plan</strong> — artefact structuré de tâches temporées (2-5 min chacune), produit par writing-plans</li>
+<li><strong>Worktree</strong> — espace de travail Git isolé sur branche dédiée, activé par using-git-worktrees</li>
+<li><strong>Subagent</strong> — processus délégué lancé par dispatching-parallel-agents pour exécution parallèle</li>
+</ul>
+</div>
+
+<h2><span class="layer-badge">L1</span> Ensembles et relations</h2>
+<div class="card">
+<ul>
+<li><code>Skills</code> = 14 éléments (brainstorming, dispatching-parallel-agents, executing-plans, finishing-a-development-branch, receiving-code-review, requesting-code-review, subagent-driven-development, systematic-debugging, test-driven-development, using-git-worktrees, using-superpowers, verification-before-completion, writing-plans, writing-skills)</li>
+<li><code>Agents_supportés</code> = 6 éléments (Claude Code, Codex CLI, Factory Droid, Gemini CLI, Cursor, GitHub Copilot)</li>
+<li><code>Manifests</code> = 5 formats (.claude-plugin/, .codex-plugin/, .cursor-plugin/, .opencode/, gemini-extension.json)</li>
+<li><code>Workflow_stages</code> = 7 étapes ordonnées (Brainstorm → Worktree → Plan → Execute → TDD → Review → Finish)</li>
+<li>Relations : <code>encapsulates: Plugin → Skills</code> (1:N) · <code>targets: Plugin → Agent</code> (1:1) · <code>ordered: Workflow_stages</code></li>
+</ul>
+</div>
+
+<h2><span class="layer-badge">L2</span> Logique et tensions</h2>
+<div class="card">
+<p><strong>AND</strong> : <code>valid_delivery ⟺ brainstorm_done ∧ worktree_isolated ∧ plan_approved ∧ tdd_red_green_refactor ∧ code_review_passed ∧ verification_ok</code></p>
+<p><strong>XOR</strong> (historique) : <code>named_dispatch(&lt; v5.1) ⊕ generic_template_dispatch(≥ v5.1)</code> — rupture backward-incompatible</p>
+<p><strong>OR</strong> : agent peut consommer skills en séquentiel OU via dispatching-parallel-agents</p>
+<div class="alert warn">Tension #1 — Universalité vs Fidélité : 6 agents supportés → 5 formats de manifests distincts à maintenir en sync. Toute évolution d'un skill = 6 mises à jour potentielles.</div>
+<div class="alert warn">Tension #2 — Légèreté vs Richesse : installation en 1 commande ↔ 14 skills + hooks + worktrees = complexité cachée post-install.</div>
+<div class="alert warn">Tension #3 — Discipline vs Agilité : workflow 7 étapes ordonné ↔ tendance naturelle des agents à sauter des étapes sous pression.</div>
+<div class="alert warn">Tension #4 — Agnosticisme vs Spécialisation : skills sans frontmatter YAML (agnostiques) ↔ manifests hyper-spécialisés par agent.</div>
+</div>
+
+<h2><span class="layer-badge">L3</span> Invariants</h2>
+<div class="invariant-row"><span class="label">I1</span><span>Un skill = un dossier dans <code>skills/</code> avec un protocole markdown (sans frontmatter YAML — choix de portabilité)</span></div>
+<div class="invariant-row"><span class="label">I2</span><span>Le workflow est séquentiel et ordonné — Brainstorm → Worktree → Plan → Execute → TDD → Review → Finish</span></div>
+<div class="invariant-row"><span class="label">I3</span><span>TDD RED-GREEN-REFACTOR est non-négociable — test failing obligatoire avant implémentation</span></div>
+<div class="invariant-row"><span class="label">I4</span><span><code>verification-before-completion</code> est le dernier garde-fou avant tout merge</span></div>
+<div class="invariant-row"><span class="label">I5</span><span>1 feature = 1 worktree = 1 branche (pas de multi-features entrelacées)</span></div>
+<div class="invariant-row"><span class="label">I6</span><span>Les hooks bootstrappent le workflow à chaque session — le contexte est rechargé automatiquement</span></div>
+
+<h2><span class="layer-badge">L4</span> Axes de variation</h2>
+<table>
+<tr><th>Axe</th><th>Min</th><th>Actuel (v5.1.0)</th><th>Max</th></tr>
+<tr><td>Agents supportés</td><td>1</td><td>6</td><td>N (spec ouverte)</td></tr>
+<tr><td>Skills actifs</td><td>1</td><td>14</td><td>Extensible (writing-skills)</td></tr>
+<tr><td>Automatisation hooks</td><td>Manuel (0 hook)</td><td>session-start auto</td><td>Full pipeline pre/post tool</td></tr>
+<tr><td>Parallélisme</td><td>Séquentiel</td><td>Subagent + parallel dispatch</td><td>N subagents simultanés</td></tr>
+<tr><td>Maturité versioning</td><td>v1.0 (2025-10)</td><td>v5.1.0 (2026-04)</td><td>—</td></tr>
+</table>
+
+<h2><span class="layer-badge">L5</span> Seuils et stabilité</h2>
+<div class="card">
+<table>
+<tr><th>Seuil</th><th>Valeur</th><th>Conséquence si dépassé</th></tr>
+<tr><td>Durée tâche plan</td><td>2-5 min</td><td>Tâche à redécouper → plan invalide</td></tr>
+<tr><td>Cycle TDD</td><td>1 test fail → 1 green → refactor</td><td>Skip RED → test de complaisance → bugs cachés</td></tr>
+<tr><td>Code review</td><td>2 passes (requesting + receiving)</td><td>1 seule passe → angles morts non détectés</td></tr>
+<tr><td>Manifests agents</td><td>5 formats</td><td>Désync → comportement divergent selon l'agent</td></tr>
+</table>
+<div class="alert danger"><strong>Effondrement #1 :</strong> brainstorming sauté → plans non validés → dette technique exponentielle.</div>
+<div class="alert danger"><strong>Effondrement #2 :</strong> hooks non chargés → skills non disponibles → workflow silencieusement absent.</div>
+<div class="alert danger"><strong>Effondrement #3 :</strong> mise à jour skill sans mise à jour de tous les manifests → comportement partiel selon l'agent.</div>
+</div>
+
+<h2><span class="layer-badge">L6</span> Catégories et couplages</h2>
+<table>
+<tr><th>Couche</th><th>Statut couplage</th></tr>
+<tr><td>Skills discovery (brainstorming, writing-plans)</td><td><span class="tag green">Indépendants</span></td></tr>
+<tr><td>Skills exécution (executing-plans, subagent-driven, tdd)</td><td><span class="tag yellow">Couplés séquentiellement</span></td></tr>
+<tr><td>Skills qualité (review ×2, verification, debugging)</td><td><span class="tag green">Découplables</span> — dépendent logiquement de l'exécution</td></tr>
+<tr><td>Skills coordination (dispatching, git-worktrees, finishing)</td><td><span class="tag green">Infrastructure transversale</span></td></tr>
+<tr><td>Manifests agents (5 formats)</td><td><span class="tag yellow">Couplage fort par agent</span> — hétérogénéité structurelle</td></tr>
+<tr><td>Hooks (hooks.json vs hooks-cursor.json)</td><td><span class="tag yellow">Couplage moyen</span> — Cursor a son propre fichier</td></tr>
+</table>
+
+<h2><span class="layer-badge">L7</span> Topologie</h2>
+<div class="card">
+<h3>Happy path (7 étapes)</h3>
+<div class="pipeline">
+  <span class="pipe-node">/brainstorm</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">git-worktrees</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">writing-plans</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">executing-plans</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">TDD</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">review ×2</span><span class="pipe-arrow">→</span>
+  <span class="pipe-node">verification + finish</span>
+</div>
+<h3>Nœuds de friction</h3>
+<div class="alert warn">F1 : 5 manifests agents à maintenir en sync (chaque skill update × 5 formats)</div>
+<div class="alert warn">F2 : Cursor Windows nécessite <code>hooks-cursor.json</code> dédié (routing séparé)</div>
+<div class="alert warn">F3 : installation via CLI propriétaires (Factory Droid, Gemini) = dépendance externe non controlée</div>
+<div class="alert warn">F4 : <code>skills/</code> sans frontmatter YAML → pas de validation automatisée possible</div>
+<div class="alert warn">F5 : breaking change v4→v5 (named dispatch supprimé) = migration manuelle pour early adopters</div>
+</div>
+
+<h2><span class="layer-badge">L8</span> Probabilités</h2>
+<table>
+<tr><th>Variable</th><th>Probabilité</th><th>Justification</th></tr>
+<tr><td>P(adoption stable 12 mois)</td><td><span class="tag green">très haute</span></td><td>206k ★, 18.3k forks, MIT, v5.1 stable</td></tr>
+<tr><td>P(breaking change v6)</td><td><span class="tag yellow">médium-haute</span></td><td>Breaking change majeur tous les 4-6 mois historiquement</td></tr>
+<tr><td>P(fragmentation multi-agent)</td><td><span class="tag yellow">haute</span></td><td>6 agents évoluent leurs specs indépendamment</td></tr>
+<tr><td>P(lock-in Claude Code)</td><td><span class="tag green">faible</span></td><td>By design agnostique — CLAUDE.md est l'un des 6</td></tr>
+<tr><td>P(adoption corporate)</td><td><span class="tag yellow">médium</span></td><td>MIT + 206k ★ mais pas de support officiel</td></tr>
+<tr><td>Maturité communauté</td><td><span class="tag green">très haute</span></td><td>2+ ans, 30+ versions, 206k ★</td></tr>
+</table>
+
+<h3>Vecteur cognitif — bilan</h3>
+<div class="card">
+<ul>
+<li><strong>Abstraction</strong> : forte — le framework est une méthodologie, pas une lib ; primitives claires</li>
+<li><strong>Concrétude</strong> : forte — 14 skills opérationnels + happy path documenté + commandes copiables</li>
+<li><strong>Affect</strong> : <span class="tag yellow">médium</span> — "methodology that works" = promesse pragmatique, ton CLI communautaire</li>
+<li><strong>Normativité</strong> : forte — 7 étapes ordonnées, TDD non-négociable, vérification obligatoire</li>
+<li><strong>Incertitude</strong> : <span class="tag yellow">médium</span> — breaking changes fréquents, fragmentation multi-agent non résolue</li>
+<li><strong>Altérité</strong> : forte — 6 agents différents, architecture ouverte à extension</li>
+<li><strong>Cohérence</strong> : forte en interne, <span class="tag yellow">faible</span> sur les manifests agents (hétérogénéité structurelle)</li>
+</ul>
+</div>
+
+</div>
+
+<!-- ============ TAB INSTALLATION ============ -->
+<div id="tab-install" class="content">
+
+<h2>Prérequis</h2>
+<table>
+<tr><th>Outil</th><th>Version min</th><th>Vérification</th></tr>
+<tr><td>Git</td><td>2.30+</td><td><code>git --version</code></td></tr>
+<tr><td>Agent de code</td><td>Voir tableau agents</td><td>—</td></tr>
+<tr><td>Node.js</td><td>Non requis (runtime)</td><td>—</td></tr>
+</table>
+
+<h2>Agents supportés</h2>
+<table>
+<tr><th>Agent</th><th>Commande d'installation</th></tr>
+<tr><td>Claude Code (CLI)</td><td><code>/plugin install superpowers@claude-plugins-official</code></td></tr>
+<tr><td>Codex CLI / App</td><td>Rechercher "Superpowers" dans le marketplace officiel</td></tr>
+<tr><td>Factory Droid</td><td><code>droid plugin install superpowers@superpowers</code></td></tr>
+<tr><td>Gemini CLI</td><td><code>gemini extensions install https://github.com/obra/superpowers</code></td></tr>
+<tr><td>Cursor</td><td><code>/add-plugin superpowers</code></td></tr>
+<tr><td>GitHub Copilot CLI</td><td><code>copilot plugin install superpowers@superpowers-marketplace</code></td></tr>
+</table>
+
+<h2>Option A — Installation rapide (recommandée)</h2>
+
+<h3>Claude Code</h3>
+<pre><code># Dans une session Claude Code active
+/plugin install superpowers@claude-plugins-official
+
+# Épingler la version (recommandé pour la stabilité)
+/plugin install superpowers@5.1.0</code></pre>
+<div class="alert ok">Après installation, relancer la session. Les 14 skills sont disponibles. Le hook <code>session-start</code> s'initialise automatiquement.</div>
+
+<h3>Gemini CLI</h3>
+<pre><code>gemini extensions install https://github.com/obra/superpowers</code></pre>
+
+<h2>Option B — Depuis le source (pour contribuer ou personnaliser)</h2>
+<pre><code># 1. Cloner le repo
+git clone https://github.com/obra/superpowers.git
+cd superpowers
+
+# 2. Pour Claude Code — copier le dossier plugin
+# Linux/Mac
+cp -r .claude-plugin/ ~/.claude/plugins/superpowers/
+
+# Windows PowerShell
+Copy-Item -Recurse ".claude-plugin" "$env:USERPROFILE\.claude\plugins\superpowers"
+
+# 3. Vérifier la structure
+ls skills/
+# Attendu : brainstorming/ dispatching-parallel-agents/ executing-plans/ ...</code></pre>
+
+<h2>Config minimale</h2>
+<pre><code>{
+  "name": "superpowers",
+  "version": "5.1.0",
+  "type": "module",
+  "main": ".opencode/plugins/superpowers.js"
+}</code></pre>
+<div class="alert ok">Aucun fichier <code>.env</code> requis. Aucune dépendance runtime. Les hooks se configurent via <code>hooks/hooks.json</code> (tous agents) et <code>hooks/hooks-cursor.json</code> (Cursor uniquement).</div>
+
+<h2>Workflow de base post-install</h2>
+<pre><code># 1. Brainstorming socratique
+/brainstorm "Votre idée ou problème"
+
+# 2. Isolation Git (créé automatiquement par le skill)
+# → git worktree add ../feature-branch feature/ma-feature
+
+# 3. Planification (tâches 2-5 min)
+/writing-plans
+
+# 4. Exécution
+/executing-plans
+
+# 5. TDD — RED d'abord, obligatoire
+/test-driven-development
+
+# 6. Review (2 passes)
+/requesting-code-review
+/receiving-code-review
+
+# 7. Finalisation
+/verification-before-completion
+/finishing-a-development-branch</code></pre>
+
+<h2>Vérification de l'installation</h2>
+<pre><code># Dans une nouvelle session Claude Code
+/skills           # Liste les skills disponibles
+/brainstorm       # Démarre une session socratique
+/using-superpowers # Guide complet du workflow</code></pre>
+<div class="alert ok">Résultat attendu : Claude propose une session de brainstorming. Si les skills ne répondent pas, les hooks n'ont pas chargé — relancer la session.</div>
+
+<h2>Points d'attention Windows (PowerShell)</h2>
+<div class="alert warn"><strong>hooks-cursor.json :</strong> Cursor sur Windows utilise un fichier de hooks séparé (<code>hooks/hooks-cursor.json</code>). Si les skills ne s'activent pas dans Cursor, vérifier que ce fichier est bien chargé.</div>
+<div class="alert warn"><strong>run-hook.cmd :</strong> Le fichier <code>hooks/run-hook.cmd</code> est le wrapper Windows pour les hooks shell. Il doit rester dans <code>hooks/</code> — ne pas déplacer.</div>
+<div class="alert warn"><strong>Paths avec espaces :</strong> Si votre dossier de projet contient des espaces, encapsuler les paths : <code>"C:\Users\mon nom\projects\..."</code></div>
+<div class="alert warn"><strong>Version épinglée :</strong> Superpowers sort ~30 releases en 8 mois. Spécifier la version à l'install : <code>/plugin install superpowers@5.1.0</code></div>
+
+</div>
+
+<!-- ============ TAB VERDICT ============ -->
+<div id="tab-verdict" class="content">
+
+<h2>Score 3 dimensions</h2>
+<div class="score-grid">
+  <div class="score-card">
+    <div class="num">9</div>
+    <div class="lbl">Pertinence PM<br>(framework agent / méthodologie)</div>
+  </div>
+  <div class="score-card">
+    <div class="num">8</div>
+    <div class="lbl">Maturité prod<br>(v5.1, MIT, breaking changes fréquents)</div>
+  </div>
+  <div class="score-card">
+    <div class="num">8</div>
+    <div class="lbl">Facilité onboarding<br>(1 commande, mais 5 manifests si custom)</div>
+  </div>
+</div>
+<div class="alert ok"><strong>Score global : 8.3/10</strong> — Framework de référence. À adopter, version épinglée.</div>
+
+<h2>Forces</h2>
+<table>
+<tr><th></th><th>Force</th><th>Description</th></tr>
+<tr><td>✅</td><td>Multi-agent universel</td><td>6 agents supportés — migration sans perte de méthodologie</td></tr>
+<tr><td>✅</td><td>Workflow 7 étapes battle-tested</td><td>2+ ans d'itération, 206k ★, 18.3k forks — valeur prouvée à grande échelle</td></tr>
+<tr><td>✅</td><td>TDD non-négociable</td><td>Le framework impose RED-GREEN-REFACTOR — élimine la tentation de sauter les tests</td></tr>
+<tr><td>✅</td><td>Zero dépendance runtime</td><td>Aucune dépendance npm — installation atomique, pas de supply chain attack surface</td></tr>
+<tr><td>✅</td><td>Extensible par design</td><td><code>writing-skills</code> inclus — la méthodologie se documente elle-même</td></tr>
+<tr><td>✅</td><td>Parallélisme natif</td><td><code>dispatching-parallel-agents</code> → N subagents simultanés → throughput multiplié</td></tr>
+</table>
+
+<h2>Faiblesses / Risques</h2>
+<table>
+<tr><th></th><th>Risque</th><th>Description + Impact</th></tr>
+<tr><td>⚠️</td><td>Breaking changes fréquents</td><td>~30 releases en 8 mois, breaking change v4→v5. Impact : migration manuelle sur chaque upgrade majeur</td></tr>
+<tr><td>⚠️</td><td>5 manifests hétérogènes</td><td>Chaque skill update = potentiellement 5 fichiers à maintenir en sync. Impact : comportement divergent si désync</td></tr>
+<tr><td>⚠️</td><td>Pas de frontmatter YAML</td><td>Contrairement à anthropics/skills, pas de validation automatisée. Impact : skill mal écrit invisible jusqu'à l'exécution</td></tr>
+<tr><td>⚠️</td><td>Fragmentation multi-agent permanente</td><td>6 agents évoluent leurs specs indépendamment. Impact : décalage framework/agents — risque de feature gap</td></tr>
+<tr><td>🔴</td><td>Hooks silencieusement absents</td><td>Si session-start ne charge pas, skills disparus sans erreur visible. Impact : l'agent fonctionne sans méthodologie</td></tr>
+</table>
+
+<h2>Matrice Use Cases</h2>
+<div class="use-cases">
+  <div class="use-case yes">
+    <h4>✅ Onboarding équipe sur méthodologie agent</h4>
+    <p>Framework clé-en-main, 7 étapes documentées, skills install en 1 commande</p>
+  </div>
+  <div class="use-case yes">
+    <h4>✅ Projet multi-agent (Claude + Cursor)</h4>
+    <p>Même méthodologie sur 6 agents — cohérence garantie</p>
+  </div>
+  <div class="use-case yes">
+    <h4>✅ Adoption TDD sur codebase legacy</h4>
+    <p>Le skill TDD impose la discipline sans effort de conviction</p>
+  </div>
+  <div class="use-case yes">
+    <h4>✅ Développement de skills custom</h4>
+    <p>writing-skills inclus — le framework se self-documente</p>
+  </div>
+  <div class="use-case no">
+    <h4>❌ Intégration produit B2B à SLA strict</h4>
+    <p>Pas de support officiel, breaking changes trop fréquents</p>
+  </div>
+  <div class="use-case no">
+    <h4>❌ Équipe sans agent de code</h4>
+    <p>Le framework nécessite un agent — pas de valeur sans lui</p>
+  </div>
+  <div class="use-case no">
+    <h4>❌ Flux de développement ad-hoc</h4>
+    <p>Le séquencement 7 étapes est rigide — mauvais fit pour flux informels</p>
+  </div>
+  <div class="use-case no">
+    <h4>❌ Adoption sans version épinglée</h4>
+    <p>Risque de régression silencieuse à chaque update automatique</p>
+  </div>
+</div>
+
+<h2>Roadmap</h2>
+<table>
+<tr><th>Feature</th><th>Statut</th><th>Impact</th></tr>
+<tr><td>Generic template dispatch</td><td><span class="tag green">✅ v5.1.0</span></td><td>Rompt les named agents — portabilité accrue</td></tr>
+<tr><td>Git worktree rewrite</td><td><span class="tag green">✅ v5.1.0</span></td><td>Détection environment + consent requirements</td></tr>
+<tr><td>Codex plugin mirror tooling</td><td><span class="tag green">✅ v5.1.0</span></td><td>Sync OpenAI marketplace automatisé</td></tr>
+<tr><td>Session hooks Windows (Cursor)</td><td><span class="tag green">✅ v5.1.0</span></td><td>Correction critique UX Windows</td></tr>
+<tr><td>V6 (probable H2 2026)</td><td><span class="tag yellow">⏳ Non annoncé</span></td><td>Attendre RELEASE-NOTES avant upgrade</td></tr>
+</table>
+
+<h2>Recommandation finale</h2>
+<div class="card">
+<p><strong>Superpowers est le framework de référence pour toute équipe qui utilise des agents de code.</strong> Rien d'autre sur le marché ne propose une méthodologie aussi complète, aussi battle-tested (206k ★, 2+ ans), aussi portable (6 agents). Le fait qu'il n'ait aucune dépendance runtime le rend quasiment sans risque à l'installation.</p>
+<p><strong>Action recommandée :</strong> adopter immédiatement pour tout nouveau projet avec agent de code. Épingler la version à <code>5.1.0</code>. Créer un worktree dédié pour tester les upgrades avant de les pousser en production — le framework enseigne lui-même cette pratique. Pour les équipes sur Cursor Windows : valider manuellement le chargement de <code>hooks-cursor.json</code> après install. Pour les équipes qui veulent étendre : lire <code>writing-skills</code> en premier.</p>
+</div>
+
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  Analyse fmaths + décodeur narratif · obra/superpowers v5.1.0 · Généré le 2026-05-25
+  · <a href="https://github.com/obra/superpowers" target="_blank">github.com/obra/superpowers ↗</a>
+</div>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+
+</body>
+</html>

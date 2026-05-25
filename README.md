@@ -1,9 +1,10 @@
 # audit-repo
 
-7 audits d'architecture Claude Code, générés 2026-05-20.
+8 audits d'architecture Claude Code — 2026-05-20 (init) + 2026-05-25 (superpowers).
 
 - 6 repos officiels [github.com/anthropics](https://github.com/anthropics)
 - 1 repo communautaire pwf ([OthmanAdi/planning-with-files](https://github.com/OthmanAdi/planning-with-files))
+- 1 repo communautaire ([obra/superpowers](https://github.com/obra/superpowers))
 
 ## Navigation
 
@@ -20,6 +21,7 @@
 | 5 | anthropics/anthropic-quickstarts | HAUTE | — (NOTES.md + REPO_MAP + VERDICT) |
 | 6 | anthropics/prompt-eng-interactive-tutorial | HAUTE 9/10 | [prompt-eng-interactive-tutorial-analysis.html](anthropics-prompt-eng-tutorial/prompt-eng-interactive-tutorial-analysis.html) |
 | 7 | OthmanAdi/planning-with-files | MOYEN-HAUT | — (NOTES.md avec refactor) |
+| 8 | obra/superpowers | HAUTE 8.3/10 | [superpowers-analysis.html](obra-superpowers/superpowers-analysis.html) |
 
 ## Gouvernance
 
