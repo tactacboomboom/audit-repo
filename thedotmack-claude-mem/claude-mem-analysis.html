@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -6,118 +6,72 @@
 <title>🧠 claude-mem — Analyse</title>
 <style>
   :root {
-    --bg: #1e1e1e; --surface: #252526; --surface2: #2d2d30;
-    --border: #3e3e42; --accent: #007acc; --accent2: #0e639c;
-    --green: #4ec9b0; --yellow: #dcdcaa; --orange: #ce9178;
-    --red: #f44747; --purple: #c586c0; --blue: #9cdcfe;
-    --text: #d4d4d4; --text-dim: #858585;
+    --bg:#1e1e1e; --surface:#252526; --surface2:#2d2d30;
+    --border:#3e3e42; --accent:#007acc; --accent2:#0e639c;
+    --green:#4ec9b0; --yellow:#dcdcaa; --orange:#ce9178;
+    --red:#f44747; --purple:#c586c0; --blue:#9cdcfe;
+    --text:#d4d4d4; --text-dim:#858585;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.6; }
-
-  /* Topbar */
-  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 0; position: sticky; top: 0; z-index: 100; }
-  .topbar-title { color: var(--blue); font-weight: 700; font-size: 15px; padding: 12px 20px 12px 0; border-right: 1px solid var(--border); margin-right: 16px; white-space: nowrap; }
-  .tab-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 14px 20px; font-size: 13px; font-family: inherit; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; }
-  .tab-btn:hover { color: var(--text); background: var(--surface2); }
-  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-  /* Content */
-  .content { display: none; padding: 32px 48px; max-width: 1000px; margin: 0 auto; }
-  .content.active { display: block; }
-
-  /* Typography */
-  h1 { color: var(--blue); font-size: 22px; margin: 0 0 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-  h2 { color: var(--yellow); font-size: 16px; margin: 28px 0 12px; }
-  h3 { color: var(--green); font-size: 14px; margin: 20px 0 8px; }
-  p { margin-bottom: 12px; }
-  strong { color: var(--orange); }
-  em { color: var(--text-dim); font-style: italic; }
-  ul, ol { padding-left: 24px; margin-bottom: 12px; }
-  li { margin-bottom: 4px; }
-  blockquote { border-left: 3px solid var(--accent); padding: 8px 16px; margin: 16px 0; background: var(--surface2); color: var(--text-dim); font-style: italic; border-radius: 0 4px 4px 0; }
-
-  /* Tables */
-  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
-  th { background: var(--surface2); color: var(--yellow); text-align: left; padding: 8px 12px; border: 1px solid var(--border); }
-  td { padding: 7px 12px; border: 1px solid var(--border); vertical-align: top; }
-  tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-  tr:hover { background: rgba(0, 122, 204, 0.05); }
-
-  /* Code */
-  code { background: #0d0d0d; color: var(--orange); padding: 2px 6px; border-radius: 3px; font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 12px; }
-  pre { background: #0d0d0d; padding: 16px; border-radius: 6px; overflow-x: auto; margin: 12px 0; border: 1px solid var(--border); }
-  pre code { background: none; color: var(--text); padding: 0; font-size: 12px; }
-
-  /* Cards & Tags */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
-  .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; margin: 2px; }
-  .tag.green { background: rgba(78,201,176,0.15); color: var(--green); border: 1px solid rgba(78,201,176,0.3); }
-  .tag.yellow { background: rgba(220,220,170,0.12); color: var(--yellow); border: 1px solid rgba(220,220,170,0.25); }
-  .tag.red { background: rgba(244,71,71,0.12); color: var(--red); border: 1px solid rgba(244,71,71,0.25); }
-  .tag.blue { background: rgba(156,220,254,0.12); color: var(--blue); border: 1px solid rgba(156,220,254,0.25); }
-  .tag.purple { background: rgba(197,134,192,0.12); color: var(--purple); border: 1px solid rgba(197,134,192,0.25); }
-
-  .layer-badge { display: inline-block; background: var(--accent2); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; margin-right: 8px; letter-spacing: 0.5px; }
-
-  .alert { padding: 10px 16px; border-radius: 4px; margin: 12px 0; font-size: 13px; border-left: 3px solid; }
-  .alert.ok { background: rgba(78,201,176,0.08); border-color: var(--green); color: var(--green); }
-  .alert.warn { background: rgba(220,220,170,0.08); border-color: var(--yellow); color: var(--yellow); }
-  .alert.danger { background: rgba(244,71,71,0.08); border-color: var(--red); color: var(--red); }
-
-  /* Score bar */
-  .score-row { display: flex; align-items: center; gap: 16px; margin: 8px 0; }
-  .score-label { min-width: 280px; color: var(--text-dim); font-size: 13px; }
-  .score-bar-wrap { flex: 1; background: var(--surface2); border-radius: 4px; height: 8px; }
-  .score-bar { height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--green)); }
-  .score-num { min-width: 40px; text-align: right; color: var(--green); font-weight: 700; }
-
-  /* Use cases grid */
-  .use-cases { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
-  .use-case { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
-  .use-case.yes { border-left: 3px solid var(--green); }
-  .use-case.no { border-left: 3px solid var(--red); }
-  .use-case-title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
-  .use-case.yes .use-case-title { color: var(--green); }
-  .use-case.no .use-case-title { color: var(--red); }
-  .use-case p { color: var(--text-dim); font-size: 12px; margin: 0; }
-
-  /* Pipeline */
-  .pipeline { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 16px 0; }
-  .pipe-node { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 6px 14px; font-size: 12px; color: var(--blue); white-space: nowrap; }
-  .pipe-arrow { color: var(--text-dim); padding: 0 8px; font-size: 14px; }
-
-  /* Header hero */
-  .hero { background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%); border: 1px solid var(--border); border-radius: 8px; padding: 24px 28px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
-  .hero-title { font-size: 20px; color: var(--blue); font-weight: 700; margin-bottom: 6px; }
-  .hero-desc { color: var(--text-dim); font-size: 13px; max-width: 500px; }
-  .hero-stats { display: grid; grid-template-columns: repeat(2, auto); gap: 8px 20px; text-align: right; }
-  .stat-item { display: flex; flex-direction: column; align-items: flex-end; }
-  .stat-num { font-size: 18px; font-weight: 700; color: var(--yellow); }
-  .stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
-
-  /* Risk grid */
-  .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
-  .risk-card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
-  .risk-title { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
-  .risk-prob { font-size: 12px; color: var(--text-dim); }
-
-  /* Footer */
-  footer { text-align: center; padding: 32px; color: var(--text-dim); font-size: 12px; border-top: 1px solid var(--border); margin-top: 48px; }
-  footer a { color: var(--accent); text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
-
-  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;line-height:1.6}
+  .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+  .topbar-title{color:var(--blue);font-weight:700;font-size:15px;padding:12px 20px 12px 0;border-right:1px solid var(--border);margin-right:16px;white-space:nowrap}
+  .tab-btn{background:none;border:none;color:var(--text-dim);cursor:pointer;padding:14px 20px;font-size:13px;font-family:inherit;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+  .tab-btn:hover{color:var(--text);background:var(--surface2)}
+  .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .content{display:none;padding:32px 48px;max-width:1000px;margin:0 auto}
+  .content.active{display:block}
+  h1{color:var(--blue);font-size:22px;margin:0 0 24px;border-bottom:1px solid var(--border);padding-bottom:12px}
+  h2{color:var(--yellow);font-size:16px;margin:28px 0 12px}
+  h3{color:var(--green);font-size:14px;margin:20px 0 8px}
+  p{margin-bottom:12px}
+  strong{color:var(--orange)}
+  em{color:var(--text-dim);font-style:italic}
+  ul,ol{padding-left:24px;margin-bottom:12px}
+  li{margin-bottom:4px}
+  blockquote{border-left:3px solid var(--accent);padding:8px 16px;margin:16px 0;background:var(--surface2);color:var(--text-dim);font-style:italic;border-radius:0 4px 4px 0}
+  table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+  th{background:var(--surface2);color:var(--yellow);text-align:left;padding:8px 12px;border:1px solid var(--border)}
+  td{padding:7px 12px;border:1px solid var(--border);vertical-align:top}
+  tr:nth-child(even){background:rgba(255,255,255,.02)}
+  tr:hover{background:rgba(0,122,204,.05)}
+  code{background:#0d0d0d;color:var(--orange);padding:2px 6px;border-radius:3px;font-family:'Cascadia Code','Consolas',monospace;font-size:12px}
+  pre{background:#0d0d0d;padding:16px;border-radius:6px;overflow-x:auto;margin:12px 0;border:1px solid var(--border)}
+  pre code{background:none;color:var(--text);padding:0;font-size:12px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:16px 20px;margin:16px 0}
+  .tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:600;margin:2px}
+  .tag.green{background:rgba(78,201,176,.15);color:var(--green);border:1px solid rgba(78,201,176,.3)}
+  .tag.yellow{background:rgba(220,220,170,.12);color:var(--yellow);border:1px solid rgba(220,220,170,.25)}
+  .tag.red{background:rgba(244,71,71,.12);color:var(--red);border:1px solid rgba(244,71,71,.25)}
+  .tag.blue{background:rgba(156,220,254,.12);color:var(--blue);border:1px solid rgba(156,220,254,.25)}
+  .tag.purple{background:rgba(197,134,192,.12);color:var(--purple);border:1px solid rgba(197,134,192,.25)}
+  .alert{padding:10px 16px;border-radius:4px;margin:12px 0;font-size:13px;border-left:3px solid}
+  .alert.warn{background:rgba(220,220,170,.08);border-color:var(--yellow);color:var(--yellow)}
+  .alert.danger{background:rgba(244,71,71,.08);border-color:var(--red);color:var(--red)}
+  .score-row{display:flex;align-items:center;gap:16px;margin:8px 0}
+  .score-label{min-width:280px;color:var(--text-dim);font-size:13px}
+  .score-bar-wrap{flex:1;background:var(--surface2);border-radius:4px;height:8px}
+  .score-bar{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--green))}
+  .score-num{min-width:40px;text-align:right;color:var(--green);font-weight:700}
+  .hero{background:linear-gradient(135deg,var(--surface) 0%,var(--surface2) 100%);border:1px solid var(--border);border-radius:8px;padding:24px 28px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+  .hero-title{font-size:20px;color:var(--blue);font-weight:700;margin-bottom:6px}
+  .hero-desc{color:var(--text-dim);font-size:13px;max-width:500px}
+  .hero-stats{display:grid;grid-template-columns:repeat(2,auto);gap:8px 20px;text-align:right}
+  .stat-num{font-size:18px;font-weight:700;color:var(--yellow)}
+  .stat-label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px}
+  hr{border:none;border-top:1px solid var(--border);margin:24px 0}
+  footer{text-align:center;padding:32px;color:var(--text-dim);font-size:12px;border-top:1px solid var(--border);margin-top:48px}
+  footer a{color:var(--accent);text-decoration:none}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <div class="topbar-title">🧠 claude-mem — Analyse</div>
-  <button class="tab-btn active" onclick="switchTab('recit', this)">📖 Récit</button>
-  <button class="tab-btn" onclick="switchTab('fmaths', this)">🔬 Fmaths</button>
-  <button class="tab-btn" onclick="switchTab('install', this)">⚙️ Installation</button>
-  <button class="tab-btn" onclick="switchTab('verdict', this)">⚖️ Verdict</button>
+  <button class="tab-btn active" onclick="switchTab('recit',this)">📖 Récit</button>
+  <button class="tab-btn" onclick="switchTab('fmaths',this)">🔬 Fmaths</button>
+  <button class="tab-btn" onclick="switchTab('install',this)">⚙️ Installation</button>
+  <button class="tab-btn" onclick="switchTab('verdict',this)">⚖️ Verdict</button>
 </div>
 
 <div id="tab-recit" class="content active">
@@ -125,7 +79,7 @@
     <div>
       <div class="hero-title">🧠 thedotmack/claude-mem</div>
       <div class="hero-desc">Prothèse mnésique persistante pour agents IA — capture, compresse et réinjecte le contexte cross-session automatiquement.</div>
-      <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
         <span class="tag blue">v13.3.0</span>
         <span class="tag green">Apache 2.0</span>
         <span class="tag purple">TypeScript 91.5%</span>
@@ -134,50 +88,38 @@
       </div>
     </div>
     <div class="hero-stats">
-      <div class="stat-item"><span class="stat-num">78k</span><span class="stat-label">Stars</span></div>
-      <div class="stat-item"><span class="stat-num">6.7k</span><span class="stat-label">Forks</span></div>
-      <div class="stat-item"><span class="stat-num">271</span><span class="stat-label">Releases</span></div>
-      <div class="stat-item"><span class="stat-num">1906</span><span class="stat-label">Commits</span></div>
+      <div><span class="stat-num">78k</span><br><span class="stat-label">Stars</span></div>
+      <div><span class="stat-num">6.7k</span><br><span class="stat-label">Forks</span></div>
+      <div><span class="stat-num">271</span><br><span class="stat-label">Releases</span></div>
+      <div><span class="stat-num">1906</span><br><span class="stat-label">Commits</span></div>
     </div>
   </div>
-  <div id="recit-content"></div>
-  <footer>
-    Analyse fmaths + décodeur narratif · thedotmack/claude-mem v13.3.0 · Généré le 2026-05-25
-    · <a href="https://github.com/thedotmack/claude-mem" target="_blank">GitHub ↗</a>
-  </footer>
+  <div id="md-recit"></div>
+  <footer>Analyse fmaths + décodeur narratif · thedotmack/claude-mem v13.3.0 · Généré le 2026-05-25 · <a href="https://github.com/thedotmack/claude-mem" target="_blank">GitHub ↗</a></footer>
 </div>
 
 <div id="tab-fmaths" class="content">
-  <div id="fmaths-content"></div>
-  <footer>
-    Analyse fmaths + décodeur narratif · thedotmack/claude-mem v13.3.0 · Généré le 2026-05-25
-    · <a href="https://github.com/thedotmack/claude-mem" target="_blank">GitHub ↗</a>
-  </footer>
+  <div id="md-fmaths"></div>
+  <footer>Analyse fmaths + décodeur narratif · thedotmack/claude-mem v13.3.0 · Généré le 2026-05-25 · <a href="https://github.com/thedotmack/claude-mem" target="_blank">GitHub ↗</a></footer>
 </div>
 
 <div id="tab-install" class="content">
-  <div id="install-content"></div>
-  <footer>
-    Analyse fmaths + décodeur narratif · thedotmack/claude-mem v13.3.0 · Généré le 2026-05-25
-    · <a href="https://github.com/thedotmack/claude-mem" target="_blank">GitHub ↗</a>
-  </footer>
+  <div id="md-install"></div>
+  <footer>Analyse fmaths + décodeur narratif · thedotmack/claude-mem v13.3.0 · Généré le 2026-05-25 · <a href="https://github.com/thedotmack/claude-mem" target="_blank">GitHub ↗</a></footer>
 </div>
 
 <div id="tab-verdict" class="content">
-  <div class="card" style="margin-bottom:24px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h2 style="margin:0;color:var(--yellow);">Score global</h2>
-      <span style="font-size:28px;font-weight:700;color:var(--green);">8.6<span style="font-size:14px;color:var(--text-dim)">/10</span></span>
+  <div class="card" style="margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="margin:0;color:var(--yellow)">Score global</h2>
+      <span style="font-size:28px;font-weight:700;color:var(--green)">8.6<span style="font-size:14px;color:var(--text-dim)">/10</span></span>
     </div>
     <div class="score-row"><span class="score-label">Pertinence PM (prothèse mnésique)</span><div class="score-bar-wrap"><div class="score-bar" style="width:95%"></div></div><span class="score-num">9.5</span></div>
     <div class="score-row"><span class="score-label">Maturité prod</span><div class="score-bar-wrap"><div class="score-bar" style="width:80%"></div></div><span class="score-num">8.0</span></div>
     <div class="score-row"><span class="score-label">Facilité onboarding</span><div class="score-bar-wrap"><div class="score-bar" style="width:85%"></div></div><span class="score-num">8.5</span></div>
   </div>
-  <div id="verdict-content"></div>
-  <footer>
-    Analyse fmaths + décodeur narratif · thedotmack/claude-mem v13.3.0 · Généré le 2026-05-25
-    · <a href="https://github.com/thedotmack/claude-mem" target="_blank">GitHub ↗</a>
-  </footer>
+  <div id="md-verdict"></div>
+  <footer>Analyse fmaths + décodeur narratif · thedotmack/claude-mem v13.3.0 · Généré le 2026-05-25 · <a href="https://github.com/thedotmack/claude-mem" target="_blank">GitHub ↗</a></footer>
 </div>
 
 <script>
@@ -252,7 +194,6 @@ Please report this to https://github.com/markedjs/marked.`,e){let s="<p>An error
 if(__exports != exports)module.exports = exports;return module.exports}));
 
 </script>
-
 <script>
 function switchTab(name, btn) {
   document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
@@ -263,18 +204,17 @@ function switchTab(name, btn) {
 
 marked.setOptions({ breaks: true, gfm: true });
 
-const contents = {
-  recit:   $recitEsc,
-  fmaths:  $fmathsEsc,
-  install: $installEsc,
-  verdict: $verdictEsc
+var contents = {
+  recit:   "# R\u00e9cit \u2014 thedotmack/claude-mem\n\n## Le d\u00e9cor\n\nIl y a un probl\u00e8me que tout utilisateur de Claude Code a rencontr\u00e9 sans pouvoir le nommer : l'agent oublie. Chaque session repart de z\u00e9ro. Le contexte accumul\u00e9 \u2014 les bugs r\u00e9solus, les d\u00e9cisions d'architecture, les chemins qu'il ne faut plus emprunter \u2014 s'\u00e9vapore avec le token final de la session pr\u00e9c\u00e9dente.\n\nclaude-mem est la r\u00e9ponse directe \u00e0 ce probl\u00e8me. Ce n'est pas un simple logger. C'est une **proth\u00e8se mn\u00e9sique compl\u00e8te** : un service qui s'ins\u00e8re dans le cycle de vie de l'agent, capture tout ce qu'il fait, compresse ce flux avec un mod\u00e8le AI, et r\u00e9injecte le contexte pertinent au d\u00e9marrage de la session suivante. 78 000 \u00e9toiles. 271 releases. Une infrastructure TypeScript de plusieurs milliers de lignes. Le projet a la carrure d'un produit, pas d'un script.\n\n## Les r\u00e8gles du jeu\n\nLe syst\u00e8me repose sur une cha\u00eene de causalit\u00e9 stricte. Trois lois non n\u00e9gociables :\n\n1. **Le Worker doit tourner** \u2014 sans ce service Bun en arri\u00e8re-plan, les hooks s'ex\u00e9cutent dans le vide. Aucune erreur visible. Les observations sont perdues en silence. C'est le risque le plus insidieux du syst\u00e8me.\n\n2. **La progressive disclosure est la seule porte d'entr\u00e9e** \u2014 pas d'acc\u00e8s brut au corpus. On passe toujours par search (50-100 tokens), puis timeline, puis get_observations (500-1000 tokens). La discipline est architecturale, pas optionnelle.\n\n3. **Le quota token est un mur, pas une suggestion** \u2014 si l'injection d\u00e9passe la limite, elle s'arr\u00eate. Jamais de d\u00e9passement silencieux. Le budget a pr\u00e9s\u00e9ance sur la richesse m\u00e9morielle.\n\n> *\"Tout le syst\u00e8me tient sur un processus Bun qui doit rester vivant. C'est le talon d'Achille d'une architecture autrement remarquable.\"*\n\n## Le socle immuable\n\nCertaines propri\u00e9t\u00e9s ne changent pas quelle que soit la configuration. Chaque observation appartient \u00e0 une session, une seule. Chaque session appartient \u00e0 un agent source, un seul \u2014 Claude Code et Codex ne partagent pas leur m\u00e9moire, par design. Les `<private>` tags excluent d\u00e9finitivement le contenu marqu\u00e9 : pas de backdoor, pas de r\u00e9cup\u00e9ration possible. SQLite reste la source de v\u00e9rit\u00e9 m\u00eame quand ChromaDB tombe \u2014 les vecteurs sont rebuildables, les faits ne le sont pas.\n\nDeux avertissements majeurs : l'installation modifie les fichiers de configuration de l'agent h\u00f4te. D\u00e9sinstaller proprement demande une intervention manuelle sur ces fichiers. Et la compression AI ne se d\u00e9clenche qu'\u00e0 la terminaison propre de la session \u2014 un crash agent laisse la session non compress\u00e9e dans le corpus.\n\n## Les leviers de transformation\n\nTrois axes font de claude-mem autre chose qu'un simple logger :\n\n| Levier | M\u00e9canisme | Impact |\n|--------|-----------|--------|\n| Compression AI | Summaries g\u00e9n\u00e9r\u00e9s \u00e0 SessionEnd | Corpus compact m\u00eame sur 1000 sessions |\n| Hybrid search | FTS5 + ChromaDB vecteurs | Rappel s\u00e9mantique + exact-match simultan\u00e9s |\n| Progressive disclosure | search \u2192 timeline \u2192 get_obs | ~10\u00d7 \u00e9conomie tokens vs fetch brut |\n\nEt le levier de la proth\u00e8se PM en particulier : la m\u00e9moire cross-session transforme l'agent en **continuateur** plut\u00f4t qu'en d\u00e9butant perp\u00e9tuel. Un agent qui sait ce qu'il a d\u00e9j\u00e0 essay\u00e9, ce qui a \u00e9chou\u00e9, et pourquoi \u2014 c'est une diff\u00e9rence de nature, pas de degr\u00e9.\n\n## Les points de rupture\n\n| Signal | Risque |\n|--------|--------|\n| Worker down sans supervision | Observations perdues en silence \u2014 le plus dangereux |\n| Session termin\u00e9e sans SessionEnd propre | Compression AI manqu\u00e9e \u2014 corpus tronqu\u00e9 |\n| Hooks non recharg\u00e9s apr\u00e8s install | mem-search pr\u00e9sent mais 0 observation captur\u00e9e |\n| Server Beta activ\u00e9 sans Postgres/Redis | Crash Worker \u2014 rollback requis |\n| Release majeure sans migration guide | Hooks d\u00e9synchronis\u00e9s avec l'agent h\u00f4te |\n\n## Le chemin de moindre r\u00e9sistance\n\n```\nnpx claude-mem install \u2192 red\u00e9marrer l'agent \u2192 travailler normalement\n```\n\nC'est tout. Le reste est automatique. La session capture, compresse, injecte. L'agent gagne de la m\u00e9moire sans changer son comportement. C'est le g\u00e9nie d'installation de claude-mem : l'UX est transparente.\n\nLa friction arrive apr\u00e8s : quand on veut requ\u00eater activement la m\u00e9moire (`mem-search`), quand on veut comprendre ce qui est stock\u00e9 (Web UI sur port 37777), quand on veut \u00e9viter les fuites de contexte sensible (balises `<private>`). Ces couches existent et sont bien document\u00e9es \u2014 mais elles supposent une implication active de l'utilisateur.\n\n## L'\u00e9quilibre du risque\n\nclaude-mem est un projet au z\u00e9nith de sa courbe d'adoption. 78k \u00e9toiles, cadence de releases soutenue, \u00e9cosyst\u00e8me croissant (skills satellites, 7 agents support\u00e9s, Server Beta en cours de stabilisation). La relicence de AGPL-3.0 vers Apache 2.0 en v13.0.0 est un signal fort : le projet cherche l'adoption enterprise, pas seulement la communaut\u00e9.\n\nMais la cadence de 271 releases en ~18 mois est aussi un avertissement. Le code \u00e9volue vite. Les hooks qui fonctionnent aujourd'hui peuvent \u00eatre incompatibles demain. Sans version \u00e9pingl\u00e9e, l'upgrade automatique peut casser silencieusement le pipeline de m\u00e9moire \u2014 et comme les pertes d'observations sont silencieuses, le probl\u00e8me peut passer inaper\u00e7u pendant plusieurs sessions.\n\n> *\"La m\u00e9moire persistante est une promesse. La r\u00e9aliser exige que le Worker tourne, que les hooks soient charg\u00e9s, et que la session se termine proprement. Trois conditions. Toutes invisibles pour l'agent. Toutes critiques.\"*\n\n**Pour une proth\u00e8se PM** : c'est le candidat le plus mature du march\u00e9 pour transformer un agent de code en collaborateur \u00e0 m\u00e9moire longue. L'adopter sur des projets where la continuit\u00e9 de contexte est critique \u2014 en \u00e9pinglant la version et en monitorant le Worker.",
+  fmaths:  "# Fmaths \u2014 thedotmack/claude-mem\n\n## L0 \u2014 Ontologie (7 primitives non-redondantes)\n\n1. **Observation** \u2014 unit\u00e9 atomique de m\u00e9moire : une action d'agent (tool call, r\u00e9ponse, r\u00e9sultat) captur\u00e9e avec m\u00e9tadonn\u00e9es (session_id, platform_source, timestamp, projet)\n2. **Session** \u2014 conteneur temporel d'observations, born\u00e9 par SessionStart/SessionEnd hooks, isol\u00e9 par platform_source\n3. **Hook** \u2014 d\u00e9clencheur \u00e9v\u00e9nementiel (6 types) qui capture, compresse ou injecte le contexte \u00e0 des moments pr\u00e9cis du cycle de vie agent\n4. **Worker** \u2014 service HTTP persistant (Bun, port 37777) qui orchestre le pipeline de compression, l'indexation SQLite/ChromaDB, et le Web UI\n5. **Skill** \u2014 protocole NL de requ\u00eate m\u00e9moire (mem-search + skills satellites) exposant les observations via MCP en 3 couches (search \u2192 timeline \u2192 get_observations)\n6. **Corpus** \u2014 agr\u00e9gat persistant multi-sessions : SQLite (FTS5) + ChromaDB (vecteurs) + summaries AI \u2014 la \"proth\u00e8se mn\u00e9sique\" mat\u00e9rialis\u00e9e\n7. **Gate** \u2014 garde-fou conditionnel (PreToolUse, quota, privacy-tag) contr\u00f4lant ce qui entre et sort du corpus\n\n## L1 \u2014 Ensembles et relations\n\n- `Observations` \u2282 Sessions \u2282 Corpus \u2014 relation d'inclusion stricte\n- `Agents_support\u00e9s` = {Claude Code, Gemini CLI, OpenCode, Codex, Windsurf, Claude Desktop, OpenClaw} \u2014 7 membres\n- `Hooks` = {SessionStart, UserPromptSubmit, PostToolUse, Stop, SessionEnd, PreToolUse} \u2014 6 \u00e9v\u00e9nements\n- `Storage` = SQLite(FTS5) \u222a ChromaDB(vecteurs) \u2014 union hybride requ\u00eatable\n- `Skills` = {mem-search, design-is, weekly-digests, oh-my-issues, wowerpoint, babysit, knowledge-agent, make-plan, timeline-report, version-bump, ...}\n- Relations :\n  - `Hook \u2192 Observation` (1:N capture)\n  - `Worker \u2192 Corpus` (1:1 gestion)\n  - `Skill \u2192 MCP \u2192 Corpus` (N:1 lecture)\n  - `Gate \u2194 Observation` (filtrage bidirectionnel entr\u00e9e/sortie)\n  - `Session \u2192 platform_source` (isolation par agent)\n\n## L2 \u2014 Logique et tensions\n\n**Invariant de capture :**\n`valid_memory \u27fa Hook_fired \u2227 Worker_running \u2227 \u00acprivacy_tag \u2227 \u00acquota_exceeded`\n\n**Invariant de r\u00e9cup\u00e9ration :**\n`context_injected \u27fa SessionStart_fired \u2227 Corpus_accessible \u2227 relevance(query, obs) > \u03b8`\n\n**XOR architectural critique :**\n`Worker_mode \u2295 ServerBeta_mode` \u2014 mutuellement exclusifs \u00e0 l'ex\u00e9cution (v13.0.0)\n\n**5 tensions structurelles :**\n\n| # | Tension | P\u00f4le A | P\u00f4le B |\n|---|---------|--------|--------|\n| T1 | Richesse vs Co\u00fbt | Corpus exhaustif (tout capturer) | Budget token (injection s\u00e9lective) |\n| T2 | Vitesse vs Qualit\u00e9 | Compression imm\u00e9diate (hooks sync) | Compression AI diff\u00e9r\u00e9e (Worker async) |\n| T3 | Universalit\u00e9 vs Isolation | 7 agents support\u00e9s en parall\u00e8le | platform_source isolation par agent |\n| T4 | L\u00e9g\u00e8ret\u00e9 vs Puissance | Worker simple (SQLite + Bun) | Server Beta (Postgres + Redis + BullMQ) |\n| T5 | Ouverture vs Contr\u00f4le | Apache 2.0, API publique, ext. libres | Privacy gates, quota hard-stop, env isolation |\n\n## L3 \u2014 Invariants\n\n| ID | Invariant |\n|----|-----------|\n| I1 | Le Worker doit tourner pour que les hooks fonctionnent \u2014 sans lui, les observations sont perdues silencieusement |\n| I2 | Chaque observation appartient \u00e0 exactement 1 session + 1 platform_source \u2014 pas de partage cross-platform natif |\n| I3 | Les `<private>` tags excluent le contenu du corpus de fa\u00e7on irr\u00e9versible (pas de backdoor) |\n| I4 | La progressive disclosure (search \u2192 timeline \u2192 get_obs) est la seule interface MCP \u2014 pas d'acc\u00e8s brut direct au corpus |\n| I5 | Le budget token est un hard-stop (quota_exceeded \u2192 gate bloque l'injection) \u2014 jamais de d\u00e9passement silencieux |\n| I6 | SQLite est la source de v\u00e9rit\u00e9 \u2014 ChromaDB est un index secondaire rebuildable |\n| I7 | SessionEnd + Stop hooks sont le seul moment de compression AI \u2014 la session doit se terminer proprement |\n| I8 | L'installation modifie les fichiers hooks de l'agent h\u00f4te \u2014 d\u00e9sinstaller = fichiers hooks \u00e0 restaurer manuellement |\n\n## L4 \u2014 Axes de variation\n\n| Axe | Min | v13.3.0 | Max |\n|-----|-----|---------|-----|\n| Agents support\u00e9s | 1 | 7 | N (spec MCP ouverte) |\n| Storage backend | SQLite seul | SQLite + ChromaDB | Server Beta : Postgres + Redis |\n| Langues i18n | EN | EN + ZH + JA | N (ISO 639-1) |\n| Skills satellites | 0 | ~10 | Extensible via skill API |\n| Releases/mois | ~2 | ~15-20 (pic) | \u221e (cadence non born\u00e9e) |\n| Budget token injection | 0 | configurable | hard-stop quota |\n\n## L5 \u2014 Seuils et conditions d'effondrement\n\n| Seuil | Valeur | Cons\u00e9quence |\n|-------|--------|-------------|\n| Worker down | > 0 sessions sans Worker | Observations perdues \u2014 aucune erreur visible pour l'agent |\n| Quota token | Configurable (d\u00e9faut inconnu) | Hard-stop injection \u2192 session sans m\u00e9moire inject\u00e9e |\n| Corpus size | D\u00e9pend du stockage dispo | D\u00e9gradation perfs FTS5, puis ChromaDB |\n| Release gap | > 2 semaines sans m\u00e0j | Risque d\u00e9sync API hooks agent h\u00f4te |\n| Hooks non charg\u00e9s | Identique \u00e0 superpowers | Skills mem-search silencieusement absents |\n| Server Beta sans Postgres/Redis | Activation sans pr\u00e9requis | Crash Worker \u2014 rollback Worker mode requis |\n\n**3 effondrements syst\u00e8me :**\n- **E1 (silencieux)** : Worker down \u2192 observations perdues sans notification \u2192 corpus incomplet non d\u00e9tect\u00e9\n- **E2 (partiel)** : Hooks non recharg\u00e9s apr\u00e8s install \u2192 mem-search disponible mais 0 observation captur\u00e9e\n- **E3 (d\u00e9pendance)** : Release breaking sur API hooks agent h\u00f4te (Claude Code / Gemini CLI) \u2192 d\u00e9sync jusqu'au patch\n\n## L6 \u2014 Couplages\n\n| Couche | Couplage |\n|--------|----------|\n| Hooks \u2192 Worker | Couplage fort \u26a0\ufe0f \u2014 HTTP sync requis pour chaque observation |\n| Worker \u2192 SQLite | Couplage fort \u26a0\ufe0f \u2014 SQLite = source de v\u00e9rit\u00e9, pas de fallback |\n| Worker \u2192 ChromaDB | Couplage moyen \u26a0\ufe0f \u2014 ChromaDB = index rebuildable, perte performance si down |\n| MCP \u2192 Worker | Couplage fort \u26a0\ufe0f \u2014 Skill mem-search d\u00e9pend du Worker pour les requ\u00eates |\n| Agent h\u00f4te \u2192 Hooks | Couplage fort \u26a0\ufe0f \u2014 hooks dans config de l'agent, migration si specs changent |\n| Agents entre eux | D\u00e9coupl\u00e9s \u2705 \u2014 platform_source isolation garantie |\n| Skills satellites | D\u00e9coupl\u00e9s \u2705 \u2014 ind\u00e9pendants du core memory pipeline |\n| Server Beta | D\u00e9coupl\u00e9 \u2705 (opt-in) \u2014 Worker mode non affect\u00e9 si Server Beta inactif |\n\n## L7 \u2014 Topologie (happy path + frictions)\n\n**S\u00e9quence happy path :**\n```\ninstall (npx claude-mem install)\n\u2192 Worker d\u00e9marre (Bun, port 37777)\n\u2192 Hooks inject\u00e9s dans agent config\n\u2192 Session 1 : SessionStart (inject pass\u00e9) \u2192 travail \u2192 PostToolUse (capture obs) \u2192 SessionEnd (compress AI)\n\u2192 Session 2 : SessionStart (inject contexte session 1) \u2192 mem-search NL \u2192 timeline \u2192 get_observations \u2192 travail inform\u00e9\n```\n\n**4 points de friction :**\n- F1 : Worker \u00e0 maintenir actif entre sessions (pas de daemon systemd natif \u2014 risque de perte silencieuse)\n- F2 : Bun requis \u2014 cha\u00eene d'installation plus longue que pure Node (Bun auto-install peut \u00e9chouer derri\u00e8re proxy)\n- F3 : 271 releases en ~18 mois \u2192 API instable, hook config peut changer sans pr\u00e9avis\n- F4 : Server Beta (Postgres + Redis) = stack DevOps non triviale \u2014 gap onboarding solo dev vs \u00e9quipe\n\n## L8 \u2014 Probabilit\u00e9s et incertitude\n\n| Risque | Probabilit\u00e9 | Impact | Justification |\n|--------|------------|--------|---------------|\n| Breaking change hooks dans 6 mois | 0.85 | \u00c9lev\u00e9 | 271 releases, 3 majeurs en 2026, cadence acc\u00e9l\u00e9r\u00e9e |\n| Lock-in fort \u00e0 l'\u00e9cosyst\u00e8me | 0.70 | Moyen | SQLite + ChromaDB propri\u00e9taires au Worker ; export non document\u00e9 |\n| Worker down en prod | 0.40 | \u00c9lev\u00e9 | Aucun supervisor natif, Bun process fragile si machine red\u00e9marre |\n| D\u00e9pendance upstream (Claude API) | 0.60 | \u00c9lev\u00e9 | @anthropic-ai/claude-agent-sdk = breaking changes fr\u00e9quents |\n| Adoption long terme | 0.75 | Positif | 78k \u2605, Apache 2.0, momentum fort, use case unique |\n| Maturit\u00e9 Server Beta | 0.50 | Variable | v13.1.0 = phases 4-13 event pipeline, encore en stabilisation |\n\n**Vecteur cognitif \u2014 bilan :**\n- **Abstraction** \u2705 \u2014 L0-L3 bien couverts, primitives claires\n- **Concr\u00e9tude** \u2705 \u2014 Happy path document\u00e9, commandes copiables\n- **Affect** \u26a0\ufe0f \u2014 Cadence de releases anxiog\u00e8ne pour \u00e9quipes conservatrices\n- **Normativit\u00e9** \u26a0\ufe0f \u2014 Pas de SLA, pas de contrat de stabilit\u00e9 API\n- **Incertitude** \u26a0\ufe0f \u2014 E1 (Worker silencieux) = risque non visible, difficile \u00e0 monitorer\n- **Alt\u00e9rit\u00e9** \u2705 \u2014 7 agents support\u00e9s, i18n, modes multiples\n- **Coh\u00e9rence** \u26a0\ufe0f \u2014 Worker mode et Server Beta coexistent mais doc de migration incompl\u00e8te",
+  install: "# Installation \u2014 thedotmack/claude-mem v13.3.0\n\n## Pr\u00e9requis\n\n| Outil | Version min | V\u00e9rification |\n|---|---|---|\n| Node.js | 20.0.0+ | `node --version` |\n| Bun | 1.0.0+ | `bun --version` (auto-install\u00e9 si absent) |\n| uv (Python pkg mgr) | Toute | `uv --version` (auto-install\u00e9 si absent) |\n| SQLite 3 | Bundl\u00e9 | \u2014 (pas besoin d'installer) |\n| Claude Code | Plugin support requis | `claude --version` |\n| **Server Beta uniquement** | Postgres + Redis | `psql --version` \u00b7 `redis-cli --version` |\n\n---\n\n## Option A \u2014 Installation rapide (recommand\u00e9e)\n\n### Claude Code (d\u00e9faut)\n\n```powershell\n# Dans un terminal PowerShell\nnpx claude-mem install\n```\n\nPuis relancer Claude Code. Les hooks sont inject\u00e9s automatiquement dans `~/.claude/settings.json`.\n\n### Gemini CLI\n\n```powershell\nnpx claude-mem install --ide gemini-cli\n```\n\n### OpenCode\n\n```powershell\nnpx claude-mem install --ide opencode\n```\n\n### Via Plugin Marketplace (Claude Code)\n\n```\n# Dans une session Claude Code\n/plugin marketplace add thedotmack/claude-mem\n/plugin install claude-mem\n```\n\n### OpenClaw Gateway\n\n```powershell\n# Installe via script shell (n\u00e9cessite bash ou Git Bash sur Windows)\ncurl -fsSL https://install.cmem.ai/openclaw.sh | bash\n```\n\n---\n\n## Option B \u2014 Depuis le source (pour contribuer ou d\u00e9boguer)\n\n```powershell\n# 1. Cloner le repo\ngit clone https://github.com/thedotmack/claude-mem.git\ncd claude-mem\n\n# 2. Installer les d\u00e9pendances\nbun install\n\n# 3. Builder le projet\nbun run build\n\n# 4. Lier localement\nnpm link\n\n# 5. Installer dans l'agent\nclaude-mem install\n```\n\n---\n\n## Config minimale\n\nFichier cr\u00e9\u00e9 automatiquement : `~/.claude-mem/settings.json`\n\n```json\n{\n  \"CLAUDE_MEM_MODE\": \"code\",\n  \"worker\": {\n    \"port\": 37777,\n    \"dataDir\": \"~/.claude-mem\"\n  },\n  \"context\": {\n    \"maxTokens\": 4000,\n    \"progressive\": true\n  },\n  \"privacy\": {\n    \"tags\": [\"<private>\", \"</private>\"]\n  }\n}\n```\n\n**Modes disponibles :**\n- `\"code\"` \u2014 Anglais (d\u00e9faut)\n- `\"code--zh\"` \u2014 Chinois simplifi\u00e9\n- `\"code--ja\"` \u2014 Japonais\n- Pattern : `\"code--[ISO-639-1]\"` pour toute autre langue\n\n---\n\n## Commandes de v\u00e9rification\n\nApr\u00e8s installation Claude Code, dans une nouvelle session :\n\n```powershell\n# 1. V\u00e9rifier que le Worker tourne\nInvoke-WebRequest -Uri \"http://localhost:37777\" -UseBasicParsing | Select-Object StatusCode\n# Attendu : StatusCode 200\n\n# 2. Ouvrir le Web UI (v\u00e9rification visuelle)\nStart-Process \"http://localhost:37777\"\n\n# 3. Dans Claude Code \u2014 requ\u00eater la m\u00e9moire\n# Taper dans la session :\n# /mem-search \"test installation\"\n```\n\n---\n\n## Workflow de base post-install\n\n```\n# Session 1 \u2014 travail normal, la m\u00e9moire capture automatiquement\n# (SessionStart hook injecte le pass\u00e9, PostToolUse capture, SessionEnd compresse)\n\n# Session 2 \u2014 mem-search pour retrouver contexte\nsearch(query=\"bug authentication\", type=\"bugfix\", limit=10)\n\u2192 identifier les IDs pertinents\n\u2192 get_observations(ids=[42, 87, 103])\n\u2192 travailler avec le contexte r\u00e9cup\u00e9r\u00e9\n```\n\n---\n\n## Points d'attention Windows (PowerShell)\n\n```\n\u26a0\ufe0f WARN \u2014 Bun sur Windows\nBun s'installe via PowerShell si absent :\n  powershell -c \"irm bun.sh/install.ps1 | iex\"\nSi l'auto-install \u00e9choue derri\u00e8re un proxy corporate, installer manuellement\ndepuis https://bun.sh avant de lancer npx claude-mem install\n```\n\n```\n\u26a0\ufe0f WARN \u2014 Worker Process\nLe Worker est un process Bun (port 37777). Il n'est pas registr\u00e9 comme service Windows.\nSi vous red\u00e9marrez la machine, relancer manuellement :\n  cd ~/.claude/plugins/... && bun run worker:start\nSans Worker actif, les hooks s'ex\u00e9cutent sans capturer les observations (perte silencieuse).\n```\n\n```\n\u26a0\ufe0f WARN \u2014 curl sur Windows\nLa commande OpenClaw utilise curl Unix. Sur Windows PowerShell 5.1, curl est un alias\npour Invoke-WebRequest \u2014 utiliser Git Bash ou WSL pour cette commande sp\u00e9cifique.\n```\n\n```\n\u26a0\ufe0f WARN \u2014 Version \u00e9pingl\u00e9e obligatoire\nclaude-mem publie ~15-20 releases/mois. Sans version \u00e9pingl\u00e9e, un npm update peut\nintroduire une breaking change sur les hooks. Recommandation :\n  npx claude-mem@13.3.0 install\n```\n\n```\n\u26a0\ufe0f WARN \u2014 Fichiers hooks modifi\u00e9s \u00e0 l'install\nL'installation modifie ~/.claude/settings.json (section hooks).\nFaire un backup avant install si vous avez des hooks custom :\n  Copy-Item ~/.claude/settings.json ~/.claude/settings.json.bak\n```\n\n```\n\u26a0\ufe0f WARN \u2014 Server Beta (opt-in v13.0.0)\nN'activer le Server Beta que si Postgres ET Redis sont disponibles.\nSans ces pr\u00e9requis, le Worker crashe au d\u00e9marrage.\nLe mode Worker (SQLite + Bun) reste la valeur par d\u00e9faut et ne n\u00e9cessite pas Postgres/Redis.\n```",
+  verdict: "# Verdict PM \u2014 thedotmack/claude-mem\n\n## Score 3 dimensions\n\n| Dimension | Score | Justification |\n|---|---|---|\n| Pertinence PM (proth\u00e8se mn\u00e9sique pour agent) | 9.5/10 | Unique : seul outil qui r\u00e9sout le probl\u00e8me de l'oubli inter-sessions de fa\u00e7on compl\u00e8te et automatique. Use case central = memory agent. |\n| Maturit\u00e9 prod | 8/10 | v13.3.0, 271 releases, Apache 2.0, 78k \u2605 \u2014 mais cadence acc\u00e9l\u00e9r\u00e9e et Worker non supervis\u00e9 = risque op\u00e9rationnel |\n| Facilit\u00e9 onboarding | 8.5/10 | `npx claude-mem install` = 1 commande. Happy path tr\u00e8s fluide. Friction arrive sur la config avanc\u00e9e et le monitoring Worker. |\n\n**Score global : 8.6/10**\n\n---\n\n## Forces\n\n| | Titre | Description |\n|---|---|---|\n| \u2705 | Proth\u00e8se mn\u00e9sique compl\u00e8te | Seul outil qui capture \u2192 compresse \u2192 injecte le contexte cross-session de fa\u00e7on enti\u00e8rement automatique, sans friction pour l'agent |\n| \u2705 | Progressive disclosure token-efficient | Pipeline 3 couches (search \u2192 timeline \u2192 get_obs) = ~10\u00d7 \u00e9conomie de tokens vs injection brute |\n| \u2705 | Multi-agent universel | 7 agents support\u00e9s (Claude Code, Gemini, OpenCode, Codex, Windsurf, Claude Desktop, OpenClaw) \u2014 migration sans perte de m\u00e9moire |\n| \u2705 | Privacy by design | Balises `<private>` excluent le contenu sensible de fa\u00e7on irr\u00e9versible \u2014 pas de fuite silencieuse |\n| \u2705 | Hybrid search robuste | FTS5 + ChromaDB vecteurs = rappel s\u00e9mantique + exact-match simultan\u00e9s, citations par ID |\n| \u2705 | \u00c9cosyst\u00e8me skills satellite | Skills optionnels (design-is, weekly-digests, babysit, wowerpoint...) \u2014 la m\u00e9moire devient une plateforme |\n\n---\n\n## Faiblesses / Risques\n\n| | Titre | Description + Impact |\n|---|---|---|\n| \u26a0\ufe0f | Worker sans supervision native | Process Bun non daemonis\u00e9 \u2014 red\u00e9marrage machine = Worker down = observations perdues en silence. Impact : corpus incomplet sans alerte |\n| \u26a0\ufe0f | Cadence de releases non born\u00e9e | 271 releases en ~18 mois, jusqu'\u00e0 7/10 jours. Impact : hook API instable, upgrade auto peut casser silencieusement le pipeline |\n| \u26a0\ufe0f | Lock-in SQLite + ChromaDB | Export du corpus non document\u00e9. Impact : migration vers un autre syst\u00e8me = re-capture from scratch |\n| \u26a0\ufe0f | Server Beta pr\u00e9matur\u00e9 | Phases 4-13 event pipeline en cours de stabilisation (v13.1.0). Impact : Postgres + Redis = stack DevOps non triviale pour solo dev |\n| \ud83d\udd34 | Perte d'observations silencieuse | Worker down, crash session non propre, hooks non recharg\u00e9s = corpus trou\u00e9 sans notification. Impact : fausse confiance dans la m\u00e9moire |\n\n---\n\n## Matrice Use Cases\n\n### \u2705 Oui \u2014 Usage appropri\u00e9\n\n| Use Case | Pourquoi |\n|---|---|\n| Proth\u00e8se mn\u00e9sique pour agent PM | R\u00e9sout exactement le probl\u00e8me : continuit\u00e9 de contexte cross-session, m\u00e9moire des d\u00e9cisions et des blockers |\n| Projet long (> 1 semaine, > 50 sessions) | La valeur du corpus cro\u00eet avec le temps \u2014 indispensable pour ne pas r\u00e9expliquer l'historique |\n| Onboarding nouveau collaborateur agent | `mem-search` permet \u00e0 un agent de retrouver l'historique d'un projet sans re-lire toute la codebase |\n| Multi-agent sur m\u00eame projet | Platform isolation garantit que Claude Code et Codex ne polluent pas leur m\u00e9moire respective |\n\n### \u274c Attendre / Non \u2014 Usage inappropri\u00e9 ou risqu\u00e9\n\n| Use Case | Pourquoi |\n|---|---|\n| Projet B2B \u00e0 SLA strict | Pas de supervision Worker native, perte silencieuse possible \u2014 trop risqu\u00e9 en production sensible |\n| Environnement sans contr\u00f4le du Worker | Serveur partag\u00e9, machine red\u00e9marr\u00e9e r\u00e9guli\u00e8rement = Worker instable = corpus non fiable |\n| Int\u00e9gration dans pipeline CI/CD | Les hooks sont con\u00e7us pour sessions interactives, pas pour batch \u2014 comportement non sp\u00e9cifi\u00e9 en CI |\n| Adoption sans version \u00e9pingl\u00e9e | 271 releases \u2192 risque de r\u00e9gression silencieuse \u00e0 chaque update auto du hook |\n\n---\n\n## Roadmap\n\n| Feature | Statut | Impact |\n|---|---|---|\n| Server Beta (Postgres + BullMQ) | \u2705 v13.0.0 opt-in, stabilisation en cours | Scalabilit\u00e9 enterprise, multi-worker |\n| Event pipeline complet (phases 4-13) | \u2705 v13.1.0 | Observabilit\u00e9 temps r\u00e9el des observations |\n| Codex native hooks | \u2705 v12.7.0 | Parit\u00e9 OpenAI Codex avec Claude Code |\n| OAuth keychain reader | \u2705 v12.6.0 | S\u00e9curit\u00e9 accrue multi-env |\n| Skills satellite (design-is, weekly-digests) | \u2705 v13.3.0 | M\u00e9moire \u2192 plateforme |\n| Daemon/supervisor natif | \u23f3 Non annonc\u00e9 | N\u00e9cessaire pour robustesse prod |\n| Export corpus | \u23f3 Non annonc\u00e9 | Indispensable pour migration |\n| V14 (probable H2 2026) | \u23f3 Non annonc\u00e9 | Attendre CHANGELOG avant upgrade majeur |\n\n---\n\n## Recommandation finale\n\n**claude-mem est la proth\u00e8se mn\u00e9sique de r\u00e9f\u00e9rence pour tout agent de code qui travaille sur des projets longs.** Le probl\u00e8me qu'il r\u00e9sout \u2014 l'oubli inter-sessions \u2014 est structurel \u00e0 tous les LLM actuels, et aucun concurrent ne propose une solution aussi compl\u00e8te, aussi automatique, et aussi bien int\u00e9gr\u00e9e dans l'\u00e9cosyst\u00e8me Claude. La relicence Apache 2.0, les 78k \u00e9toiles, et la diversit\u00e9 des agents support\u00e9s confirment que ce projet a pass\u00e9 le stade du proof-of-concept.\n\n**Dans le contexte proth\u00e8se PM** : c'est le cha\u00eenon manquant entre une s\u00e9rie de sessions isol\u00e9es et un vrai projet suivi. Un agent qui sait ce qu'il a d\u00e9j\u00e0 tent\u00e9, qui reconna\u00eet les patterns d'\u00e9chec, qui r\u00e9injecte les d\u00e9cisions de la semaine pass\u00e9e \u2014 c'est une diff\u00e9rence de nature sur la qualit\u00e9 du travail produit.\n\n**Action recommand\u00e9e :** adopter imm\u00e9diatement pour tout projet o\u00f9 la continuit\u00e9 de contexte est critique. \u00c9pingler la version (`npx claude-mem@13.3.0 install`). Mettre en place un monitoring simple du Worker (health check port 37777 toutes les 5 minutes). Ne pas activer le Server Beta avant d'avoir Postgres + Redis en place. Pour les projets sensibles : tester les balises `<private>` sur les donn\u00e9es confidentielles avant de mettre en production."
 };
 
-document.getElementById('recit-content').innerHTML   = marked.parse(contents.recit);
-document.getElementById('fmaths-content').innerHTML  = marked.parse(contents.fmaths);
-document.getElementById('install-content').innerHTML = marked.parse(contents.install);
-document.getElementById('verdict-content').innerHTML = marked.parse(contents.verdict);
+document.getElementById('md-recit').innerHTML   = marked.parse(contents.recit);
+document.getElementById('md-fmaths').innerHTML  = marked.parse(contents.fmaths);
+document.getElementById('md-install').innerHTML = marked.parse(contents.install);
+document.getElementById('md-verdict').innerHTML = marked.parse(contents.verdict);
 </script>
-
 </body>
 </html>
