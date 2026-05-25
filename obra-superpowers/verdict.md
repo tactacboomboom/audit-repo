@@ -1,3 +1,8 @@
+---
+name: superpowers-verdict
+description: Évaluation obra/superpowers v5.1.0 — score 8.3/10, forces/faiblesses, matrice use-cases, roadmap. Charger pour décision d'adoption ou préparer une recommandation.
+---
+
 # Verdict PM — obra/superpowers
 
 ## Score 3 dimensions

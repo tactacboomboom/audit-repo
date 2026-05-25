@@ -1,3 +1,8 @@
+---
+name: superpowers-findings
+description: Données brutes obra/superpowers v5.1.0 — stats GitHub, architecture repo, 14 skills, 7-step workflow, install commands 6 agents. Charger pour vérifier faits ou commandes d'installation.
+---
+
 # Findings — obra/superpowers
 
 **Repo :** https://github.com/obra/superpowers  

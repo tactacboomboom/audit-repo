@@ -1,3 +1,8 @@
+---
+name: superpowers-installation
+description: Installation obra/superpowers v5.1.0 — commandes par agent (Claude Code, Cursor, Gemini, Codex, Factory, Copilot), workflow 7 étapes post-install, warnings Windows PowerShell. Charger quand on installe ou configure.
+---
+
 # Installation — obra/superpowers v5.1.0
 
 ## Prérequis
