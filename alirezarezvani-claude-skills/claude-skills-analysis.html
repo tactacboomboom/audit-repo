@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🛠️ claude-skills — Analyse</title>
+<style>
+  :root {
+    --bg:#1e1e1e;--surface:#252526;--surface2:#2d2d30;--border:#3e3e42;
+    --accent:#007acc;--accent2:#0e639c;--green:#4ec9b0;--yellow:#dcdcaa;
+    --orange:#ce9178;--red:#f44747;--purple:#c586c0;--blue:#9cdcfe;
+    --text:#d4d4d4;--text-dim:#858585;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;line-height:1.6;}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:1rem 1.5rem;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;}
+  header h1{font-size:1.15rem;color:var(--blue);font-weight:600;}
+  header .meta{color:var(--text-dim);font-size:.8rem;font-family:Consolas,monospace;}
+  .tabs{display:flex;gap:.25rem;padding:.5rem 1.5rem 0;background:var(--surface);border-bottom:1px solid var(--border);}
+  .tab-btn{background:transparent;border:none;color:var(--text-dim);cursor:pointer;padding:.6rem 1.1rem;font-size:.88rem;border-bottom:2px solid transparent;transition:.15s;font-family:inherit;}
+  .tab-btn:hover{color:var(--text);}
+  .tab-btn.active{color:var(--text);border-bottom-color:var(--accent);}
+  .content{display:none;padding:1.5rem;max-width:900px;margin:0 auto;}
+  .content.active{display:block;}
+  /* markdown rendered */
+  .content h1{color:var(--blue);font-size:1.4rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.5rem;}
+  .content h2{color:var(--yellow);font-size:1.1rem;margin:1.5rem 0 .6rem;}
+  .content h3{color:var(--green);font-size:.95rem;margin:1.2rem 0 .4rem;}
+  .content p{margin-bottom:.8rem;}
+  .content blockquote{border-left:3px solid var(--accent);padding:.5rem 1rem;background:var(--surface2);border-radius:0 4px 4px 0;margin:.8rem 0;color:var(--text-dim);}
+  .content table{border-collapse:collapse;width:100%;margin:.8rem 0;font-size:.88rem;}
+  .content th{background:var(--surface2);color:var(--yellow);padding:.5rem .7rem;border:1px solid var(--border);text-align:left;}
+  .content td{padding:.45rem .7rem;border:1px solid var(--border);}
+  .content tr:hover td{background:var(--surface2);}
+  .content code{background:#0d0d0d;color:var(--orange);padding:.1rem .4rem;border-radius:3px;font-family:Consolas,monospace;font-size:.85rem;}
+  .content pre{background:#0d0d0d;border:1px solid var(--border);border-radius:4px;padding:1rem;overflow-x:auto;margin:.8rem 0;}
+  .content pre code{background:none;color:var(--text);padding:0;}
+  .content ul,.content ol{padding-left:1.5rem;margin-bottom:.8rem;}
+  .content li{margin-bottom:.3rem;}
+  .content strong{color:var(--text);font-weight:600;}
+  .content em{color:var(--text-dim);font-style:italic;}
+  .content hr{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
+  .score-bar{display:flex;align-items:center;gap:.8rem;margin:.3rem 0;}
+  .score-fill{height:8px;background:var(--accent);border-radius:4px;}
+  footer{text-align:center;padding:2rem;color:var(--text-dim);font-size:.78rem;border-top:1px solid var(--border);margin-top:2rem;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛠️ alirezarezvani/claude-skills</h1>
+  <span class="meta">329 skills · 16.2k ★ · MIT · Python stdlib · multi-platform</span>
+  <span class="meta">Audit · 2026-05-26 · Lens : dreamteam solo + matrice rôle × étapes × bucket</span>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('recit',this)">📖 Récit</button>
+  <button class="tab-btn" onclick="switchTab('fmaths',this)">🔬 Fmaths</button>
+  <button class="tab-btn" onclick="switchTab('install',this)">⚙️ Installation</button>
+  <button class="tab-btn" onclick="switchTab('verdict',this)">⚖️ Verdict</button>
+</div>
+
+<div id="tab-recit" class="content active"></div>
+<div id="tab-fmaths" class="content"></div>
+<div id="tab-install" class="content"></div>
+<div id="tab-verdict" class="content"></div>
+
+<script type="text/plain" id="md-recit">
+# Récit — alirezarezvani/claude-skills
+
+> Décodeur narratif · transmutation de l'analyse fmaths · 2026-05-26
+
+---
+
+## Le décor
+
+Imaginez une armurerie de 329 pièces, chacune rangée par métier : une étagère pour l'ingénieur, une pour le product owner, une pour le directeur marketing, une pour le CFO. Chaque pièce est légère — un fichier SKILL.md, parfois accompagné d'un outil Python sans installation. On entre, on prend, on part. L'armurerie ne sait pas qui vous êtes ni dans quel ordre vous venez piocher.
+
+C'est la force et la limite du projet.
+
+---
+
+## Les règles du jeu
+
+> *"You combine them. The pattern is always the same."*
+
+L'orchestration repose sur trois composantes : une **Persona** (qui êtes-vous, comment jugez-vous), des **Skills** (quelles armes prenez-vous), et des **Agents** (des combinaisons pré-configurées pour un domaine). Le protocole dit : un seul persona actif par prompt. Les skills, eux, s'empilent librement.
+
+Quatre patterns de jeu émergent :
+- **Solo Sprint** — vous jouez successivement CTO, PO, Founder. Chaque switch = un chapeau différent sur la même tête.
+- **Domain Deep-Dive** — même persona, 5 skills chargés, plongée intensive.
+- **Multi-Agent Handoff** — une persona relit le travail d'une autre. Contrôle qualité distribué.
+- **Skill Chain** — aucun persona, séquence procédurale pure.
+
+**Tension critique :** Le Solo Sprint est exactement le rêve du solo founder qui veut la stack de 50 personnes. Mais l'armurerie ne tient pas de registre des armes empruntées. Quand vous revenez le lendemain, vous recommencez à zéro.
+
+---
+
+## Le socle immuable
+
+Trois choses ne bougent pas dans ce repo :
+
+1. **Grain = 1 SKILL.md = 1 intention.** Pas de skills composites, pas de hiérarchie d'héritages. Chaque skill est atomique.
+2. **Zéro dépendance externe.** Les 402 outils Python tournent avec la stdlib uniquement. Pas de pip, pas de virtualenv, pas de surprise à 23h.
+3. **MIT.** Vous prenez, vous modifiez, vous redistribuez. Sans dette.
+
+> ⚠️ Ce qui n'est **pas** immuable : la conformité frontmatter. Le repo ajoute des champs (`type`, `version`, `compatibility`) que le marketplace Anthropic officiel ne reconnaît pas. Si Claude Code fait évoluer son parser, ces skills peuvent casser silencieusement.
+
+---
+
+## Les leviers de transformation
+
+Six leviers pour adapter ce repo à votre usage :
+
+| Levier | Action | Gain |
+|---|---|---|
+| Sélection domaine | Ne charger que product-team + engineering | Réduire de 329 → ~40 skills actifs |
+| Ajout LINEAGE.md | Un fichier par skill chargé | Traçabilité documentaire, nilpotence locale |
+| Normalisation frontmatter | Réduire à name + description | Conformité Anthropic officielle |
+| Personas Scrum | Créer PO / SM / Dev / Stakeholder / Dev Anthropic | Simuler l'équipe Scrum complète |
+| Orchestration ↔ chaîne nilpotente | Mapper les phases sur R1→R4 | Convergence garantie MRD→Code |
+| Spec day | Forcer TOUS les documents une fois | Remplir la chaîne avant le premier sprint |
+
+---
+
+## Les points de rupture
+
+| Seuil | Si franchi |
+|---|---|
+| >20 skills actifs simultanément | Le signal se noie dans le bruit — persona switching devient du code-switching sans sens |
+| 0 LINEAGE.md | Chaque session repart de zéro — le Solo Sprint devient Groundhog Day |
+| Frontmatter étendu + mise à jour Claude Code | Skills silencieusement invisibles dans le marketplace |
+| Orchestration sans DoR/DoD | Handoff sans critère de done = phase suivante commence sur du flou |
+
+---
+
+## Le chemin de moindre résistance
+
+Pour Yanis, solo founder cherchant la stack de 50 personnes :
+
+```
+1. Installer le bundle product-team + engineering-team          (2 commandes)
+2. Créer 5 personas : PO · SM · Dev · Stakeholder · DevAnthro  (1 après-midi)
+3. Mapper les personas sur R1→R4 de la chaîne nilpotente        (1 session)
+4. Ajouter LINEAGE.md à chaque skill chargé                     (1h par skill)
+5. Spec day : invoquer PO pour MRD → BRD → PRD avant sprint 1   (1 journée)
+```
+
+Le repo vous donne les pièces. L'assemblage reste votre travail.
+
+---
+
+## L'équilibre du risque
+
+Ce repo est une bibliothèque, pas un système. Sa valeur est dans sa **densité** (329 skills battle-tested, 16k étoiles) et son **absence de friction** (0 dépendance, MIT). Son risque principal n'est pas technique — il est architectural : charger 329 skills sans gouvernance produit du bruit, pas de la clarté.
+
+**Pour le rêve "dreamteam solo" :** ce repo est un accélérateur de matière première. Il ne résout pas le problème du linéage, de la volatilité documentaire, ni du dashboard de convergence. Ces couches sont à construire par-dessus — et c'est exactement ce que fait le projet claude-prostheses.
+
+> La bonne question n'est pas "est-ce que ce repo remplace la dreamteam ?" mais "quels skills de ce repo dois-je greffer sur quels personnages de ma matrice ?"
+
+</script>
+<script type="text/plain" id="md-fmaths">
+# Fmaths — alirezarezvani/claude-skills
+
+> Analyse formelle 8 couches · Généré le 2026-05-26
+
+---
+
+## L0 — Ontologie (primitives non-redondantes)
+
+| Primitive | Définition |
+|---|---|
+| **Skill** | Instruction exécutable encapsulée dans SKILL.md — grain = 1 intention |
+| **Persona** | Identité + jugement — filtrent COMMENT un agent raisonne |
+| **Agent** | Compositeur de Persona + Skills sur un domaine métier |
+| **Tool** | Script Python stdlib (0 dépendance) attaché à un Skill |
+| **Orchestration** | Protocole de coordination Persona ↔ Skills ↔ Agents entre phases |
+| **Platform** | Cible de déploiement (Claude Code, Cursor, Gemini CLI, Aider…) |
+| **Domain** | Cluster fonctionnel (engineering, product, marketing, c-level…) |
+
+7 primitives. Fermées, non-redondantes, génératives.
+
+---
+
+## L1 — Ensembles et relations
+
+```
+Skill ∈ Domain
+Domain ⊆ Agent (un agent agrège plusieurs domaines)
+Persona → filtre(Agent)
+Orchestration coordonne(Persona × Skills → Phase)
+Tool est-attaché-à(Skill) [optionnel]
+Platform consomme(Skill | Agent)
+
+Skills : ~329  (répartis sur ~12 Domains)
+Tools  : ~402  (stdlib Python uniquement)
+Agents : ~10 composites (engineering, product, marketing…)
+Personas : 3+ (Startup CTO, Growth Marketer, Solo Founder)
+Platforms : 12+ (Claude Code, Cursor, Aider, Windsurf, Gemini CLI…)
+```
+
+**Relations critiques :**
+- Skill ↛ Skill (pas de linéage entre skills — isolation forte)
+- Persona ↛ Document (les personas ne produisent pas de traçabilité)
+- Domain → SKILL.md (seul artefact persistant par skill)
+
+---
+
+## L2 — Logique et tensions
+
+| Connecteur | Application |
+|---|---|
+| AND | Persona + Skills = agent opérationnel (les deux requis) |
+| OR | Skills s'activent indépendamment (pas de dépendance inter-skill) |
+| XOR | 1 persona active par prompt — exclusion mutuelle |
+| → | Orchestration : Phase N → Hand Off → Phase N+1 |
+
+**Tensions identifiées :**
+- `T1` Skills sont **isolés** — aucun mécanisme de linéage entre eux. Viola A₅ traçabilité si on veut nilpotence globale.
+- `T2` **329 skills** = richesse ET risque de dispersion. Sans filtre, le Solo Founder se noie.
+- `T3` Orchestration est **procédurale** (Skill Chain) OU **opportuniste** (persona switching). Pas de garantie formelle de convergence.
+- `T4` Platform-agnostic = force ET faiblesse : adaptation `convert.sh` déléguée à l'utilisateur.
+
+---
+
+## L3 — Invariants
+
+| ID | Invariant |
+|---|---|
+| I1 | Chaque Skill = 1 SKILL.md — grain immuable |
+| I2 | 0 dépendance externe pour les Tools (stdlib Python only) |
+| I3 | 1 seule Persona active par prompt (exclusion mutuelle) |
+| I4 | MIT License — réutilisation libre, modification libre |
+| I5 | Context forward : lors d'un handoff, le contexte précédent se transmet |
+| I6 | Skills stack freely — pas de conflit de charge possible |
+
+---
+
+## L4 — Axes de variation
+
+| Axe | Min | Max | État actuel |
+|---|---|---|---|
+| Couverture domaines | 1 domain | 12+ domains | ✅ 12 domains couverts |
+| Profondeur par skill | 1 ligne instruction | 50+ lignes + scripts | Mixte : léger→dense |
+| Maturité orchestration | Ad hoc prompt | Protocole 5 étapes formalisé | ⚠️ v2.8.4, récent |
+| Conformité Anthropic | Non-conforme | name+description seulement | ⚠️ frontmatter étendu (non-standard) |
+| Linéage documentaire | 0 (actuel) | LINEAGE.md par skill | ❌ absent |
+| Support multi-platform | Claude Code only | 12 plateformes | ✅ via convert.sh |
+
+---
+
+## L5 — Seuils et stabilité
+
+| Seuil | Valeur critique | Risque |
+|---|---|---|
+| Surcharge cognitive | >20 skills actifs simultanément | Persona switching becomes noise |
+| Breaking changes | ~10 releases/mois observés | Pins de version nécessaires |
+| Conformité frontmatter | Champs supplémentaires (type, version…) | Incompatibilité avec marketplace Anthropic officiel |
+| Linéage manquant | 0 skills avec LINEAGE.md | Opacité totale du DAG de provenance |
+| Onboarding friction | `/plugin install` → 1 commande | ✅ sous le seuil d'abandon |
+
+---
+
+## L6 — Catégories (cohérence interne)
+
+| Couche | Contenu | Couplage |
+|---|---|---|
+| Instruction | SKILL.md + frontmatter | ✅ découplé par design |
+| Exécution | Python Tools (~402) | ✅ stdlib-only, 0 coupling |
+| Identité | Personas (3+) | ⚠️ peu documentées |
+| Coordination | Orchestration protocol | ⚠️ récent, en évolution |
+| Déploiement | Platform scripts | ✅ isolé dans scripts/ |
+| Gouvernance | Standards/, templates/ | ⚠️ partiellement formalisé |
+
+Audit couplages : Skills ↔ Tools = ✅ faible / Personas ↔ Skills = ⚠️ implicite / Orchestration ↔ Domaines = ⚠️ non formalisé
+
+---
+
+## L7 — Topologie (chemin de moindre résistance)
+
+**Happy path :**
+```
+1. /plugin install engineering-skills@claude-code-skills      (30s)
+2. Choisir une Persona dans agents/personas/                  (1 min)
+3. Invoquer /skill domain/skill-name                          (immédiat)
+4. Si cross-domain → orchestration/ORCHESTRATION.md           (5 min lecture)
+5. Solo Sprint : CTO → PO → Founder (switch persona)          (par phase)
+```
+
+**Nœuds de friction :**
+- F1 : 329 skills → sélection non guidée (pas de recommandation par cas d'usage)
+- F2 : Frontmatter étendu → incompatibilité potentielle avec Claude Code marketplace officiel
+- F3 : Orchestration sans linéage → handoff perd la traçabilité documentaire
+- F4 : Windows : `convert.sh` est bash → nécessite WSL ou Git Bash
+
+---
+
+## L8 — Probabilités
+
+| Dimension | Estimation | Source |
+|---|---|---|
+| P(lock-in plateforme) | 15% | MIT + multi-platform, faible |
+| P(breaking change impactant) | 40%/mois | ~10 releases récentes, actif |
+| P(adoption communauté) | 85% maintenu | 16.2k ★, 2.2k forks, 4 issues |
+| P(conformité Anthropic officielle) | 30% tel quel | Frontmatter non-standard |
+| P(nilpotence globale sans refactor) | 5% | Linéage absent, pas de chaîne formelle |
+
+**Vecteur cognitif — bilan :**
+- Abstraction : ✅ fort (Personas, Orchestration bien abstraits)
+- Concrétude : ✅ très fort (402 outils Python concrets, exemples d'usage)
+- Affect : ⚠️ absent (pas de signal émotionnel/motivation dans les skills)
+- Normativité : ⚠️ implicite (pas de DoR/DoD, pas de critères de done formels)
+- Incertitude : ⚠️ non signalée (aucun "⚠️" dans les skills eux-mêmes)
+- Altérité : ✅ fort (12 plateformes, multi-rôles, multi-domaines)
+- Cohérence : ⚠️ partielle (orche. récent, linéage absent, frontmatter non-standard)
+
+</script>
+<script type="text/plain" id="md-install">
+# Installation — alirezarezvani/claude-skills
+
+> Guide d'installation OS-specific · Windows PowerShell · 2026-05-26
+
+---
+
+## Prérequis
+
+| Outil | Version min | Vérification |
+|---|---|---|
+| Python | 3.8+ | `python --version` |
+| Git | 2.x | `git --version` |
+| Claude Code | dernière | `claude --version` |
+| Node.js (optionnel) | 18+ | `node --version` (pour convert.sh via Node) |
+
+---
+
+## Option A — Installation rapide via Plugin (Claude Code)
+
+```bash
+# Installer le bundle complet
+/plugin marketplace add alirezarezvani/claude-skills
+
+# Ou installer un bundle spécifique
+/plugin install product-team@claude-code-skills
+/plugin install engineering-skills@claude-code-skills
+```
+
+> ✅ Méthode recommandée. Aucune commande système requise.
+
+---
+
+## Option B — Depuis le repo source (pour contribuer ou modifier)
+
+```powershell
+# 1. Cloner
+git clone https://github.com/alirezarezvani/claude-skills.git
+cd claude-skills
+
+# 2. Placer les skills dans Claude Code
+# Windows PowerShell :
+$skillsDir = "$env:USERPROFILE\.claude\skills"
+New-Item -ItemType Directory -Force -Path $skillsDir
+
+# Copier le bundle product-team
+Copy-Item -Recurse -Force ".\product-team\*" "$skillsDir\"
+
+# Copier le bundle engineering
+Copy-Item -Recurse -Force ".\engineering\*" "$skillsDir\"
+```
+
+---
+
+## Config minimale
+
+Les skills ne nécessitent pas de fichier de configuration. L'activation se fait via frontmatter SKILL.md.
+
+Pour les **Personas**, placer dans :
+```
+~/.claude/skills/personas/
+```
+
+Pour les **Agents composites**, placer dans :
+```
+~/.claude/skills/agents/
+```
+
+---
+
+## Commandes de vérification
+
+```bash
+# Vérifier que les skills sont visibles dans Claude Code
+/skills list
+
+# Tester un skill product-team
+/skill product-team/agile-product-owner
+
+# Tester un outil Python (exemple)
+python product-team/skills/agile-product-owner/scripts/story_generator.py --help
+```
+
+---
+
+## Points d'attention Windows
+
+> ⚠️ **convert.sh** — Le script de conversion multi-platform est bash. Sur Windows :
+> - Option 1 : WSL (`wsl bash convert.sh --tool cursor`)
+> - Option 2 : Git Bash (`"C:\Program Files\Git\bin\bash.exe" convert.sh --tool cursor`)
+> - Option 3 : Ignorer convert.sh si vous utilisez uniquement Claude Code
+
+> ⚠️ **Encodage** — Les SKILL.md contiennent des caractères UTF-8. Si PowerShell affiche des symboles corrompus : `[Console]::OutputEncoding = [System.Text.Encoding]::UTF8`
+
+> ⚠️ **Chemins longs** — Si git clone échoue sur Windows : activer les long paths via `git config --global core.longpaths true`
+
+</script>
+<script type="text/plain" id="md-verdict">
+# Verdict PM — alirezarezvani/claude-skills
+
+> Score 3 dimensions · Forces/Risques · Matrice use cases · 2026-05-26  
+> Lens d'évaluation : vision "dreamteam solo" + matrice rôle × étapes × bucket
+
+---
+
+## Score 3 dimensions
+
+| Dimension | Score | Justification |
+|---|---|---|
+| **Pertinence vision dreamteam** | 7.5/10 | product-team + engineering-team + orchestration = 3/5 rôles Scrum couverts. Linéage absent = frein majeur. |
+| **Maturité production** | 8.0/10 | 16.2k ★, 2.2k forks, 4 issues ouvertes, MIT, Python stdlib. Releases fréquentes (⚠️ pin version). |
+| **Facilité onboarding** | 8.5/10 | 1 commande `/plugin install`, 0 dépendance, README clair. Windows friction sur convert.sh. |
+
+---
+
+## Forces
+
+| | Titre | Description |
+|---|---|---|
+| ✅ | **Densité sans précédent** | 329 skills couvrant 12 domaines — aucun repo communautaire comparable en profondeur |
+| ✅ | **Zéro friction runtime** | 402 outils Python stdlib-only — fonctionne sur n'importe quelle machine sans setup |
+| ✅ | **Solo Sprint natif** | L'orchestration "Solo Sprint" (switch persona) est exactement le pattern "dreamteam solo" voulu |
+| ✅ | **Product-team aligné chaîne** | Agile PO + PM Toolkit + Product Strategist couvrent R1 (MRD→BRD) et R3 (PRD→Backlog) |
+| ✅ | **MIT + multi-platform** | Liberté totale de fork, adapter, re-déployer sur Claude Code ou autre |
+
+---
+
+## Faiblesses / Risques
+
+| | Titre | Impact |
+|---|---|---|
+| ⚠️ | **0 LINEAGE.md** | Chaque session repart à zéro. Le linéage "chaque doc prend sa source du précédent" est absent. Frein direct à la nilpotence globale. |
+| ⚠️ | **Frontmatter non-standard** | Champs `type`, `version`, `compatibility` étendus. Incompatibilité potentielle avec marketplace Anthropic officiel futur. |
+| ⚠️ | **329 sans filtre = bruit** | Sans gouvernance d'activation, le solo founder charge trop → signal/bruit défavorable |
+| ⚠️ | **Breaking changes fréquents** | ~10 releases/mois. Pins de version obligatoires pour stabilité. |
+| ❌ | **Conformité Anthropic partielle** | Pas de LINEAGE.md, frontmatter étendu, 0 DAG source→serve. "Coder sans linéage = artefact jetable" (miroir du miroir). |
+
+---
+
+## Matrice Use Cases
+
+### ✅ Oui — Usage approprié
+
+| Use case | Pourquoi |
+|---|---|
+| Greffer Agile PO + PM Toolkit sur la prothèse PM existante | Skills directement utilisables comme enrichissement du pm_context.py |
+| Solo Sprint : PO → Dev → SM → Review en une journée | Orchestration native conçue pour ce pattern exact |
+| Spec day forcé : MRD → BRD → PRD via Product Strategist | OKR cascade + PRD templates disponibles |
+| Démarrer un nouveau projet avec la dreamteam Scrum | product-team (R1-R3) + engineering-team (R3-R4) = couverture complète |
+
+### ❌ Attendre / Non — Usage inapproprié
+
+| Use case | Pourquoi |
+|---|---|
+| Remplacer pm_context.py tel quel | Skills sans linéage = pas de convergence garantie MRD→Code |
+| Utiliser comme source de vérité documentaire | 0 dashboard de volatilité, 0 historique de modification |
+| Déployer en production sans pin de version | ~10 releases/mois = instabilité garantie si non-épinglé |
+| Conformité Anthropic officielle immédiate | Frontmatter étendu à normaliser avant soumission marketplace |
+
+---
+
+## Roadmap observée
+
+| Feature | Statut | Impact pour vision |
+|---|---|---|
+| Orchestration Protocol v1 | ✅ Livré v2.8.x | Fondation Solo Sprint |
+| Productivity/handoff skill | ✅ v2.8.4 | Context forward entre sessions |
+| AEO (Answer Engine Optimization) v2.7.3 | ✅ Livré | Marketing avancé |
+| Linéage documentaire | ❌ Non roadmapé | Gap critique — à construire dessus |
+| Dashboard de volatilité | ❌ Non roadmapé | Gap critique — à construire dessus |
+| Conformité frontmatter Anthropic standard | ❌ Non roadmapé | À normaliser si adoption marketplace |
+
+---
+
+## Recommandation finale
+
+**Pourquoi c'est pertinent maintenant :**  
+Ce repo est la bibliothèque de skills la plus dense disponible pour Claude Code. Pour la vision "dreamteam solo de 5 rôles Scrum + Dev Anthropic", il offre immédiatement : Agile Product Owner (R3), PM Toolkit (R1-R2), Product Strategist (R1), Engineering Team (R3-R4). L'orchestration Solo Sprint est exactement le pattern de simulation de collègues voulu. 16k étoiles valident la pertinence communautaire.
+
+**Action recommandée :**  
+Ne pas importer en masse. Stratégie chirurgicale : (1) extraire 5-6 skills ciblés de product-team + engineering alignés sur la chaîne nilpotente R1→R4, (2) les greffer sur les personas existants (pm/SKILL.md, indie-dev/SKILL.md), (3) ajouter un LINEAGE.md par skill greffé pour rétablir la traçabilité. Le repo est de la matière première excellente — l'assemblage gouverné reste à faire dans claude-prostheses. **MVP : Agile PO + PM Toolkit + Engineering → personas Scrum = 3 rôles en 1 journée.**
+
+</script>
+
+<script>
+/**
+ * marked v15.0.12 - a markdown parser
+ * Copyright (c) 2011-2025, Christopher Jeffrey. (MIT Licensed)
+ * https://github.com/markedjs/marked
+ */
+
+/**
+ * DO NOT EDIT THIS FILE
+ * The code in this file is generated from files in ./src/
+ */
+(function(g,f){if(typeof exports=="object"&&typeof module<"u"){module.exports=f()}else if("function"==typeof define && define.amd){define("marked",f)}else {g["marked"]=f()}}(typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : this,function(){var exports={};var __exports=exports;var module={exports};
+"use strict";var H=Object.defineProperty;var be=Object.getOwnPropertyDescriptor;var Te=Object.getOwnPropertyNames;var we=Object.prototype.hasOwnProperty;var ye=(l,e)=>{for(var t in e)H(l,t,{get:e[t],enumerable:!0})},Re=(l,e,t,n)=>{if(e&&typeof e=="object"||typeof e=="function")for(let s of Te(e))!we.call(l,s)&&s!==t&&H(l,s,{get:()=>e[s],enumerable:!(n=be(e,s))||n.enumerable});return l};var Se=l=>Re(H({},"__esModule",{value:!0}),l);var kt={};ye(kt,{Hooks:()=>L,Lexer:()=>x,Marked:()=>E,Parser:()=>b,Renderer:()=>$,TextRenderer:()=>_,Tokenizer:()=>S,defaults:()=>w,getDefaults:()=>z,lexer:()=>ht,marked:()=>k,options:()=>it,parse:()=>pt,parseInline:()=>ct,parser:()=>ut,setOptions:()=>ot,use:()=>lt,walkTokens:()=>at});module.exports=Se(kt);function z(){return{async:!1,breaks:!1,extensions:null,gfm:!0,hooks:null,pedantic:!1,renderer:null,silent:!1,tokenizer:null,walkTokens:null}}var w=z();function N(l){w=l}var I={exec:()=>null};function h(l,e=""){let t=typeof l=="string"?l:l.source,n={replace:(s,i)=>{let r=typeof i=="string"?i:i.source;return r=r.replace(m.caret,"$1"),t=t.replace(s,r),n},getRegex:()=>new RegExp(t,e)};return n}var m={codeRemoveIndent:/^(?: {1,4}| {0,3}\t)/gm,outputLinkReplace:/\\([\[\]])/g,indentCodeCompensation:/^(\s+)(?:```)/,beginningSpace:/^\s+/,endingHash:/#$/,startingSpaceChar:/^ /,endingSpaceChar:/ $/,nonSpaceChar:/[^ ]/,newLineCharGlobal:/\n/g,tabCharGlobal:/\t/g,multipleSpaceGlobal:/\s+/g,blankLine:/^[ \t]*$/,doubleBlankLine:/\n[ \t]*\n[ \t]*$/,blockquoteStart:/^ {0,3}>/,blockquoteSetextReplace:/\n {0,3}((?:=+|-+) *)(?=\n|$)/g,blockquoteSetextReplace2:/^ {0,3}>[ \t]?/gm,listReplaceTabs:/^\t+/,listReplaceNesting:/^ {1,4}(?=( {4})*[^ ])/g,listIsTask:/^\[[ xX]\] /,listReplaceTask:/^\[[ xX]\] +/,anyLine:/\n.*\n/,hrefBrackets:/^<(.*)>$/,tableDelimiter:/[:|]/,tableAlignChars:/^\||\| *$/g,tableRowBlankLine:/\n[ \t]*$/,tableAlignRight:/^ *-+: *$/,tableAlignCenter:/^ *:-+: *$/,tableAlignLeft:/^ *:-+ *$/,startATag:/^<a /i,endATag:/^<\/a>/i,startPreScriptTag:/^<(pre|code|kbd|script)(\s|>)/i,endPreScriptTag:/^<\/(pre|code|kbd|script)(\s|>)/i,startAngleBracket:/^</,endAngleBracket:/>$/,pedanticHrefTitle:/^([^'"]*[^\s])\s+(['"])(.*)\2/,unicodeAlphaNumeric:/[\p{L}\p{N}]/u,escapeTest:/[&<>"']/,escapeReplace:/[&<>"']/g,escapeTestNoEncode:/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,escapeReplaceNoEncode:/[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,unescapeTest:/&(#(?:\d+)|(?:#x[0-9A-Fa-f]+)|(?:\w+));?/ig,caret:/(^|[^\[])\^/g,percentDecode:/%25/g,findPipe:/\|/g,splitPipe:/ \|/,slashPipe:/\\\|/g,carriageReturn:/\r\n|\r/g,spaceLine:/^ +$/gm,notSpaceStart:/^\S*/,endingNewline:/\n$/,listItemRegex:l=>new RegExp(`^( {0,3}${l})((?:[	 ][^\\n]*)?(?:\\n|$))`),nextBulletRegex:l=>new RegExp(`^ {0,${Math.min(3,l-1)}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`),hrRegex:l=>new RegExp(`^ {0,${Math.min(3,l-1)}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`),fencesBeginRegex:l=>new RegExp(`^ {0,${Math.min(3,l-1)}}(?:\`\`\`|~~~)`),headingBeginRegex:l=>new RegExp(`^ {0,${Math.min(3,l-1)}}#`),htmlBeginRegex:l=>new RegExp(`^ {0,${Math.min(3,l-1)}}<(?:[a-z].*>|!--)`,"i")},$e=/^(?:[ \t]*(?:\n|$))+/,_e=/^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/,Le=/^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/,O=/^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/,ze=/^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/,F=/(?:[*+-]|\d{1,9}[.)])/,ie=/^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/,oe=h(ie).replace(/bull/g,F).replace(/blockCode/g,/(?: {4}| {0,3}\t)/).replace(/fences/g,/ {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g,/ {0,3}>/).replace(/heading/g,/ {0,3}#{1,6}/).replace(/html/g,/ {0,3}<[^\n>]+>\n/).replace(/\|table/g,"").getRegex(),Me=h(ie).replace(/bull/g,F).replace(/blockCode/g,/(?: {4}| {0,3}\t)/).replace(/fences/g,/ {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g,/ {0,3}>/).replace(/heading/g,/ {0,3}#{1,6}/).replace(/html/g,/ {0,3}<[^\n>]+>\n/).replace(/table/g,/ {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex(),Q=/^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table| +\n)[^\n]+)*)/,Pe=/^[^\n]+/,U=/(?!\s*\])(?:\\.|[^\[\]\\])+/,Ae=h(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label",U).replace("title",/(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex(),Ee=h(/^( {0,3}bull)([ \t][^\n]+?)?(?:\n|$)/).replace(/bull/g,F).getRegex(),v="address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul",K=/<!--(?:-?>|[\s\S]*?(?:-->|$))/,Ce=h("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n+|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>\\n*|$)|<![A-Z][\\s\\S]*?(?:>\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))","i").replace("comment",K).replace("tag",v).replace("attribute",/ +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex(),le=h(Q).replace("hr",O).replace("heading"," {0,3}#{1,6}(?:\\s|$)").replace("|lheading","").replace("|table","").replace("blockquote"," {0,3}>").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",v).getRegex(),Ie=h(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph",le).getRegex(),X={blockquote:Ie,code:_e,def:Ae,fences:Le,heading:ze,hr:O,html:Ce,lheading:oe,list:Ee,newline:$e,paragraph:le,table:I,text:Pe},re=h("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr",O).replace("heading"," {0,3}#{1,6}(?:\\s|$)").replace("blockquote"," {0,3}>").replace("code","(?: {4}| {0,3}	)[^\\n]").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",v).getRegex(),Oe={...X,lheading:Me,table:re,paragraph:h(Q).replace("hr",O).replace("heading"," {0,3}#{1,6}(?:\\s|$)").replace("|lheading","").replace("table",re).replace("blockquote"," {0,3}>").replace("fences"," {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~{3,})[^\\n]*\\n").replace("list"," {0,3}(?:[*+-]|1[.)]) ").replace("html","</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag",v).getRegex()},Be={...X,html:h(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment",K).replace(/tag/g,"(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),def:/^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,heading:/^(#{1,6})(.*)(?:\n+|$)/,fences:I,lheading:/^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,paragraph:h(Q).replace("hr",O).replace("heading",` *#{1,6} *[^
+]`).replace("lheading",oe).replace("|table","").replace("blockquote"," {0,3}>").replace("|fences","").replace("|list","").replace("|html","").replace("|tag","").getRegex()},qe=/^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/,ve=/^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/,ae=/^( {2,}|\\)\n(?!\s*$)/,De=/^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/,D=/[\p{P}\p{S}]/u,W=/[\s\p{P}\p{S}]/u,ce=/[^\s\p{P}\p{S}]/u,Ze=h(/^((?![*_])punctSpace)/,"u").replace(/punctSpace/g,W).getRegex(),pe=/(?!~)[\p{P}\p{S}]/u,Ge=/(?!~)[\s\p{P}\p{S}]/u,He=/(?:[^\s\p{P}\p{S}]|~)/u,Ne=/\[[^[\]]*?\]\((?:\\.|[^\\\(\)]|\((?:\\.|[^\\\(\)])*\))*\)|`[^`]*?`|<[^<>]*?>/g,ue=/^(?:\*+(?:((?!\*)punct)|[^\s*]))|^_+(?:((?!_)punct)|([^\s_]))/,je=h(ue,"u").replace(/punct/g,D).getRegex(),Fe=h(ue,"u").replace(/punct/g,pe).getRegex(),he="^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)",Qe=h(he,"gu").replace(/notPunctSpace/g,ce).replace(/punctSpace/g,W).replace(/punct/g,D).getRegex(),Ue=h(he,"gu").replace(/notPunctSpace/g,He).replace(/punctSpace/g,Ge).replace(/punct/g,pe).getRegex(),Ke=h("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)","gu").replace(/notPunctSpace/g,ce).replace(/punctSpace/g,W).replace(/punct/g,D).getRegex(),Xe=h(/\\(punct)/,"gu").replace(/punct/g,D).getRegex(),We=h(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme",/[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email",/[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex(),Je=h(K).replace("(?:-->|$)","-->").getRegex(),Ve=h("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment",Je).replace("attribute",/\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex(),q=/(?:\[(?:\\.|[^\[\]\\])*\]|\\.|`[^`]*`|[^\[\]\\`])*?/,Ye=h(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]*(?:\n[ \t]*)?)(title))?\s*\)/).replace("label",q).replace("href",/<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]*/).replace("title",/"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex(),ke=h(/^!?\[(label)\]\[(ref)\]/).replace("label",q).replace("ref",U).getRegex(),ge=h(/^!?\[(ref)\](?:\[\])?/).replace("ref",U).getRegex(),et=h("reflink|nolink(?!\\()","g").replace("reflink",ke).replace("nolink",ge).getRegex(),J={_backpedal:I,anyPunctuation:Xe,autolink:We,blockSkip:Ne,br:ae,code:ve,del:I,emStrongLDelim:je,emStrongRDelimAst:Qe,emStrongRDelimUnd:Ke,escape:qe,link:Ye,nolink:ge,punctuation:Ze,reflink:ke,reflinkSearch:et,tag:Ve,text:De,url:I},tt={...J,link:h(/^!?\[(label)\]\((.*?)\)/).replace("label",q).getRegex(),reflink:h(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label",q).getRegex()},j={...J,emStrongRDelimAst:Ue,emStrongLDelim:Fe,url:h(/^((?:ftp|https?):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/,"i").replace("email",/[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(),_backpedal:/(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,del:/^(~~?)(?=[^\s~])((?:\\.|[^\\])*?(?:\\.|[^\s~\\]))\1(?=[^~]|$)/,text:/^([`~]+|[^`~])(?:(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|https?:\/\/|ftp:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/},nt={...j,br:h(ae).replace("{2,}","*").getRegex(),text:h(j.text).replace("\\b_","\\b_| {2,}\\n").replace(/\{2,\}/g,"*").getRegex()},B={normal:X,gfm:Oe,pedantic:Be},P={normal:J,gfm:j,breaks:nt,pedantic:tt};var st={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"},fe=l=>st[l];function R(l,e){if(e){if(m.escapeTest.test(l))return l.replace(m.escapeReplace,fe)}else if(m.escapeTestNoEncode.test(l))return l.replace(m.escapeReplaceNoEncode,fe);return l}function V(l){try{l=encodeURI(l).replace(m.percentDecode,"%")}catch{return null}return l}function Y(l,e){let t=l.replace(m.findPipe,(i,r,o)=>{let a=!1,c=r;for(;--c>=0&&o[c]==="\\";)a=!a;return a?"|":" |"}),n=t.split(m.splitPipe),s=0;if(n[0].trim()||n.shift(),n.length>0&&!n.at(-1)?.trim()&&n.pop(),e)if(n.length>e)n.splice(e);else for(;n.length<e;)n.push("");for(;s<n.length;s++)n[s]=n[s].trim().replace(m.slashPipe,"|");return n}function A(l,e,t){let n=l.length;if(n===0)return"";let s=0;for(;s<n;){let i=l.charAt(n-s-1);if(i===e&&!t)s++;else if(i!==e&&t)s++;else break}return l.slice(0,n-s)}function de(l,e){if(l.indexOf(e[1])===-1)return-1;let t=0;for(let n=0;n<l.length;n++)if(l[n]==="\\")n++;else if(l[n]===e[0])t++;else if(l[n]===e[1]&&(t--,t<0))return n;return t>0?-2:-1}function me(l,e,t,n,s){let i=e.href,r=e.title||null,o=l[1].replace(s.other.outputLinkReplace,"$1");n.state.inLink=!0;let a={type:l[0].charAt(0)==="!"?"image":"link",raw:t,href:i,title:r,text:o,tokens:n.inlineTokens(o)};return n.state.inLink=!1,a}function rt(l,e,t){let n=l.match(t.other.indentCodeCompensation);if(n===null)return e;let s=n[1];return e.split(`
+`).map(i=>{let r=i.match(t.other.beginningSpace);if(r===null)return i;let[o]=r;return o.length>=s.length?i.slice(s.length):i}).join(`
+`)}var S=class{options;rules;lexer;constructor(e){this.options=e||w}space(e){let t=this.rules.block.newline.exec(e);if(t&&t[0].length>0)return{type:"space",raw:t[0]}}code(e){let t=this.rules.block.code.exec(e);if(t){let n=t[0].replace(this.rules.other.codeRemoveIndent,"");return{type:"code",raw:t[0],codeBlockStyle:"indented",text:this.options.pedantic?n:A(n,`
+`)}}}fences(e){let t=this.rules.block.fences.exec(e);if(t){let n=t[0],s=rt(n,t[3]||"",this.rules);return{type:"code",raw:n,lang:t[2]?t[2].trim().replace(this.rules.inline.anyPunctuation,"$1"):t[2],text:s}}}heading(e){let t=this.rules.block.heading.exec(e);if(t){let n=t[2].trim();if(this.rules.other.endingHash.test(n)){let s=A(n,"#");(this.options.pedantic||!s||this.rules.other.endingSpaceChar.test(s))&&(n=s.trim())}return{type:"heading",raw:t[0],depth:t[1].length,text:n,tokens:this.lexer.inline(n)}}}hr(e){let t=this.rules.block.hr.exec(e);if(t)return{type:"hr",raw:A(t[0],`
+`)}}blockquote(e){let t=this.rules.block.blockquote.exec(e);if(t){let n=A(t[0],`
+`).split(`
+`),s="",i="",r=[];for(;n.length>0;){let o=!1,a=[],c;for(c=0;c<n.length;c++)if(this.rules.other.blockquoteStart.test(n[c]))a.push(n[c]),o=!0;else if(!o)a.push(n[c]);else break;n=n.slice(c);let p=a.join(`
+`),u=p.replace(this.rules.other.blockquoteSetextReplace,`
+    $1`).replace(this.rules.other.blockquoteSetextReplace2,"");s=s?`${s}
+${p}`:p,i=i?`${i}
+${u}`:u;let d=this.lexer.state.top;if(this.lexer.state.top=!0,this.lexer.blockTokens(u,r,!0),this.lexer.state.top=d,n.length===0)break;let g=r.at(-1);if(g?.type==="code")break;if(g?.type==="blockquote"){let T=g,f=T.raw+`
+`+n.join(`
+`),y=this.blockquote(f);r[r.length-1]=y,s=s.substring(0,s.length-T.raw.length)+y.raw,i=i.substring(0,i.length-T.text.length)+y.text;break}else if(g?.type==="list"){let T=g,f=T.raw+`
+`+n.join(`
+`),y=this.list(f);r[r.length-1]=y,s=s.substring(0,s.length-g.raw.length)+y.raw,i=i.substring(0,i.length-T.raw.length)+y.raw,n=f.substring(r.at(-1).raw.length).split(`
+`);continue}}return{type:"blockquote",raw:s,tokens:r,text:i}}}list(e){let t=this.rules.block.list.exec(e);if(t){let n=t[1].trim(),s=n.length>1,i={type:"list",raw:"",ordered:s,start:s?+n.slice(0,-1):"",loose:!1,items:[]};n=s?`\\d{1,9}\\${n.slice(-1)}`:`\\${n}`,this.options.pedantic&&(n=s?n:"[*+-]");let r=this.rules.other.listItemRegex(n),o=!1;for(;e;){let c=!1,p="",u="";if(!(t=r.exec(e))||this.rules.block.hr.test(e))break;p=t[0],e=e.substring(p.length);let d=t[2].split(`
+`,1)[0].replace(this.rules.other.listReplaceTabs,Z=>" ".repeat(3*Z.length)),g=e.split(`
+`,1)[0],T=!d.trim(),f=0;if(this.options.pedantic?(f=2,u=d.trimStart()):T?f=t[1].length+1:(f=t[2].search(this.rules.other.nonSpaceChar),f=f>4?1:f,u=d.slice(f),f+=t[1].length),T&&this.rules.other.blankLine.test(g)&&(p+=g+`
+`,e=e.substring(g.length+1),c=!0),!c){let Z=this.rules.other.nextBulletRegex(f),te=this.rules.other.hrRegex(f),ne=this.rules.other.fencesBeginRegex(f),se=this.rules.other.headingBeginRegex(f),xe=this.rules.other.htmlBeginRegex(f);for(;e;){let G=e.split(`
+`,1)[0],C;if(g=G,this.options.pedantic?(g=g.replace(this.rules.other.listReplaceNesting,"  "),C=g):C=g.replace(this.rules.other.tabCharGlobal,"    "),ne.test(g)||se.test(g)||xe.test(g)||Z.test(g)||te.test(g))break;if(C.search(this.rules.other.nonSpaceChar)>=f||!g.trim())u+=`
+`+C.slice(f);else{if(T||d.replace(this.rules.other.tabCharGlobal,"    ").search(this.rules.other.nonSpaceChar)>=4||ne.test(d)||se.test(d)||te.test(d))break;u+=`
+`+g}!T&&!g.trim()&&(T=!0),p+=G+`
+`,e=e.substring(G.length+1),d=C.slice(f)}}i.loose||(o?i.loose=!0:this.rules.other.doubleBlankLine.test(p)&&(o=!0));let y=null,ee;this.options.gfm&&(y=this.rules.other.listIsTask.exec(u),y&&(ee=y[0]!=="[ ] ",u=u.replace(this.rules.other.listReplaceTask,""))),i.items.push({type:"list_item",raw:p,task:!!y,checked:ee,loose:!1,text:u,tokens:[]}),i.raw+=p}let a=i.items.at(-1);if(a)a.raw=a.raw.trimEnd(),a.text=a.text.trimEnd();else return;i.raw=i.raw.trimEnd();for(let c=0;c<i.items.length;c++)if(this.lexer.state.top=!1,i.items[c].tokens=this.lexer.blockTokens(i.items[c].text,[]),!i.loose){let p=i.items[c].tokens.filter(d=>d.type==="space"),u=p.length>0&&p.some(d=>this.rules.other.anyLine.test(d.raw));i.loose=u}if(i.loose)for(let c=0;c<i.items.length;c++)i.items[c].loose=!0;return i}}html(e){let t=this.rules.block.html.exec(e);if(t)return{type:"html",block:!0,raw:t[0],pre:t[1]==="pre"||t[1]==="script"||t[1]==="style",text:t[0]}}def(e){let t=this.rules.block.def.exec(e);if(t){let n=t[1].toLowerCase().replace(this.rules.other.multipleSpaceGlobal," "),s=t[2]?t[2].replace(this.rules.other.hrefBrackets,"$1").replace(this.rules.inline.anyPunctuation,"$1"):"",i=t[3]?t[3].substring(1,t[3].length-1).replace(this.rules.inline.anyPunctuation,"$1"):t[3];return{type:"def",tag:n,raw:t[0],href:s,title:i}}}table(e){let t=this.rules.block.table.exec(e);if(!t||!this.rules.other.tableDelimiter.test(t[2]))return;let n=Y(t[1]),s=t[2].replace(this.rules.other.tableAlignChars,"").split("|"),i=t[3]?.trim()?t[3].replace(this.rules.other.tableRowBlankLine,"").split(`
+`):[],r={type:"table",raw:t[0],header:[],align:[],rows:[]};if(n.length===s.length){for(let o of s)this.rules.other.tableAlignRight.test(o)?r.align.push("right"):this.rules.other.tableAlignCenter.test(o)?r.align.push("center"):this.rules.other.tableAlignLeft.test(o)?r.align.push("left"):r.align.push(null);for(let o=0;o<n.length;o++)r.header.push({text:n[o],tokens:this.lexer.inline(n[o]),header:!0,align:r.align[o]});for(let o of i)r.rows.push(Y(o,r.header.length).map((a,c)=>({text:a,tokens:this.lexer.inline(a),header:!1,align:r.align[c]})));return r}}lheading(e){let t=this.rules.block.lheading.exec(e);if(t)return{type:"heading",raw:t[0],depth:t[2].charAt(0)==="="?1:2,text:t[1],tokens:this.lexer.inline(t[1])}}paragraph(e){let t=this.rules.block.paragraph.exec(e);if(t){let n=t[1].charAt(t[1].length-1)===`
+`?t[1].slice(0,-1):t[1];return{type:"paragraph",raw:t[0],text:n,tokens:this.lexer.inline(n)}}}text(e){let t=this.rules.block.text.exec(e);if(t)return{type:"text",raw:t[0],text:t[0],tokens:this.lexer.inline(t[0])}}escape(e){let t=this.rules.inline.escape.exec(e);if(t)return{type:"escape",raw:t[0],text:t[1]}}tag(e){let t=this.rules.inline.tag.exec(e);if(t)return!this.lexer.state.inLink&&this.rules.other.startATag.test(t[0])?this.lexer.state.inLink=!0:this.lexer.state.inLink&&this.rules.other.endATag.test(t[0])&&(this.lexer.state.inLink=!1),!this.lexer.state.inRawBlock&&this.rules.other.startPreScriptTag.test(t[0])?this.lexer.state.inRawBlock=!0:this.lexer.state.inRawBlock&&this.rules.other.endPreScriptTag.test(t[0])&&(this.lexer.state.inRawBlock=!1),{type:"html",raw:t[0],inLink:this.lexer.state.inLink,inRawBlock:this.lexer.state.inRawBlock,block:!1,text:t[0]}}link(e){let t=this.rules.inline.link.exec(e);if(t){let n=t[2].trim();if(!this.options.pedantic&&this.rules.other.startAngleBracket.test(n)){if(!this.rules.other.endAngleBracket.test(n))return;let r=A(n.slice(0,-1),"\\");if((n.length-r.length)%2===0)return}else{let r=de(t[2],"()");if(r===-2)return;if(r>-1){let a=(t[0].indexOf("!")===0?5:4)+t[1].length+r;t[2]=t[2].substring(0,r),t[0]=t[0].substring(0,a).trim(),t[3]=""}}let s=t[2],i="";if(this.options.pedantic){let r=this.rules.other.pedanticHrefTitle.exec(s);r&&(s=r[1],i=r[3])}else i=t[3]?t[3].slice(1,-1):"";return s=s.trim(),this.rules.other.startAngleBracket.test(s)&&(this.options.pedantic&&!this.rules.other.endAngleBracket.test(n)?s=s.slice(1):s=s.slice(1,-1)),me(t,{href:s&&s.replace(this.rules.inline.anyPunctuation,"$1"),title:i&&i.replace(this.rules.inline.anyPunctuation,"$1")},t[0],this.lexer,this.rules)}}reflink(e,t){let n;if((n=this.rules.inline.reflink.exec(e))||(n=this.rules.inline.nolink.exec(e))){let s=(n[2]||n[1]).replace(this.rules.other.multipleSpaceGlobal," "),i=t[s.toLowerCase()];if(!i){let r=n[0].charAt(0);return{type:"text",raw:r,text:r}}return me(n,i,n[0],this.lexer,this.rules)}}emStrong(e,t,n=""){let s=this.rules.inline.emStrongLDelim.exec(e);if(!s||s[3]&&n.match(this.rules.other.unicodeAlphaNumeric))return;if(!(s[1]||s[2]||"")||!n||this.rules.inline.punctuation.exec(n)){let r=[...s[0]].length-1,o,a,c=r,p=0,u=s[0][0]==="*"?this.rules.inline.emStrongRDelimAst:this.rules.inline.emStrongRDelimUnd;for(u.lastIndex=0,t=t.slice(-1*e.length+r);(s=u.exec(t))!=null;){if(o=s[1]||s[2]||s[3]||s[4]||s[5]||s[6],!o)continue;if(a=[...o].length,s[3]||s[4]){c+=a;continue}else if((s[5]||s[6])&&r%3&&!((r+a)%3)){p+=a;continue}if(c-=a,c>0)continue;a=Math.min(a,a+c+p);let d=[...s[0]][0].length,g=e.slice(0,r+s.index+d+a);if(Math.min(r,a)%2){let f=g.slice(1,-1);return{type:"em",raw:g,text:f,tokens:this.lexer.inlineTokens(f)}}let T=g.slice(2,-2);return{type:"strong",raw:g,text:T,tokens:this.lexer.inlineTokens(T)}}}}codespan(e){let t=this.rules.inline.code.exec(e);if(t){let n=t[2].replace(this.rules.other.newLineCharGlobal," "),s=this.rules.other.nonSpaceChar.test(n),i=this.rules.other.startingSpaceChar.test(n)&&this.rules.other.endingSpaceChar.test(n);return s&&i&&(n=n.substring(1,n.length-1)),{type:"codespan",raw:t[0],text:n}}}br(e){let t=this.rules.inline.br.exec(e);if(t)return{type:"br",raw:t[0]}}del(e){let t=this.rules.inline.del.exec(e);if(t)return{type:"del",raw:t[0],text:t[2],tokens:this.lexer.inlineTokens(t[2])}}autolink(e){let t=this.rules.inline.autolink.exec(e);if(t){let n,s;return t[2]==="@"?(n=t[1],s="mailto:"+n):(n=t[1],s=n),{type:"link",raw:t[0],text:n,href:s,tokens:[{type:"text",raw:n,text:n}]}}}url(e){let t;if(t=this.rules.inline.url.exec(e)){let n,s;if(t[2]==="@")n=t[0],s="mailto:"+n;else{let i;do i=t[0],t[0]=this.rules.inline._backpedal.exec(t[0])?.[0]??"";while(i!==t[0]);n=t[0],t[1]==="www."?s="http://"+t[0]:s=t[0]}return{type:"link",raw:t[0],text:n,href:s,tokens:[{type:"text",raw:n,text:n}]}}}inlineText(e){let t=this.rules.inline.text.exec(e);if(t){let n=this.lexer.state.inRawBlock;return{type:"text",raw:t[0],text:t[0],escaped:n}}}};var x=class l{tokens;options;state;tokenizer;inlineQueue;constructor(e){this.tokens=[],this.tokens.links=Object.create(null),this.options=e||w,this.options.tokenizer=this.options.tokenizer||new S,this.tokenizer=this.options.tokenizer,this.tokenizer.options=this.options,this.tokenizer.lexer=this,this.inlineQueue=[],this.state={inLink:!1,inRawBlock:!1,top:!0};let t={other:m,block:B.normal,inline:P.normal};this.options.pedantic?(t.block=B.pedantic,t.inline=P.pedantic):this.options.gfm&&(t.block=B.gfm,this.options.breaks?t.inline=P.breaks:t.inline=P.gfm),this.tokenizer.rules=t}static get rules(){return{block:B,inline:P}}static lex(e,t){return new l(t).lex(e)}static lexInline(e,t){return new l(t).inlineTokens(e)}lex(e){e=e.replace(m.carriageReturn,`
+`),this.blockTokens(e,this.tokens);for(let t=0;t<this.inlineQueue.length;t++){let n=this.inlineQueue[t];this.inlineTokens(n.src,n.tokens)}return this.inlineQueue=[],this.tokens}blockTokens(e,t=[],n=!1){for(this.options.pedantic&&(e=e.replace(m.tabCharGlobal,"    ").replace(m.spaceLine,""));e;){let s;if(this.options.extensions?.block?.some(r=>(s=r.call({lexer:this},e,t))?(e=e.substring(s.raw.length),t.push(s),!0):!1))continue;if(s=this.tokenizer.space(e)){e=e.substring(s.raw.length);let r=t.at(-1);s.raw.length===1&&r!==void 0?r.raw+=`
+`:t.push(s);continue}if(s=this.tokenizer.code(e)){e=e.substring(s.raw.length);let r=t.at(-1);r?.type==="paragraph"||r?.type==="text"?(r.raw+=`
+`+s.raw,r.text+=`
+`+s.text,this.inlineQueue.at(-1).src=r.text):t.push(s);continue}if(s=this.tokenizer.fences(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.heading(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.hr(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.blockquote(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.list(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.html(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.def(e)){e=e.substring(s.raw.length);let r=t.at(-1);r?.type==="paragraph"||r?.type==="text"?(r.raw+=`
+`+s.raw,r.text+=`
+`+s.raw,this.inlineQueue.at(-1).src=r.text):this.tokens.links[s.tag]||(this.tokens.links[s.tag]={href:s.href,title:s.title});continue}if(s=this.tokenizer.table(e)){e=e.substring(s.raw.length),t.push(s);continue}if(s=this.tokenizer.lheading(e)){e=e.substring(s.raw.length),t.push(s);continue}let i=e;if(this.options.extensions?.startBlock){let r=1/0,o=e.slice(1),a;this.options.extensions.startBlock.forEach(c=>{a=c.call({lexer:this},o),typeof a=="number"&&a>=0&&(r=Math.min(r,a))}),r<1/0&&r>=0&&(i=e.substring(0,r+1))}if(this.state.top&&(s=this.tokenizer.paragraph(i))){let r=t.at(-1);n&&r?.type==="paragraph"?(r.raw+=`
+`+s.raw,r.text+=`
+`+s.text,this.inlineQueue.pop(),this.inlineQueue.at(-1).src=r.text):t.push(s),n=i.length!==e.length,e=e.substring(s.raw.length);continue}if(s=this.tokenizer.text(e)){e=e.substring(s.raw.length);let r=t.at(-1);r?.type==="text"?(r.raw+=`
+`+s.raw,r.text+=`
+`+s.text,this.inlineQueue.pop(),this.inlineQueue.at(-1).src=r.text):t.push(s);continue}if(e){let r="Infinite loop on byte: "+e.charCodeAt(0);if(this.options.silent){console.error(r);break}else throw new Error(r)}}return this.state.top=!0,t}inline(e,t=[]){return this.inlineQueue.push({src:e,tokens:t}),t}inlineTokens(e,t=[]){let n=e,s=null;if(this.tokens.links){let o=Object.keys(this.tokens.links);if(o.length>0)for(;(s=this.tokenizer.rules.inline.reflinkSearch.exec(n))!=null;)o.includes(s[0].slice(s[0].lastIndexOf("[")+1,-1))&&(n=n.slice(0,s.index)+"["+"a".repeat(s[0].length-2)+"]"+n.slice(this.tokenizer.rules.inline.reflinkSearch.lastIndex))}for(;(s=this.tokenizer.rules.inline.anyPunctuation.exec(n))!=null;)n=n.slice(0,s.index)+"++"+n.slice(this.tokenizer.rules.inline.anyPunctuation.lastIndex);for(;(s=this.tokenizer.rules.inline.blockSkip.exec(n))!=null;)n=n.slice(0,s.index)+"["+"a".repeat(s[0].length-2)+"]"+n.slice(this.tokenizer.rules.inline.blockSkip.lastIndex);let i=!1,r="";for(;e;){i||(r=""),i=!1;let o;if(this.options.extensions?.inline?.some(c=>(o=c.call({lexer:this},e,t))?(e=e.substring(o.raw.length),t.push(o),!0):!1))continue;if(o=this.tokenizer.escape(e)){e=e.substring(o.raw.length),t.push(o);continue}if(o=this.tokenizer.tag(e)){e=e.substring(o.raw.length),t.push(o);continue}if(o=this.tokenizer.link(e)){e=e.substring(o.raw.length),t.push(o);continue}if(o=this.tokenizer.reflink(e,this.tokens.links)){e=e.substring(o.raw.length);let c=t.at(-1);o.type==="text"&&c?.type==="text"?(c.raw+=o.raw,c.text+=o.text):t.push(o);continue}if(o=this.tokenizer.emStrong(e,n,r)){e=e.substring(o.raw.length),t.push(o);continue}if(o=this.tokenizer.codespan(e)){e=e.substring(o.raw.length),t.push(o);continue}if(o=this.tokenizer.br(e)){e=e.substring(o.raw.length),t.push(o);continue}if(o=this.tokenizer.del(e)){e=e.substring(o.raw.length),t.push(o);continue}if(o=this.tokenizer.autolink(e)){e=e.substring(o.raw.length),t.push(o);continue}if(!this.state.inLink&&(o=this.tokenizer.url(e))){e=e.substring(o.raw.length),t.push(o);continue}let a=e;if(this.options.extensions?.startInline){let c=1/0,p=e.slice(1),u;this.options.extensions.startInline.forEach(d=>{u=d.call({lexer:this},p),typeof u=="number"&&u>=0&&(c=Math.min(c,u))}),c<1/0&&c>=0&&(a=e.substring(0,c+1))}if(o=this.tokenizer.inlineText(a)){e=e.substring(o.raw.length),o.raw.slice(-1)!=="_"&&(r=o.raw.slice(-1)),i=!0;let c=t.at(-1);c?.type==="text"?(c.raw+=o.raw,c.text+=o.text):t.push(o);continue}if(e){let c="Infinite loop on byte: "+e.charCodeAt(0);if(this.options.silent){console.error(c);break}else throw new Error(c)}}return t}};var $=class{options;parser;constructor(e){this.options=e||w}space(e){return""}code({text:e,lang:t,escaped:n}){let s=(t||"").match(m.notSpaceStart)?.[0],i=e.replace(m.endingNewline,"")+`
+`;return s?'<pre><code class="language-'+R(s)+'">'+(n?i:R(i,!0))+`</code></pre>
+`:"<pre><code>"+(n?i:R(i,!0))+`</code></pre>
+`}blockquote({tokens:e}){return`<blockquote>
+${this.parser.parse(e)}</blockquote>
+`}html({text:e}){return e}heading({tokens:e,depth:t}){return`<h${t}>${this.parser.parseInline(e)}</h${t}>
+`}hr(e){return`<hr>
+`}list(e){let t=e.ordered,n=e.start,s="";for(let o=0;o<e.items.length;o++){let a=e.items[o];s+=this.listitem(a)}let i=t?"ol":"ul",r=t&&n!==1?' start="'+n+'"':"";return"<"+i+r+`>
+`+s+"</"+i+`>
+`}listitem(e){let t="";if(e.task){let n=this.checkbox({checked:!!e.checked});e.loose?e.tokens[0]?.type==="paragraph"?(e.tokens[0].text=n+" "+e.tokens[0].text,e.tokens[0].tokens&&e.tokens[0].tokens.length>0&&e.tokens[0].tokens[0].type==="text"&&(e.tokens[0].tokens[0].text=n+" "+R(e.tokens[0].tokens[0].text),e.tokens[0].tokens[0].escaped=!0)):e.tokens.unshift({type:"text",raw:n+" ",text:n+" ",escaped:!0}):t+=n+" "}return t+=this.parser.parse(e.tokens,!!e.loose),`<li>${t}</li>
+`}checkbox({checked:e}){return"<input "+(e?'checked="" ':"")+'disabled="" type="checkbox">'}paragraph({tokens:e}){return`<p>${this.parser.parseInline(e)}</p>
+`}table(e){let t="",n="";for(let i=0;i<e.header.length;i++)n+=this.tablecell(e.header[i]);t+=this.tablerow({text:n});let s="";for(let i=0;i<e.rows.length;i++){let r=e.rows[i];n="";for(let o=0;o<r.length;o++)n+=this.tablecell(r[o]);s+=this.tablerow({text:n})}return s&&(s=`<tbody>${s}</tbody>`),`<table>
+<thead>
+`+t+`</thead>
+`+s+`</table>
+`}tablerow({text:e}){return`<tr>
+${e}</tr>
+`}tablecell(e){let t=this.parser.parseInline(e.tokens),n=e.header?"th":"td";return(e.align?`<${n} align="${e.align}">`:`<${n}>`)+t+`</${n}>
+`}strong({tokens:e}){return`<strong>${this.parser.parseInline(e)}</strong>`}em({tokens:e}){return`<em>${this.parser.parseInline(e)}</em>`}codespan({text:e}){return`<code>${R(e,!0)}</code>`}br(e){return"<br>"}del({tokens:e}){return`<del>${this.parser.parseInline(e)}</del>`}link({href:e,title:t,tokens:n}){let s=this.parser.parseInline(n),i=V(e);if(i===null)return s;e=i;let r='<a href="'+e+'"';return t&&(r+=' title="'+R(t)+'"'),r+=">"+s+"</a>",r}image({href:e,title:t,text:n,tokens:s}){s&&(n=this.parser.parseInline(s,this.parser.textRenderer));let i=V(e);if(i===null)return R(n);e=i;let r=`<img src="${e}" alt="${n}"`;return t&&(r+=` title="${R(t)}"`),r+=">",r}text(e){return"tokens"in e&&e.tokens?this.parser.parseInline(e.tokens):"escaped"in e&&e.escaped?e.text:R(e.text)}};var _=class{strong({text:e}){return e}em({text:e}){return e}codespan({text:e}){return e}del({text:e}){return e}html({text:e}){return e}text({text:e}){return e}link({text:e}){return""+e}image({text:e}){return""+e}br(){return""}};var b=class l{options;renderer;textRenderer;constructor(e){this.options=e||w,this.options.renderer=this.options.renderer||new $,this.renderer=this.options.renderer,this.renderer.options=this.options,this.renderer.parser=this,this.textRenderer=new _}static parse(e,t){return new l(t).parse(e)}static parseInline(e,t){return new l(t).parseInline(e)}parse(e,t=!0){let n="";for(let s=0;s<e.length;s++){let i=e[s];if(this.options.extensions?.renderers?.[i.type]){let o=i,a=this.options.extensions.renderers[o.type].call({parser:this},o);if(a!==!1||!["space","hr","heading","code","table","blockquote","list","html","paragraph","text"].includes(o.type)){n+=a||"";continue}}let r=i;switch(r.type){case"space":{n+=this.renderer.space(r);continue}case"hr":{n+=this.renderer.hr(r);continue}case"heading":{n+=this.renderer.heading(r);continue}case"code":{n+=this.renderer.code(r);continue}case"table":{n+=this.renderer.table(r);continue}case"blockquote":{n+=this.renderer.blockquote(r);continue}case"list":{n+=this.renderer.list(r);continue}case"html":{n+=this.renderer.html(r);continue}case"paragraph":{n+=this.renderer.paragraph(r);continue}case"text":{let o=r,a=this.renderer.text(o);for(;s+1<e.length&&e[s+1].type==="text";)o=e[++s],a+=`
+`+this.renderer.text(o);t?n+=this.renderer.paragraph({type:"paragraph",raw:a,text:a,tokens:[{type:"text",raw:a,text:a,escaped:!0}]}):n+=a;continue}default:{let o='Token with "'+r.type+'" type was not found.';if(this.options.silent)return console.error(o),"";throw new Error(o)}}}return n}parseInline(e,t=this.renderer){let n="";for(let s=0;s<e.length;s++){let i=e[s];if(this.options.extensions?.renderers?.[i.type]){let o=this.options.extensions.renderers[i.type].call({parser:this},i);if(o!==!1||!["escape","html","link","image","strong","em","codespan","br","del","text"].includes(i.type)){n+=o||"";continue}}let r=i;switch(r.type){case"escape":{n+=t.text(r);break}case"html":{n+=t.html(r);break}case"link":{n+=t.link(r);break}case"image":{n+=t.image(r);break}case"strong":{n+=t.strong(r);break}case"em":{n+=t.em(r);break}case"codespan":{n+=t.codespan(r);break}case"br":{n+=t.br(r);break}case"del":{n+=t.del(r);break}case"text":{n+=t.text(r);break}default:{let o='Token with "'+r.type+'" type was not found.';if(this.options.silent)return console.error(o),"";throw new Error(o)}}}return n}};var L=class{options;block;constructor(e){this.options=e||w}static passThroughHooks=new Set(["preprocess","postprocess","processAllTokens"]);preprocess(e){return e}postprocess(e){return e}processAllTokens(e){return e}provideLexer(){return this.block?x.lex:x.lexInline}provideParser(){return this.block?b.parse:b.parseInline}};var E=class{defaults=z();options=this.setOptions;parse=this.parseMarkdown(!0);parseInline=this.parseMarkdown(!1);Parser=b;Renderer=$;TextRenderer=_;Lexer=x;Tokenizer=S;Hooks=L;constructor(...e){this.use(...e)}walkTokens(e,t){let n=[];for(let s of e)switch(n=n.concat(t.call(this,s)),s.type){case"table":{let i=s;for(let r of i.header)n=n.concat(this.walkTokens(r.tokens,t));for(let r of i.rows)for(let o of r)n=n.concat(this.walkTokens(o.tokens,t));break}case"list":{let i=s;n=n.concat(this.walkTokens(i.items,t));break}default:{let i=s;this.defaults.extensions?.childTokens?.[i.type]?this.defaults.extensions.childTokens[i.type].forEach(r=>{let o=i[r].flat(1/0);n=n.concat(this.walkTokens(o,t))}):i.tokens&&(n=n.concat(this.walkTokens(i.tokens,t)))}}return n}use(...e){let t=this.defaults.extensions||{renderers:{},childTokens:{}};return e.forEach(n=>{let s={...n};if(s.async=this.defaults.async||s.async||!1,n.extensions&&(n.extensions.forEach(i=>{if(!i.name)throw new Error("extension name required");if("renderer"in i){let r=t.renderers[i.name];r?t.renderers[i.name]=function(...o){let a=i.renderer.apply(this,o);return a===!1&&(a=r.apply(this,o)),a}:t.renderers[i.name]=i.renderer}if("tokenizer"in i){if(!i.level||i.level!=="block"&&i.level!=="inline")throw new Error("extension level must be 'block' or 'inline'");let r=t[i.level];r?r.unshift(i.tokenizer):t[i.level]=[i.tokenizer],i.start&&(i.level==="block"?t.startBlock?t.startBlock.push(i.start):t.startBlock=[i.start]:i.level==="inline"&&(t.startInline?t.startInline.push(i.start):t.startInline=[i.start]))}"childTokens"in i&&i.childTokens&&(t.childTokens[i.name]=i.childTokens)}),s.extensions=t),n.renderer){let i=this.defaults.renderer||new $(this.defaults);for(let r in n.renderer){if(!(r in i))throw new Error(`renderer '${r}' does not exist`);if(["options","parser"].includes(r))continue;let o=r,a=n.renderer[o],c=i[o];i[o]=(...p)=>{let u=a.apply(i,p);return u===!1&&(u=c.apply(i,p)),u||""}}s.renderer=i}if(n.tokenizer){let i=this.defaults.tokenizer||new S(this.defaults);for(let r in n.tokenizer){if(!(r in i))throw new Error(`tokenizer '${r}' does not exist`);if(["options","rules","lexer"].includes(r))continue;let o=r,a=n.tokenizer[o],c=i[o];i[o]=(...p)=>{let u=a.apply(i,p);return u===!1&&(u=c.apply(i,p)),u}}s.tokenizer=i}if(n.hooks){let i=this.defaults.hooks||new L;for(let r in n.hooks){if(!(r in i))throw new Error(`hook '${r}' does not exist`);if(["options","block"].includes(r))continue;let o=r,a=n.hooks[o],c=i[o];L.passThroughHooks.has(r)?i[o]=p=>{if(this.defaults.async)return Promise.resolve(a.call(i,p)).then(d=>c.call(i,d));let u=a.call(i,p);return c.call(i,u)}:i[o]=(...p)=>{let u=a.apply(i,p);return u===!1&&(u=c.apply(i,p)),u}}s.hooks=i}if(n.walkTokens){let i=this.defaults.walkTokens,r=n.walkTokens;s.walkTokens=function(o){let a=[];return a.push(r.call(this,o)),i&&(a=a.concat(i.call(this,o))),a}}this.defaults={...this.defaults,...s}}),this}setOptions(e){return this.defaults={...this.defaults,...e},this}lexer(e,t){return x.lex(e,t??this.defaults)}parser(e,t){return b.parse(e,t??this.defaults)}parseMarkdown(e){return(n,s)=>{let i={...s},r={...this.defaults,...i},o=this.onError(!!r.silent,!!r.async);if(this.defaults.async===!0&&i.async===!1)return o(new Error("marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise."));if(typeof n>"u"||n===null)return o(new Error("marked(): input parameter is undefined or null"));if(typeof n!="string")return o(new Error("marked(): input parameter is of type "+Object.prototype.toString.call(n)+", string expected"));r.hooks&&(r.hooks.options=r,r.hooks.block=e);let a=r.hooks?r.hooks.provideLexer():e?x.lex:x.lexInline,c=r.hooks?r.hooks.provideParser():e?b.parse:b.parseInline;if(r.async)return Promise.resolve(r.hooks?r.hooks.preprocess(n):n).then(p=>a(p,r)).then(p=>r.hooks?r.hooks.processAllTokens(p):p).then(p=>r.walkTokens?Promise.all(this.walkTokens(p,r.walkTokens)).then(()=>p):p).then(p=>c(p,r)).then(p=>r.hooks?r.hooks.postprocess(p):p).catch(o);try{r.hooks&&(n=r.hooks.preprocess(n));let p=a(n,r);r.hooks&&(p=r.hooks.processAllTokens(p)),r.walkTokens&&this.walkTokens(p,r.walkTokens);let u=c(p,r);return r.hooks&&(u=r.hooks.postprocess(u)),u}catch(p){return o(p)}}}onError(e,t){return n=>{if(n.message+=`
+Please report this to https://github.com/markedjs/marked.`,e){let s="<p>An error occurred:</p><pre>"+R(n.message+"",!0)+"</pre>";return t?Promise.resolve(s):s}if(t)return Promise.reject(n);throw n}}};var M=new E;function k(l,e){return M.parse(l,e)}k.options=k.setOptions=function(l){return M.setOptions(l),k.defaults=M.defaults,N(k.defaults),k};k.getDefaults=z;k.defaults=w;k.use=function(...l){return M.use(...l),k.defaults=M.defaults,N(k.defaults),k};k.walkTokens=function(l,e){return M.walkTokens(l,e)};k.parseInline=M.parseInline;k.Parser=b;k.parser=b.parse;k.Renderer=$;k.TextRenderer=_;k.Lexer=x;k.lexer=x.lex;k.Tokenizer=S;k.Hooks=L;k.parse=k;var it=k.options,ot=k.setOptions,lt=k.use,at=k.walkTokens,ct=k.parseInline,pt=k,ut=b.parse,ht=x.lex;
+
+if(__exports != exports)module.exports = exports;return module.exports}));
+
+</script>
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+
+function renderMd(srcId, targetId) {
+  var src = document.getElementById(srcId).textContent;
+  document.getElementById(targetId).innerHTML = marked.parse(src);
+}
+
+renderMd('md-recit', 'tab-recit');
+renderMd('md-fmaths', 'tab-fmaths');
+renderMd('md-install', 'tab-install');
+renderMd('md-verdict', 'tab-verdict');
+</script>
+
+<footer>
+  Analyse fmaths + décodeur narratif · alirezarezvani/claude-skills v2.8.4 · Généré le 2026-05-26
+  · <a href="https://github.com/alirezarezvani/claude-skills" style="color:var(--blue)">GitHub ↗</a>
+</footer>
+</body>
+</html>
